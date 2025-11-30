@@ -9,10 +9,6 @@ PYTHON_VERSION="3.10"
 
 
 
-if ! command -v conda &> /dev/null; then
-    echo "❌ Error: 未找到 conda 命令。请确保已安装 Anaconda 或 Miniconda 并添加到 PATH。"
-    exit 1
-fi
 
 if conda env list | grep -q "^$ENV_NAME "; then
     echo "✅ 环境 '$ENV_NAME' 已存在，跳过创建。"
