@@ -31,3 +31,5 @@ echo "conda activate $ENV_NAME"
 echo "------------------------------------------------"
 
 
+conda activate $ENV_NAME
+pip install -r requirements.txt
