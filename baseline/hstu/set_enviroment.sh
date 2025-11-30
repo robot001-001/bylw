@@ -1,0 +1,1 @@
+conda create -n hstu_baseline python==3.10
