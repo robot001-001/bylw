@@ -1,2 +1,6 @@
-# bylw
-毕业论文代码仓库
+# set env
+1. set hstu env
+```bash
+cd baseline/hstu
+sh set_environment.sh
+```
