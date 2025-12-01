@@ -76,8 +76,33 @@ def _main(argv) -> None:  # pyre-ignore [2]
         join=True,
     )
 
+def _main_safer(argv) -> None:
+    try:
+        mp.set_start_method("spawn", force=True)
+    except RuntimeError:
+        pass
+
+    # 2. 此时再初始化 CUDA
+    if torch.cuda.is_available():
+        world_size = torch.cuda.device_count()
+    else:
+        world_size = 0
+        print("Warning: No CUDA devices found.")
+
+    if world_size == 0:
+        return
+
+    # 3. 启动
+    mp.spawn(
+        mp_train_fn,
+        args=(world_size, FLAGS.master_port, FLAGS.gin_config_file),
+        nprocs=world_size,
+        join=True,
+    )
+
 
 def main() -> None:
+    app.run(_main_safer)
     app.run(_main)
 
 
