@@ -1,4 +1,4 @@
-# set env
+# baseline pipeline
 0. for autodl env, we need to remove conda sources
 ```bash
 vim /root/.condarc
