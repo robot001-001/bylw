@@ -32,4 +32,4 @@ echo "------------------------------------------------"
 
 
 conda activate $ENV_NAME
-pip install -r requirements.txt
+# pip install -r requirements.txt
