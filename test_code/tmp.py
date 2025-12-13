@@ -37,7 +37,7 @@ def main():
             train_data_sampler.set_epoch(epoch)
         if eval_data_sampler is not None:
             eval_data_sampler.set_epoch(epoch)
-        for row in iter(train_data_loader):
+        for row in iter(eval_data_loader):
             seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                 row,
                 device=0,
