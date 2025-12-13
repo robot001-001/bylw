@@ -7,7 +7,7 @@ from generative_recommenders.research.modeling.sequential.features import (
 
 
 def main():
-    batch_size = 2
+    batch_size = 1
     dataset = get_reco_dataset(
         dataset_name="ml-1m",
         max_sequence_length=200,
