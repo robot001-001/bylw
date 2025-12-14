@@ -43,7 +43,16 @@ def main():
                 device=0,
                 max_output_length=10 + 1,
             )
-            print(f'row:\n{row}\n\n\nseq_features:\n{seq_features}\n\n\ntarget_ids:\n{target_ids}\n\n\ntarget_ratings:\n{target_ratings}')
+            print(f'row:\n{row}\n\n\n')
+            print(f'seq_features:\n{seq_features}\n\n\n')
+            seq_features.past_ids.scatter_(
+                dim=1,
+                index=seq_features.past_lengths.view(-1, 1),
+                src=target_ids.view(-1, 1)
+            )
+            print(f'past_ids:\n{seq_features.past_ids}\n\n\n')
+            print(f'target_ids:\n{target_ids}\n\n\n')
+            print(f'target_ratings:\n{target_ratings}')
             break
 
 
