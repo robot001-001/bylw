@@ -49,7 +49,6 @@ class HSTUBaseTrainer:
         flags.DEFINE_string('sampling_strategy', 'in-batch', 'for SSoftmaxLoss: in-batch/local')
         flags.DEFINE_bool('item_l2_norm', False, 'for SSoftmaxLoss')
         flags.DEFINE_float('l2_norm_eps', 1e-6, 'for SSoftmaxLoss')
-        flags.DEFINE_float('learning_rate', 1e-3, 'learning rate')
         flags.DEFINE_float('weight_decay', 1e-3, 'weight decay')
         # test params
         flags.DEFINE_string('test_data_dir', None, 'test_data_dir')
