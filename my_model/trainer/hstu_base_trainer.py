@@ -173,6 +173,7 @@ class HSTUBaseTrainer:
             chronological=True,
             positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
         )
+        logging.info(f'dataset.max_item_id: self.dataset.max_item_id')
         self.train_data_sampler, self.train_data_loader = create_data_loader(
             self.dataset.train_dataset,
             batch_size=self.FLAGS.train_batch_size,
