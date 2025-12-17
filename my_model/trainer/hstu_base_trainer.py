@@ -178,12 +178,14 @@ class HSTUBaseTrainer:
     def dev(self):
         self.device = self.FLAGS.device
         self.get_dataset()
-        # self.get_model()
+        self.get_model()
 
         batch_id = 0
         epoch = 0
         for epoch in range(self.FLAGS.num_epochs):
             logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            if self.train_data_sampler is not None:
+                self.train_data_sampler.set_epoch(epoch)
             for row in iter(self.train_data_loader):
                 print(row)
                 break
