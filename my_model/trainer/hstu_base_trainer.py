@@ -179,6 +179,7 @@ class HSTUBaseTrainer:
         self.device = self.FLAGS.device
         self.get_dataset()
         self.get_model()
+        logging.info(f'model structure: {self.model}')
 
         batch_id = 0
         epoch = 0
