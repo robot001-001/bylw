@@ -19,6 +19,10 @@ from model.sequential.losses.autoregressive_losses import (
 from model.sequential.losses.sampled_softmax import (
     SampledSoftmaxLoss,
 )
+from model.sequential.features import (
+    movielens_seq_features_from_row,
+)
+
 from data.reco_dataset import get_reco_dataset
 from data.data_loader import create_data_loader
 
@@ -104,7 +108,7 @@ class HSTUBaseTrainer:
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=gr_output_length+1,
+                    max_output_length=11,
                 )
 
 
@@ -188,9 +192,15 @@ class HSTUBaseTrainer:
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
             for row in iter(self.train_data_loader):
-                print(row)
-                break
-
+                logging.info(f'row info: {row}')
+                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
+                    row,
+                    device=self.device,
+                    max_output_length=11,
+                )
+                logging.info(f'seq_features: {seq_features}')
+                logging.info(f'target_ids: {target_ids}')
+                logging.info(f'target_ratings: {target_ratings}')
 
 
 
