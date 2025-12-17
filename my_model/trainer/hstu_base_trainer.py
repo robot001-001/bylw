@@ -176,6 +176,7 @@ class HSTUBaseTrainer:
 
 
     def dev(self):
+        logging.info('lets go')
         self.device = self.FLAGS.device
         self.get_dataset()
         # self.get_model()
