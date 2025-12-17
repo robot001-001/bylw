@@ -183,6 +183,7 @@ class HSTUBaseTrainer:
         batch_id = 0
         epoch = 0
         for epoch in range(self.FLAGS.num_epochs):
+            print(epoch)
             for row in iter(self.train_data_loader):
                 print(row)
                 break
