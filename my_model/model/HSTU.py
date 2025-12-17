@@ -6,6 +6,7 @@ from torchrec import JaggedTensor
 import abc
 from typing import Dict, Optional, List, Tuple, Callable
 import math
+import logging
 
 from model.sequential.input_features_preprocessors import (
     LearnablePositionalEmbeddingInputFeaturesPreprocessor,
@@ -622,6 +623,7 @@ class HSTU(nn.Module):
         device = past_lengths.device
         float_dtype = past_embeddings.dtype
         B, N, _ = past_embeddings.size()
+        logging.info(f'B, N, _: {(B, N, _)}')
 
         past_lengths, user_embeddings, _ = self._input_features_preproc(
             past_lengths=past_lengths,
