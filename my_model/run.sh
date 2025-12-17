@@ -3,6 +3,7 @@ python main.py \
     --mode dev \
     --dataset_name 'ml-1m' \
     --max_seq_len 200 \
+    --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \
     --train_batch_size 1 \
     --eval_batch_size 1 \

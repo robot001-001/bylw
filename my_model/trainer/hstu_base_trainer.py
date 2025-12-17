@@ -22,6 +22,10 @@ from model.sequential.losses.sampled_softmax import (
 from model.sequential.features import (
     movielens_seq_features_from_row,
 )
+from model.sequential.embedding_modules import (
+    EmbeddingModule,
+    LocalEmbeddingModule,
+)
 
 from data.reco_dataset import get_reco_dataset
 from data.data_loader import create_data_loader
@@ -41,6 +45,7 @@ class HSTUBaseTrainer:
         flags.DEFINE_string('dataset_name', 'ml-20m', 'dataset name')
         flags.DEFINE_integer('max_seq_len', 200, 'max seq len')
         flags.DEFINE_float('positional_sampling_ratio', 1.0, 'only used for ml-1m')
+        flags.DEFINE_integer('embedding_dim', 200, 'embedding_dim')
         # train params
         flags.DEFINE_string('train_data_dir', None, 'train_data_dir')
         flags.DEFINE_integer('num_epochs', -1, 'num_epochs')
@@ -73,6 +78,11 @@ class HSTUBaseTrainer:
     def get_model(self):
         self.model_args = json.loads(self.FLAGS.model_args)
         self.model = HSTU(**self.model_args)
+
+        self.embedding_module = LocalEmbeddingModule(
+            num_items=self.dataset.max_item_id,
+            item_embedding_dim=self.FLAGS.embedding_dim,
+        )
         
 
     def train(self):
@@ -155,14 +165,14 @@ class HSTUBaseTrainer:
 
 
     def get_dataset(self):
-        dataset = get_reco_dataset(
+        self.dataset = get_reco_dataset(
             dataset_name=self.FLAGS.dataset_name,
             max_sequence_length=self.FLAGS.max_seq_len,
             chronological=True,
             positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
         )
         self.train_data_sampler, self.train_data_loader = create_data_loader(
-            dataset.train_dataset,
+            self.dataset.train_dataset,
             batch_size=self.FLAGS.train_batch_size,
             world_size=1,
             rank=0,
@@ -170,7 +180,7 @@ class HSTUBaseTrainer:
             drop_last=False,
         )
         self.eval_data_sampler, self.eval_data_loader = create_data_loader(
-            dataset.eval_dataset,
+            self.dataset.eval_dataset,
             batch_size=self.FLAGS.eval_batch_size,
             world_size=1,
             rank=0,
@@ -201,7 +211,13 @@ class HSTUBaseTrainer:
                 logging.info(f'seq_features: {seq_features}')
                 logging.info(f'target_ids: {target_ids}')
                 logging.info(f'target_ratings: {target_ratings}')
-
+                input_embeddings = self.embedding_module(seq_features.past_ids)
+                ret = self.model(
+                    past_lengths=seq_features.past_lengths,
+                    past_ids=seq_features.past_ids,
+                    past_embeddings=input_embeddings,
+                    past_payloads=seq_features.past_payloads,
+                )
                 break
 
 
