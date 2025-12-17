@@ -1,5 +1,5 @@
 python main.py \
-    --logging_dir bylw/log/ \
+    --logging_dir log/ \
     --mode dev \
     --dataset_name 'ml-1m' \
     --max_seq_len 200 \
