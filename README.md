@@ -22,12 +22,12 @@ sh install_packages.sh
 
 3. download data and preprocess
 ```bash
-mkdir -p tmp/ && python3 preprocess_public_data.py
+mkdir -p tmp/ && python preprocess_public_data.py
 ```
 
 4. train model
 ```bash
-CUDA_VISIBLE_DEVICES=0 python3 main.py --gin_config_file=configs/ml-1m/hstu-sampled-softmax-n128-large-final.gin --master_port=12345
+CUDA_VISIBLE_DEVICES=0 python main.py --gin_config_file=configs/ml-1m/hstu-sampled-softmax-n128-large-final.gin --master_port=12345
 ```
 
 # experment setup
@@ -42,3 +42,9 @@ cp -r ../baseline/hstu/tmp/ .
 
 
 
+# other setup
+1. bash: less
+```bash
+apt-get update
+apt-get install less
+```
