@@ -202,7 +202,7 @@ class HSTUBaseTrainer:
                 logging.info(f'target_ids: {target_ids}')
                 logging.info(f'target_ratings: {target_ratings}')
 
-
+                break
 
 
 
