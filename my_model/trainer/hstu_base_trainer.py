@@ -78,6 +78,7 @@ class HSTUBaseTrainer:
     def get_model(self):
         self.model_args = json.loads(self.FLAGS.model_args)
         self.model = HSTU(**self.model_args)
+        self.model.to(self.device)
 
         self.embedding_module = LocalEmbeddingModule(
             num_items=self.dataset.max_item_id,
