@@ -623,7 +623,6 @@ class HSTU(nn.Module):
         device = past_lengths.device
         float_dtype = past_embeddings.dtype
         B, N, _ = past_embeddings.size()
-        logging.info(f'B, N, _: {(B, N, _)}')
 
         past_lengths, user_embeddings, _ = self._input_features_preproc(
             past_lengths=past_lengths,
@@ -649,6 +648,8 @@ class HSTU(nn.Module):
         )
         output_embedding = self._output_postproc(user_embeddings)
         end_boundaries = x_offsets[1:] - 1
+        logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        logging.info(f'end_boundaries: {end_boundaries}')
         last_embeddings = output_embedding[end_boundaries] # 获取最后一个item的嵌入
         out = self.main_tower(last_embeddings)
         return out
