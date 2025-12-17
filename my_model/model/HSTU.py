@@ -650,7 +650,7 @@ class HSTU(nn.Module):
         end_boundaries = x_offsets[1:] - 1
         logging.info(f'output_embedding.shape: {output_embedding.shape}')
         logging.info(f'end_boundaries: {end_boundaries}')
-        last_embeddings = output_embedding[end_boundaries] # 获取最后一个item的嵌入
+        last_embeddings = output_embedding[..., end_boundaries, ...] # 获取最后一个item的嵌入
         out = self.main_tower(last_embeddings)
         return out
         
