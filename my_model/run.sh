@@ -1,7 +1,7 @@
 python main.py \
     --logging_dir bylw/log/ \
     --mode dev \
-    --dataset_name 'ml-20m' \
+    --dataset_name 'ml-1m' \
     --max_seq_len 200 \
     --positional_sampling_ratio 1.0 \
     --train_batch_size 1 \
