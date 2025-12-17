@@ -513,7 +513,7 @@ class HSTUJagged(torch.nn.Module):
 
 
 
-class HSTU(SequentialEncoderWithLearnedSimilarityModule):
+class HSTU(nn.Module):
     def __init__(
         self,
         max_seq_len: int,
