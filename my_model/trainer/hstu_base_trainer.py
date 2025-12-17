@@ -176,7 +176,6 @@ class HSTUBaseTrainer:
 
 
     def dev(self):
-        logging.info('lets go')
         self.device = self.FLAGS.device
         self.get_dataset()
         # self.get_model()
@@ -184,7 +183,7 @@ class HSTUBaseTrainer:
         batch_id = 0
         epoch = 0
         for epoch in range(self.FLAGS.num_epochs):
-            logging.info(epoch)
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             for row in iter(self.train_data_loader):
                 print(row)
                 break
