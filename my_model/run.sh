@@ -6,4 +6,5 @@ python main.py \
     --positional_sampling_ratio 1.0 \
     --train_batch_size 1 \
     --eval_batch_size 1 \
-    --device 'cuda:0'
+    --device 'cuda:0' \
+    --num_epochs 3
