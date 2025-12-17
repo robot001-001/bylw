@@ -1,4 +1,5 @@
-CUDA_LAUNCH_BLOCKING=1 python main.py \
+# CUDA_LAUNCH_BLOCKING=1 \
+python main.py \
     --logging_dir log/ \
     --mode dev \
     --dataset_name 'ml-1m' \
