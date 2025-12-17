@@ -647,7 +647,7 @@ class HSTU(nn.Module):
             return_cache_states=False,
         )
         output_embedding = self._output_postproc(user_embeddings)
-        end_boundaries = x_offsets[1:] - 1
+        end_boundaries = (x_offsets/2)[1:] - 1
         logging.info(f'output_embedding.shape: {output_embedding.shape}')
         logging.info(f'end_boundaries: {end_boundaries}')
         logging.info(f'past_lengths: {past_lengths}')
