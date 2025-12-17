@@ -153,7 +153,7 @@ class HSTUBaseTrainer:
     def get_dataset(self):
         dataset = get_reco_dataset(
             dataset_name=self.FLAGS.dataset_name,
-            max_sequence_length=self.FLAGS.max_sequence_length,
+            max_sequence_length=self.FLAGS.max_seq_len,
             chronological=True,
             positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
         )
