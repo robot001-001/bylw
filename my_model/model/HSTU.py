@@ -650,6 +650,7 @@ class HSTU(nn.Module):
         end_boundaries = x_offsets[1:] - 1
         logging.info(f'output_embedding.shape: {output_embedding.shape}')
         logging.info(f'end_boundaries: {end_boundaries}')
+        logging.info(f'past_lengths: {past_lengths}')
         logging.info(f'x_offsets: {x_offsets}')
         # last_embeddings = output_embedding[..., end_boundaries, ...] # 获取最后一个item的嵌入
         batch_indices = torch.arange(output_embedding.shape[0], device=output_embedding.device)
