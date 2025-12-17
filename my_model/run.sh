@@ -1,4 +1,4 @@
-python bylw/my_model/main.py \
+python main.py \
     --logging_dir bylw/log/ \
     --mode dev \
     --dataset_name 'ml-20m' \
