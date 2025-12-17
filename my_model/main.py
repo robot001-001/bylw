@@ -4,6 +4,8 @@ import os
 import logging
 
 from trainer.hstu_base_trainer import HSTUBaseTrainer
+import torch
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 flags.DEFINE_string("logging_dir", None, "log dir")
 FLAGS = flags.FLAGS
