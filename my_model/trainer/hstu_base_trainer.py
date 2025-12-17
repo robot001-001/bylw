@@ -84,7 +84,8 @@ class HSTUBaseTrainer:
             num_items=self.dataset.max_item_id,
             item_embedding_dim=self.FLAGS.embedding_dim,
         )
-        
+        self.embedding_module.to(self.device)
+
 
     def train(self):
         self.device = self.FLAGS.device
