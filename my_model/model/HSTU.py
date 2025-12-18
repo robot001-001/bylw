@@ -580,8 +580,7 @@ class HSTU(nn.Module):
                     num_heads=self._num_heads,
                     relative_attention_bias_module=(
                         RelativeBucketedTimeAndPositionBasedBias(
-                            max_seq_len=self._max_seq_len
-                            + self._max_output_len,
+                            max_seq_len=self._max_seq_len+1,
                             num_buckets=128,
                             bucketization_fn=lambda x: (
                                 torch.log(torch.abs(x).clamp(min=1)) / 0.301
@@ -634,7 +633,8 @@ class HSTU(nn.Module):
 
         float_dtype = user_embeddings.dtype
         x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
-        logging.info(f'past_payloads[TIMESTAMPS_KEY]: {past_payloads[TIMESTAMPS_KEY]}')
+        logging.info(f'past_payloads[TIMESTAMPS_KEY]: {past_payloads[TIMESTAMPS_KEY]}') # [5, 201]
+        logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [5, 201]
         user_embeddings, cached_states = self._hstu(
             x=user_embeddings,
             x_offsets=x_offsets,
