@@ -235,6 +235,7 @@ class HSTUBaseTrainer:
 
 
     def test(self):
+        logging.info(f'lets go')
         self.device = self.FLAGS.device
         self.get_dataset()
         from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
