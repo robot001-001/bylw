@@ -171,6 +171,7 @@ class DatasetV3(torch.utils.data.Dataset):
             max_seq_len,
             self._chronological,
         )
+        historical_timestamps += [target_timestamps]
         # moved to features.py
         # if self._chronological:
         #     historical_ids.append(0)
