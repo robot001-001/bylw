@@ -603,8 +603,8 @@ class HSTU(nn.Module):
             torch.triu(
                 torch.ones(
                     (
-                        self._max_seq_len + max_output_len,
-                        self._max_seq_len + max_output_len,
+                        self._max_seq_len,
+                        self._max_seq_len,
                     ),
                     dtype=torch.bool,
                 ),
