@@ -277,5 +277,5 @@ class HSTUBaseTrainer:
             logging.info(f'lengths: {lengths}')
             logging.info(f'user_embeddings: {user_embeddings}')
             logging.info(f'valid_mask: {valid_mask}')
-        return
+            return
 
