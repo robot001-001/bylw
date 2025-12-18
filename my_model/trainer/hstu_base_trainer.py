@@ -75,7 +75,7 @@ class HSTUBaseTrainer:
             self.dev()
         elif self.FLAGS.mode == 'test_dev':
             logging.info(f'mode: {self.FLAGS.mode}')
-            self.test()
+            self.test_dev()
 
     
     def get_model(self):
@@ -234,7 +234,7 @@ class HSTUBaseTrainer:
         return
 
 
-    def test(self):
+    def test_dev(self):
         logging.info(f'lets go')
         self.device = self.FLAGS.device
         self.get_dataset()
