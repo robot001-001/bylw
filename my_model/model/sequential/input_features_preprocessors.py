@@ -353,6 +353,13 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         past_ratings = past_payloads["ratings"].int()
         import logging
         logging.info(f'past_ratings: {past_ratings.max(dim=1)}')
+        logging.info(f'self._rating_emb(0): {self._rating_emb(0)}')
+        logging.info(f'self._rating_emb(1): {self._rating_emb(1)}')
+        logging.info(f'self._rating_emb(2): {self._rating_emb(2)}')
+        logging.info(f'self._rating_emb(3): {self._rating_emb(3)}')
+        logging.info(f'self._rating_emb(4): {self._rating_emb(4)}')
+        logging.info(f'self._rating_emb(5): {self._rating_emb(5)}')
+        logging.info(f'self._rating_emb(6): {self._rating_emb(6)}')
         user_embeddings = torch.cat(
             [
                 past_embeddings,  # (B, N, D)
