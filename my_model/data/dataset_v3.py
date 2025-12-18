@@ -160,6 +160,7 @@ class DatasetV3(torch.utils.data.Dataset):
             max_seq_len,
             self._chronological,
         )
+        historical_ids += [target_ids]
         historical_ratings = _truncate_or_pad_seq(
             historical_ratings,
             max_seq_len,
@@ -170,6 +171,7 @@ class DatasetV3(torch.utils.data.Dataset):
             max_seq_len,
             self._chronological,
         )
+        historical_timestamps += [target_timestamps]
         # moved to features.py
         # if self._chronological:
         #     historical_ids.append(0)
@@ -190,60 +192,3 @@ class DatasetV3(torch.utils.data.Dataset):
         }
         return ret
 
-
-class MultiFileDatasetV2(DatasetV2, torch.utils.data.Dataset):
-    def __init__(
-        self,
-        file_prefix: str,
-        num_files: int,
-        padding_length: int,
-        ignore_last_n: int,  # used for creating train/valid/test sets
-        shift_id_by: int = 0,
-        chronological: bool = False,
-        sample_ratio: float = 1.0,
-    ) -> None:
-        torch.utils.data.Dataset().__init__()
-        self._file_prefix: str = file_prefix
-        self._num_files: int = num_files
-        with open(f"{file_prefix}_users.csv", "r") as file:
-            reader = csv.reader(file)
-            self.users_cumsum: List[int] = np.cumsum(
-                [int(row[1]) for row in reader]
-            ).tolist()
-        self._padding_length: int = padding_length
-        self._ignore_last_n: int = ignore_last_n
-        self._shift_id_by: int = shift_id_by
-        self._chronological: bool = chronological
-        self._sample_ratio: float = sample_ratio
-
-    def __len__(self) -> int:
-        return self.users_cumsum[-1]
-
-    def _process_line(self, line: str) -> pd.Series:
-        reader = csv.reader([line])
-        parsed_line = next(reader)
-        user_id = int(parsed_line[0])
-        sequence_item_ids = parsed_line[1]
-        sequence_ratings = parsed_line[2]
-        return pd.Series(
-            data={
-                "user_id": user_id,
-                "sequence_item_ids": sequence_item_ids,
-                "sequence_ratings": sequence_ratings,
-                "sequence_timestamps": sequence_item_ids,  # placeholder
-            }
-        )
-
-    def __getitem__(self, idx) -> Dict[str, torch.Tensor]:
-        assert idx < self.users_cumsum[-1]
-        file_idx: int = 0
-        while self.users_cumsum[file_idx] <= idx:
-            file_idx += 1
-        if file_idx == 0:
-            local_idx = idx
-        else:
-            local_idx = idx - self.users_cumsum[file_idx - 1]
-        line = linecache.getline(f"{self._file_prefix}_{file_idx}.csv", local_idx + 1)
-        data = self._process_line(line)
-        sample = self.load_item(data)
-        return sample

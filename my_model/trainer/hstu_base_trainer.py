@@ -73,6 +73,9 @@ class HSTUBaseTrainer:
         elif self.FLAGS.mode == 'dev':
             logging.info(f'mode: {self.FLAGS.mode}')
             self.dev()
+        elif self.FLAGS.mode == 'test':
+            logging.info(f'mode: {self.FLAGS.mode}')
+            self.test()
 
     
     def get_model(self):
@@ -228,7 +231,50 @@ class HSTUBaseTrainer:
                 )
                 logging.info(f'ret: {ret}')
                 break
+        return
 
 
-
+    def test(self):
+        self.device = self.FLAGS.device
+        self.get_dataset()
+        from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
+        _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
+            max_sequence_len = self._max_seq_len+self._max_output_len,
+            item_embedding_dim = self._embedding_dim,
+            dropout_rate = self._dropout_rate,
+            num_ratings=self._num_ratings
+        )
+        batch_id = 0
+        epoch = 0
+        for epoch in range(self.FLAGS.num_epochs):
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            if self.train_data_sampler is not None:
+                self.train_data_sampler.set_epoch(epoch)
+            for row in iter(self.train_data_loader):
+                logging.info(f'row info: {row}')
+            seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
+                row,
+                device=self.device,
+                max_output_length=11,
+            )
+            logging.info(f'seq_features: {seq_features}')
+            logging.info(f'target_ids: {target_ids}')
+            logging.info(f'target_ratings: {target_ratings}')
+            seq_features.past_ids.scatter_(
+                dim=1,
+                index=seq_features.past_lengths.view(-1, 1),
+                src=target_ids.view(-1, 1),
+            )
+            input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+            # modify
+            lengths, user_embeddings, valid_mask = _input_features_preproc(
+                past_lengths=seq_features.past_lengths,
+                past_ids=seq_features.past_ids,
+                past_embeddings=input_embeddings,
+                past_payloads=seq_features.past_payloads,
+            )
+            logging.info(f'lengths: {lengths}')
+            logging.info(f'user_embeddings: {user_embeddings}')
+            logging.info(f'valid_mask: {valid_mask}')
+        return
 

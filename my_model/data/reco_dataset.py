@@ -22,6 +22,7 @@ import pandas as pd
 import torch
 
 from data.dataset import DatasetV2, MultiFileDatasetV2
+from data.dataset_v3 import DatasetV3
 from data.item_features import ItemFeatures
 from data.preprocessor import get_common_preprocessors
 
@@ -44,14 +45,14 @@ def get_reco_dataset(
 ) -> RecoDataset:
     if dataset_name == "ml-1m":
         dp = get_common_preprocessors()[dataset_name]
-        train_dataset = DatasetV2(
+        train_dataset = DatasetV3(
             ratings_file=dp.output_format_csv(),
             padding_length=max_sequence_length + 1,  # target
             ignore_last_n=1,
             chronological=chronological,
             sample_ratio=positional_sampling_ratio,
         )
-        eval_dataset = DatasetV2(
+        eval_dataset = DatasetV3(
             ratings_file=dp.output_format_csv(),
             padding_length=max_sequence_length + 1,  # target
             ignore_last_n=0,
