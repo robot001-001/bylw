@@ -238,6 +238,7 @@ class HSTUBaseTrainer:
         logging.info(f'lets go')
         self.device = self.FLAGS.device
         self.get_dataset()
+        self.get_model()
         from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
         _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
             max_sequence_len = 210,
