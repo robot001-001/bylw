@@ -240,7 +240,7 @@ class HSTUBaseTrainer:
         self.get_model()
         from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
         _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = 211, # 200历史序列+1tgt
+            max_sequence_len = 201, # 200历史序列+1tgt
             item_embedding_dim = 50,
             dropout_rate = 0.2,
             num_ratings=5
@@ -256,17 +256,12 @@ class HSTUBaseTrainer:
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=10,
+                    max_output_length=0,
                 )
                 logging.info(f'seq_features: {seq_features}')
                 logging.info(f'seq_features: {seq_features.past_ids.shape}')
                 logging.info(f'target_ids: {target_ids}')
                 logging.info(f'target_ratings: {target_ratings}')
-                seq_features.past_ids.scatter_(
-                    dim=1,
-                    index=seq_features.past_lengths.view(-1, 1),
-                    src=target_ids.view(-1, 1),
-                )
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 # modify
                 lengths, user_embeddings, valid_mask = _input_features_preproc(
