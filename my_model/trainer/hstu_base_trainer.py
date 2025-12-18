@@ -239,10 +239,10 @@ class HSTUBaseTrainer:
         self.get_dataset()
         from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
         _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = self._max_seq_len+self._max_output_len,
-            item_embedding_dim = self._embedding_dim,
-            dropout_rate = self._dropout_rate,
-            num_ratings=self._num_ratings
+            max_sequence_len = 210,
+            item_embedding_dim = 50,
+            dropout_rate = 0.2,
+            num_ratings=3952
         )
         batch_id = 0
         epoch = 0
