@@ -331,13 +331,8 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         """
         B, N = past_ids.size()
         past_ids_valid = (past_ids != 0)
-        # print(past_ids_valid.shape)
         past_ratings_valid = (past_ratings !=0) & (past_ratings !=6)
-        # print(past_ratings_valid.shape)
-        past_ids_valid = torch.tensor([[1, 2, 3]])
-        past_ratings_valid = torch.tensor([[4, 5, 6]])
         valid_mask = torch.stack([past_ids_valid, past_ratings_valid], dim=-1).flatten(start_dim=1)
-        # print(valid_mask)
         return valid_mask
 
     def forward(
@@ -353,13 +348,13 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         past_ratings = past_payloads["ratings"].int()
         import logging
         logging.info(f'past_ratings: {past_ratings.max(dim=1)}')
-        logging.info(f'self._rating_emb(0): {self._rating_emb(0)}')
-        logging.info(f'self._rating_emb(1): {self._rating_emb(1)}')
-        logging.info(f'self._rating_emb(2): {self._rating_emb(2)}')
-        logging.info(f'self._rating_emb(3): {self._rating_emb(3)}')
-        logging.info(f'self._rating_emb(4): {self._rating_emb(4)}')
-        logging.info(f'self._rating_emb(5): {self._rating_emb(5)}')
-        logging.info(f'self._rating_emb(6): {self._rating_emb(6)}')
+        logging.info(f'self._rating_emb(0): {self._rating_emb(torch.tensor(0))}')
+        logging.info(f'self._rating_emb(1): {self._rating_emb(torch.tensor(1))}')
+        logging.info(f'self._rating_emb(2): {self._rating_emb(torch.tensor(2))}')
+        logging.info(f'self._rating_emb(3): {self._rating_emb(torch.tensor(3))}')
+        logging.info(f'self._rating_emb(4): {self._rating_emb(torch.tensor(4))}')
+        logging.info(f'self._rating_emb(5): {self._rating_emb(torch.tensor(5))}')
+        logging.info(f'self._rating_emb(6): {self._rating_emb(torch.tensor(6))}')
         user_embeddings = torch.cat(
             [
                 past_embeddings,  # (B, N, D)
