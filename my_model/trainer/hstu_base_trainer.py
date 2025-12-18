@@ -240,7 +240,7 @@ class HSTUBaseTrainer:
         self.get_model()
         from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
         _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = 201,
+            max_sequence_len = 211,
             item_embedding_dim = 50,
             dropout_rate = 0.2,
             num_ratings=5
@@ -256,7 +256,7 @@ class HSTUBaseTrainer:
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=0,
+                    max_output_length=10,
                 )
                 logging.info(f'seq_features: {seq_features}')
                 logging.info(f'target_ids: {target_ids}')
