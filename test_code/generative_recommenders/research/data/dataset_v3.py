@@ -142,9 +142,9 @@ class DatasetV3(torch.utils.data.Dataset):
             assert len(y) == target_len
             return y
 
-        historical_ids = movie_history[1:]
-        historical_ratings = movie_history_ratings[1:]
-        historical_timestamps = movie_timestamps[1:]
+        historical_ids = movie_history[:]
+        historical_ratings = movie_history_ratings[:]
+        historical_timestamps = movie_timestamps[:]
         target_ids = movie_history[0]
         target_ratings = movie_history_ratings[0]
         target_timestamps = movie_timestamps[0]
@@ -160,7 +160,6 @@ class DatasetV3(torch.utils.data.Dataset):
             max_seq_len,
             self._chronological,
         )
-        historical_ids += [target_ids]
         historical_ratings = _truncate_or_pad_seq(
             historical_ratings,
             max_seq_len,
@@ -171,7 +170,6 @@ class DatasetV3(torch.utils.data.Dataset):
             max_seq_len,
             self._chronological,
         )
-        historical_timestamps += [target_timestamps]
         # moved to features.py
         # if self._chronological:
         #     historical_ids.append(0)
