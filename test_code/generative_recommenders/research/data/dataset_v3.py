@@ -47,7 +47,7 @@ class DatasetV3(torch.utils.data.Dataset):
             delimiter=",",
             # iterator=True,
         )
-        self._padding_length: int = padding_length
+        self._padding_length: int = padding_length + 1
         self._ignore_last_n: int = ignore_last_n
         self._cache: Dict[int, Dict[str, torch.Tensor]] = dict()
         self._shift_id_by: int = shift_id_by
