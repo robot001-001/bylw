@@ -259,6 +259,7 @@ class HSTUBaseTrainer:
                     max_output_length=10,
                 )
                 logging.info(f'seq_features: {seq_features}')
+                logging.info(f'seq_features: {seq_features.past_ids.shape}')
                 logging.info(f'target_ids: {target_ids}')
                 logging.info(f'target_ratings: {target_ratings}')
                 seq_features.past_ids.scatter_(
