@@ -73,7 +73,7 @@ class HSTUBaseTrainer:
         elif self.FLAGS.mode == 'dev':
             logging.info(f'mode: {self.FLAGS.mode}')
             self.dev()
-        elif self.FLAGS.mode == 'test':
+        elif self.FLAGS.mode == 'test_dev':
             logging.info(f'mode: {self.FLAGS.mode}')
             self.test()
 
