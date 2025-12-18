@@ -329,9 +329,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         Returns (B, N * 2,) x bool.
         """
         B, N = past_ids.size()
-        positions = torch.arange(N * 2, device=past_ids.device).unsqueeze(0)
-        valid_limit = (past_lengths * 2 + 1).unsqueeze(1)
-        return positions < valid_limit
+        return (past_ids != 0).unsqueeze(2).expand(-1, -1, 2).reshape(B, N * 2)
 
     def forward(
         self,
@@ -367,4 +365,4 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
             .float()
         )  # (B, N * 2, 1,)
         user_embeddings *= valid_mask
-        return past_lengths * 2+1, user_embeddings, valid_mask
+        return past_lengths * 2, user_embeddings, valid_mask

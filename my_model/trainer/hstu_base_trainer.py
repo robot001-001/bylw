@@ -240,10 +240,10 @@ class HSTUBaseTrainer:
         self.get_model()
         from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
         _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = 210,
+            max_sequence_len = 201,
             item_embedding_dim = 50,
             dropout_rate = 0.2,
-            num_ratings=3952
+            num_ratings=6
         ).to(self.device)
         batch_id = 0
         epoch = 0

@@ -1,18 +1,8 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# pyre-unsafe
+# follow datasetv2 code
+# 将 tgt_item_id, tgt_ratings, tgt_timestamp 都加入到past_seq中
+# 整体输出序列的长度为 padding_length+1
+# 后续在 preprocess 中，将其转为交错序列后，只截取[item1, rating1, item2, rating2, ..., itemn, ratingn, tgt], 不截取rating_tgt
+# 为确保数据不泄露，num_ratings一共有1-5 共5个选项，这里将tgt的评分mask成6
 
 import csv
 import linecache
@@ -144,6 +134,7 @@ class DatasetV3(torch.utils.data.Dataset):
 
         historical_ids = movie_history[:]
         historical_ratings = movie_history_ratings[:]
+        historical_ratings[0] = 6 # mask掉真实评分
         historical_timestamps = movie_timestamps[:]
         target_ids = movie_history[0]
         target_ratings = movie_history_ratings[0]
