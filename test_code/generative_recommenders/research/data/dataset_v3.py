@@ -143,7 +143,6 @@ class DatasetV3(torch.utils.data.Dataset):
             return y
 
         historical_ids = movie_history[1:]
-        print(f'1. historical_ids: {historical_ids}')
         historical_ratings = movie_history_ratings[1:]
         historical_timestamps = movie_timestamps[1:]
         target_ids = movie_history[0]
@@ -161,7 +160,7 @@ class DatasetV3(torch.utils.data.Dataset):
             max_seq_len,
             self._chronological,
         )
-        print(f'2. historical_ids: {historical_ids}')
+        historical_ids += [target_ids]
         historical_ratings = _truncate_or_pad_seq(
             historical_ratings,
             max_seq_len,
