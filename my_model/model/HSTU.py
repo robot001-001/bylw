@@ -537,7 +537,7 @@ class HSTU(nn.Module):
         enable_relative_attention_bias: bool = True,
     ):
         super().__init__()
-        self._max_seq_len = max_seq_len
+        self._max_seq_len = max_seq_len+1  # +tgt
         self._embedding_dim: int = embedding_dim
         self._dropout_rate = dropout_rate
         self._num_ratings = num_ratings
@@ -557,7 +557,7 @@ class HSTU(nn.Module):
         
 
         self._input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = self._max_seq_len+1, # +tgt
+            max_sequence_len = self._max_seq_len,
             item_embedding_dim = self._embedding_dim,
             dropout_rate = self._dropout_rate,
             num_ratings=self._num_ratings
