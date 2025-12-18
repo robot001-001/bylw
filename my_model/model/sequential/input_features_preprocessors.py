@@ -279,7 +279,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         self._dropout_rate: float = dropout_rate
         self._emb_dropout = torch.nn.Dropout(p=dropout_rate)
         self._rating_emb: torch.nn.Embedding = torch.nn.Embedding(
-            num_ratings,
+            num_ratings+2, # 评分1-5要能取到5, 所以num_embs=num_ratings+1, 由于mask掉的tgt_rating用的值是6, 这里再+1防止越界
             item_embedding_dim,
         )
         self.reset_state()
@@ -322,6 +322,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         self,
         past_lengths: torch.Tensor,
         past_ids: torch.Tensor,
+        past_ratings: torch.Tensor,
         past_embeddings: torch.Tensor,
         past_payloads: Dict[str, torch.Tensor],
     ) -> torch.Tensor:
@@ -329,7 +330,15 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         Returns (B, N * 2,) x bool.
         """
         B, N = past_ids.size()
-        return (past_ids != 0).unsqueeze(2).expand(-1, -1, 2).reshape(B, N * 2)
+        past_ids_valid = (past_ids != 0)
+        # print(past_ids_valid.shape)
+        past_ratings_valid = (past_ratings !=0) & (past_ratings !=6)
+        # print(past_ratings_valid.shape)
+        past_ids_valid = torch.tensor([[1, 2, 3]])
+        past_ratings_valid = torch.tensor([[4, 5, 6]])
+        valid_mask = torch.stack([past_ids_valid, past_ratings_valid], dim=-1).flatten(start_dim=1)
+        # print(valid_mask)
+        return valid_mask
 
     def forward(
         self,
@@ -341,10 +350,11 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         B, N = past_ids.size()
         D = past_embeddings.size(-1)
 
+        past_ratings = past_payloads["ratings"].int()
         user_embeddings = torch.cat(
             [
                 past_embeddings,  # (B, N, D)
-                self._rating_emb(past_payloads["ratings"].int()),
+                self._rating_emb(past_ratings),
             ],
             dim=2,
         ) * (self._embedding_dim**0.5)
@@ -358,6 +368,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
             self.get_preprocessed_masks(
                 past_lengths,
                 past_ids,
+                past_ratings,
                 past_embeddings,
                 past_payloads,
             )

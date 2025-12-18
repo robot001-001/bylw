@@ -243,7 +243,7 @@ class HSTUBaseTrainer:
             max_sequence_len = 201,
             item_embedding_dim = 50,
             dropout_rate = 0.2,
-            num_ratings=6
+            num_ratings=5
         ).to(self.device)
         batch_id = 0
         epoch = 0
