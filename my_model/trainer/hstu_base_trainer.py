@@ -245,7 +245,7 @@ class HSTUBaseTrainer:
             item_embedding_dim = 50,
             dropout_rate = 0.2,
             num_ratings=3952
-        )
+        ).to(self.device)
         batch_id = 0
         epoch = 0
         for epoch in range(self.FLAGS.num_epochs):
