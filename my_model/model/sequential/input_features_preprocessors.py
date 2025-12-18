@@ -276,7 +276,6 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
             max_sequence_len * 2,
             self._embedding_dim,
         )
-        print(self._pos_emb)
         self._dropout_rate: float = dropout_rate
         self._emb_dropout = torch.nn.Dropout(p=dropout_rate)
         self._rating_emb: torch.nn.Embedding = torch.nn.Embedding(
@@ -355,6 +354,11 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
             dim=2,
         ) * (self._embedding_dim**0.5)
         user_embeddings = user_embeddings.view(B, N * 2, D)
+        import logging
+        logging.info('*'*100)
+        logging.info(f'self._pos_emb: {self._pos_emb}')
+        logging.info(f'{torch.arange(N * 2, device=past_ids.device).unsqueeze(0).repeat(B, 1).shape}')
+        logging.info('*'*100)
         user_embeddings = user_embeddings + self._pos_emb(
             torch.arange(N * 2, device=past_ids.device).unsqueeze(0).repeat(B, 1)
         )
