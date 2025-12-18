@@ -256,7 +256,7 @@ class HSTUBaseTrainer:
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=11,
+                    max_output_length=0,
                 )
                 logging.info(f'seq_features: {seq_features}')
                 logging.info(f'target_ids: {target_ids}')
