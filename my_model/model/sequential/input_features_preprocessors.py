@@ -351,6 +351,8 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         D = past_embeddings.size(-1)
 
         past_ratings = past_payloads["ratings"].int()
+        import logging
+        logging.info(f'past_ratings: {past_ratings}')
         user_embeddings = torch.cat(
             [
                 past_embeddings,  # (B, N, D)
