@@ -276,6 +276,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
             max_sequence_len * 2,
             self._embedding_dim,
         )
+        print(self._pos_emb)
         self._dropout_rate: float = dropout_rate
         self._emb_dropout = torch.nn.Dropout(p=dropout_rate)
         self._rating_emb: torch.nn.Embedding = torch.nn.Embedding(
@@ -346,16 +347,6 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
         D = past_embeddings.size(-1)
 
         past_ratings = past_payloads["ratings"].int()
-        import logging
-        logging.info(f'past_ratings: {past_ratings.max(dim=1)}')
-        logging.info(f'past_ratings: {past_ratings.min(dim=1)}')
-        logging.info(f'self._rating_emb(0): {self._rating_emb(torch.tensor(0, device="cuda:0"))}')
-        logging.info(f'self._rating_emb(1): {self._rating_emb(torch.tensor(1, device="cuda:0"))}')
-        logging.info(f'self._rating_emb(2): {self._rating_emb(torch.tensor(2, device="cuda:0"))}')
-        logging.info(f'self._rating_emb(3): {self._rating_emb(torch.tensor(3, device="cuda:0"))}')
-        logging.info(f'self._rating_emb(4): {self._rating_emb(torch.tensor(4, device="cuda:0"))}')
-        logging.info(f'self._rating_emb(5): {self._rating_emb(torch.tensor(5, device="cuda:0"))}')
-        logging.info(f'self._rating_emb(6): {self._rating_emb(torch.tensor(6, device="cuda:0"))}')
         user_embeddings = torch.cat(
             [
                 past_embeddings,  # (B, N, D)
