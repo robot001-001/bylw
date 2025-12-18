@@ -557,7 +557,7 @@ class HSTU(nn.Module):
         
 
         self._input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = self._max_seq_len+self._max_output_len,
+            max_sequence_len = self._max_seq_len+1, # +tgt
             item_embedding_dim = self._embedding_dim,
             dropout_rate = self._dropout_rate,
             num_ratings=self._num_ratings

@@ -212,16 +212,11 @@ class HSTUBaseTrainer:
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=11,
+                    max_output_length=0, # 精排架构不需要补充
                 )
                 logging.info(f'seq_features: {seq_features}')
                 logging.info(f'target_ids: {target_ids}')
                 logging.info(f'target_ratings: {target_ratings}')
-                seq_features.past_ids.scatter_(
-                    dim=1,
-                    index=seq_features.past_lengths.view(-1, 1),
-                    src=target_ids.view(-1, 1),
-                )
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 ret = self.model(
                     past_lengths=seq_features.past_lengths,
