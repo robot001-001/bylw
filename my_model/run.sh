@@ -10,7 +10,7 @@ python main.py \
     --positional_sampling_ratio 1.0 \
     --train_batch_size 128 \
     --eval_batch_size 128 \
-    --device 'cuda:0' \
+    --device 'cpu' \
     --num_epochs 101 \
     --eval_interval 20 \
     --model_args '{"max_seq_len": 200, "embedding_dim": 50, "dropout_rate": 0.2, "num_ratings": 5, "linear_dim": 64, "attention_dim": 64, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 2, "num_heads": 1, "linear_dropout_rate": 0.0, "attn_dropout_rate": 0.0, "main_tower_units": [128, 5], "concat_ua": false, "enable_relative_attention_bias": true}'
