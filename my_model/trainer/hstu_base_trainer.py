@@ -192,19 +192,19 @@ class HSTUBaseTrainer:
         epoch = 0
         self.optimizer.zero_grad()
         for epoch in range(self.FLAGS.num_epochs):
-            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            # logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
             for row in iter(self.train_data_loader):
-                logging.info(f'row info: {row}')
+                # logging.info(f'row info: {row}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
                     max_output_length=0, # 精排架构不需要补充
                 )
-                logging.info(f'seq_features: {seq_features}')
-                logging.info(f'target_ids: {target_ids}')
-                logging.info(f'target_ratings: {target_ratings}')
+                # logging.info(f'seq_features: {seq_features}')
+                # logging.info(f'target_ids: {target_ids}')
+                # logging.info(f'target_ratings: {target_ratings}')
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 outputs = self.model(
                     past_lengths=seq_features.past_lengths,

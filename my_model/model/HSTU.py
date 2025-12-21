@@ -631,8 +631,8 @@ class HSTU(nn.Module):
 
         float_dtype = user_embeddings.dtype
         x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
-        logging.info(f'past_payloads[TIMESTAMPS_KEY]: {past_payloads[TIMESTAMPS_KEY]}') # [5, 201]
-        logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [5, 201]
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY]: {past_payloads[TIMESTAMPS_KEY]}') # [5, 201]
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [5, 201]
         user_embeddings, cached_states = self._hstu(
             x=user_embeddings,
             x_offsets=x_offsets,
@@ -648,14 +648,14 @@ class HSTU(nn.Module):
         )
         output_embedding = self._output_postproc(user_embeddings)
         end_boundaries = (past_lengths//2) - 1
-        logging.info(f'output_embedding.shape: {output_embedding.shape}')
-        logging.info(f'end_boundaries: {end_boundaries}')
-        logging.info(f'past_lengths: {past_lengths}')
-        logging.info(f'x_offsets: {x_offsets}')
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        # logging.info(f'end_boundaries: {end_boundaries}')
+        # logging.info(f'past_lengths: {past_lengths}')
+        # logging.info(f'x_offsets: {x_offsets}')
         # last_embeddings = output_embedding[..., end_boundaries, ...] # 获取最后一个item的嵌入
         batch_indices = torch.arange(output_embedding.shape[0], device=output_embedding.device)
         last_embeddings = output_embedding[batch_indices, end_boundaries]
-        logging.info(f'last_embeddings.shape: {last_embeddings.shape}')
+        # logging.info(f'last_embeddings.shape: {last_embeddings.shape}')
         out = self.main_tower(last_embeddings)
         return out
         
