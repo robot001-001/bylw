@@ -293,9 +293,8 @@ class HSTUBaseTrainer:
                 return
             
         
-
     def _compute_metrics(self, outputs, target_ratings):
-        targets = (target_ratings - 1).long().view(-1)
+        targets = (target_ratings - 1).view(-1)
         loss = self.criterion(outputs, targets)
         pred_ids = torch.argmax(outputs, dim=1)
         accuracy = (pred_ids == targets).float().mean().item()
