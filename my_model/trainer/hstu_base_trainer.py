@@ -195,7 +195,7 @@ class HSTUBaseTrainer:
         epoch = 0
         self.optimizer.zero_grad()
         for epoch in range(self.FLAGS.num_epochs):
-            # logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
             for batch_id, row in enumerate(iter(self.train_data_loader)):
