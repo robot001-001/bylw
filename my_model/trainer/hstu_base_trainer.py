@@ -212,7 +212,7 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
-                loss = self.criterion(outputs, (target_ratings-1))
+                loss = self.criterion(outputs, (target_ratings-1).squeeze())
                 loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
