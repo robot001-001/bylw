@@ -250,7 +250,7 @@ class HSTUBaseTrainer:
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=1, 
+                    max_output_length=0, 
                 )
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 outputs = self.model(
