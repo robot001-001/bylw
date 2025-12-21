@@ -7,6 +7,7 @@ from datetime import date
 import time
 from sklearn.metrics import roc_auc_score, accuracy_score
 import numpy as np
+import itertools
 
 import torch
 from torch import nn
@@ -86,6 +87,11 @@ class HSTUBaseTrainer:
         self.model_args = json.loads(self.FLAGS.model_args)
         self.model = HSTU(**self.model_args)
         self.model.to(self.device)
+        total_params = sum(p.numel() for p in self.model.parameters())
+        trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
+
+        logging.info(f"Total Parameters: {total_params}")
+        logging.info(f"Trainable Parameters: {trainable_params}")
 
         self.embedding_module = LocalEmbeddingModule(
             num_items=self.dataset.max_item_id,
@@ -133,8 +139,8 @@ class HSTUBaseTrainer:
 
     def get_loss(self):
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
-
+        model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
+        self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
 
     def get_sampler(self):
         sampling_strategy = self.FLAGS.sampling_strategy
@@ -227,6 +233,7 @@ class HSTUBaseTrainer:
                 if (batch_id % self.FLAGS.eval_interval) == 0:
                     avg_loss, avg_acc, global_auc = self.test()
                     logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                    self.embedding_module.train()
                     self.model.train()
                 # break
             avg_loss, avg_acc, global_auc = self.test()
@@ -240,6 +247,7 @@ class HSTUBaseTrainer:
             
 
     def test(self):
+        self.embedding_module.eval()
         self.model.eval()
         batch_losses = []
         batch_accs = []
