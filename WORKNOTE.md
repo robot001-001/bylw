@@ -11,3 +11,4 @@
     * 数据处理完成后(preprocess后)，其形式为[item1,rating1,item2,rating2,...,tgt,fake_tgt_rating,...], mask只到tgt
 * todo
     * 训练pipe
+        * loss 重写
