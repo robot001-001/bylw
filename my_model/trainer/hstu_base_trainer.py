@@ -225,32 +225,13 @@ class HSTUBaseTrainer:
                 self.optimizer.zero_grad()
                 # eval
                 if (batch_id % self.FLAGS.eval_interval) == 0:
-                    self.model.eval()
-                    metrics_accum = {'loss': [], 'acc': [], 'auc': []}
-                    with torch.no_grad():
-                        for eval_iter, row in enumerate(iter(self.eval_data_loader)):
-                            seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
-                                row,
-                                device=self.device,
-                                max_output_length=0, 
-                            )
-                            input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                            outputs = self.model(
-                                past_lengths=seq_features.past_lengths,
-                                past_ids=seq_features.past_ids,
-                                past_embeddings=input_embeddings,
-                                past_payloads=seq_features.past_payloads,
-                            )
-                            batch_metrics = self._compute_metrics(outputs, target_ratings)
-                            metrics_accum['loss'].append(batch_metrics['loss'])
-                            metrics_accum['acc'].append(batch_metrics['acc'])
-                            metrics_accum['auc'].append(batch_metrics['auc'])
-                    avg_loss = np.mean(metrics_accum['loss'])
-                    avg_acc = np.mean(metrics_accum['acc'])
-                    avg_auc = np.mean(metrics_accum['auc'])
+                    avg_loss, avg_acc, avg_auc = self.test()
                     logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={avg_auc:.4f}")
                     self.model.train()
                 # break
+            avg_loss, avg_acc, avg_auc = self.test()
+            logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={avg_auc:.4f}")
+            self.model.train()
         return
 
 
@@ -322,7 +303,31 @@ class HSTUBaseTrainer:
         }
 
 
-
+    def test(self):
+        self.model.eval()
+        metrics_accum = {'loss': [], 'acc': [], 'auc': []}
+        with torch.no_grad():
+            for eval_iter, row in enumerate(iter(self.eval_data_loader)):
+                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
+                    row,
+                    device=self.device,
+                    max_output_length=0, 
+                )
+                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+                outputs = self.model(
+                    past_lengths=seq_features.past_lengths,
+                    past_ids=seq_features.past_ids,
+                    past_embeddings=input_embeddings,
+                    past_payloads=seq_features.past_payloads,
+                )
+                batch_metrics = self._compute_metrics(outputs, target_ratings)
+                metrics_accum['loss'].append(batch_metrics['loss'])
+                metrics_accum['acc'].append(batch_metrics['acc'])
+                metrics_accum['auc'].append(batch_metrics['auc'])
+        avg_loss = np.mean(metrics_accum['loss'])
+        avg_acc = np.mean(metrics_accum['acc'])
+        avg_auc = np.mean(metrics_accum['auc'])
+        return avg_loss, avg_acc, avg_auc
 
 
 
