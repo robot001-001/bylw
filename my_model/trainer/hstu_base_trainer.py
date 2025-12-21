@@ -232,12 +232,12 @@ class HSTUBaseTrainer:
                 # eval
                 if (batch_id % self.FLAGS.eval_interval) == 0:
                     avg_loss, avg_acc, global_auc = self.test()
-                    logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
                     self.embedding_module.train()
                     self.model.train()
                 # break
             avg_loss, avg_acc, global_auc = self.test()
-            logging.info(f"[End of Epoch {epoch}] Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+            logging.info(f"[End of Epoch {epoch}] TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
             self.model.train()
         return
 
