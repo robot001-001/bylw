@@ -225,93 +225,32 @@ class HSTUBaseTrainer:
                 self.optimizer.zero_grad()
                 # eval
                 if (batch_id % self.FLAGS.eval_interval) == 0:
-                    avg_loss, avg_acc, avg_auc = self.test()
-                    logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={avg_auc:.4f}")
+                    avg_loss, avg_acc, global_auc = self.test()
+                    logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
                     self.model.train()
                 # break
-            avg_loss, avg_acc, avg_auc = self.test()
-            logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={avg_auc:.4f}")
+            avg_loss, avg_acc, global_auc = self.test()
+            logging.info(f"[End of Epoch {epoch}] Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
             self.model.train()
         return
 
 
     def test_dev(self):
-        self.device = self.FLAGS.device
-        self.get_dataset()
-        self.get_model()
-        from model.sequential.input_features_preprocessors import CombinedItemAndRatingInputFeaturesPreprocessorV1
-        _input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = 201, # 200历史序列+1tgt
-            item_embedding_dim = 50,
-            dropout_rate = 0.2,
-            num_ratings=5
-        ).to(self.device)
-        batch_id = 0
-        epoch = 0
-        for epoch in range(self.FLAGS.num_epochs):
-            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
-            if self.train_data_sampler is not None:
-                self.train_data_sampler.set_epoch(epoch)
-            for row in iter(self.train_data_loader):
-                logging.info(f'row info: {row}')
-                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
-                    row,
-                    device=self.device,
-                    max_output_length=0,
-                )
-                logging.info(f'seq_features: {seq_features}')
-                logging.info(f'seq_features: {seq_features.past_ids.shape}')
-                logging.info(f'target_ids: {target_ids}')
-                logging.info(f'target_ratings: {target_ratings}')
-                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                # modify
-                lengths, user_embeddings, valid_mask = _input_features_preproc(
-                    past_lengths=seq_features.past_lengths,
-                    past_ids=seq_features.past_ids,
-                    past_embeddings=input_embeddings,
-                    past_payloads=seq_features.past_payloads,
-                )
-                logging.info(f'lengths: {lengths}')
-                logging.info(f'user_embeddings: {user_embeddings}')
-                logging.info(f'valid_mask: {valid_mask}')
-                return
+        return
             
-        
-    def _compute_metrics(self, outputs, target_ratings):
-        targets = (target_ratings - 1).view(-1)
-        loss = self.criterion(outputs, targets)
-        pred_ids = torch.argmax(outputs, dim=1)
-        accuracy = (pred_ids == targets).float().mean().item()
-        probs = torch.softmax(outputs, dim=1)
-        if probs.shape[1] >= 5:
-            pos_probs = probs[:, 3:].sum(dim=1)
-        else:
-            pos_probs = probs[:, -1]
-        binary_targets = (targets >= 3).float()
-        try:
-            auc = roc_auc_score(
-                binary_targets.cpu().detach().numpy(), 
-                pos_probs.cpu().detach().numpy()
-            )
-        except ValueError:
-            auc = 0.5
-        return {
-            'loss': loss.item(),
-            'acc': accuracy,
-            'auc': auc,
-            'torch_loss': loss
-        }
-
 
     def test(self):
         self.model.eval()
-        metrics_accum = {'loss': [], 'acc': [], 'auc': []}
+        batch_losses = []
+        batch_accs = []
+        all_pos_probs = []
+        all_binary_targets = []
         with torch.no_grad():
-            for eval_iter, row in enumerate(iter(self.eval_data_loader)):
+            for row in iter(self.eval_data_loader):
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=0, 
+                    max_output_length=1, 
                 )
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 outputs = self.model(
@@ -320,14 +259,29 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
-                batch_metrics = self._compute_metrics(outputs, target_ratings)
-                metrics_accum['loss'].append(batch_metrics['loss'])
-                metrics_accum['acc'].append(batch_metrics['acc'])
-                metrics_accum['auc'].append(batch_metrics['auc'])
-        avg_loss = np.mean(metrics_accum['loss'])
-        avg_acc = np.mean(metrics_accum['acc'])
-        avg_auc = np.mean(metrics_accum['auc'])
-        return avg_loss, avg_acc, avg_auc
+                targets = (target_ratings - 1).long().view(-1)
+                loss = self.criterion(outputs, targets)
+                batch_losses.append(loss.item())
+                pred_ids = torch.argmax(outputs, dim=1)
+                acc = (pred_ids == targets).float().mean().item()
+                batch_accs.append(acc)
+                probs = torch.softmax(outputs, dim=1)
+                if probs.shape[1] >= 5:
+                    pos_probs_batch = probs[:, 3:].sum(dim=1)
+                else:
+                    pos_probs_batch = probs[:, -1]
+                binary_targets_batch = (targets >= 3).float()
+                all_pos_probs.extend(pos_probs_batch.cpu().numpy().tolist())
+                all_binary_targets.extend(binary_targets_batch.cpu().numpy().tolist())
+        avg_loss = np.mean(batch_losses)
+        avg_acc = np.mean(batch_accs)
+        try:
+            global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
+        except ValueError:
+            logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
+            global_auc = 0.5
+
+        return avg_loss, avg_acc, global_auc
 
 
 
