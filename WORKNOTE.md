@@ -12,3 +12,12 @@
 * todo
     * 训练pipe
         * loss 重写
+
+# 2025-12-21
+* 训练pipe done
+    * 定义loss
+    * 定义eval
+    * baseline 指标过低
+* todo
+    * 尝试从召回模型embedding做embedding冷启动，只训上游模型参数
+    * 尝试加大参数量、数据量，看是否能解决冷启问题

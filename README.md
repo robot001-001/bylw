@@ -43,8 +43,9 @@ cp -r ../baseline/hstu/tmp/ .
 
 
 # other setup
-1. bash: less
+1. bash: less/tree
 ```bash
 apt-get update
 apt-get install less
+apt-get install tree
 ```
