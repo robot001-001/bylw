@@ -20,7 +20,7 @@ class MainTowerMLP(nn.Module):
             in_features = units[i]
 
         self.mlp.add_module(f'linear_{i+1}', nn.Linear(in_features=in_features, out_features=units[i+1]))
-        self.mlp.add_module(f'softmax_{i+1}', nn.Softmax(dim=-1))
+        # self.mlp.add_module(f'softmax_{i+1}', nn.Softmax(dim=-1))
 
     def forward(self, x):
         return self.mlp(x)

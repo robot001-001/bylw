@@ -529,7 +529,6 @@ class HSTU(nn.Module):
         linear_activation: str,
         num_blocks: int,
         num_heads: int,
-        max_output_len: int,
         linear_dropout_rate: float,
         attn_dropout_rate: float,
         main_tower_units: List[int],
@@ -548,7 +547,6 @@ class HSTU(nn.Module):
         self._linear_activation = linear_activation
         self._num_blocks = num_blocks
         self._num_heads = num_heads
-        self._max_output_len = max_output_len
         self._linear_dropout_rate = linear_dropout_rate
         self._attn_dropout_rate = attn_dropout_rate
         self._main_tower_units = main_tower_units

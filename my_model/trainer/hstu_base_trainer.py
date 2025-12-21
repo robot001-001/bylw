@@ -8,6 +8,7 @@ import time
 
 import torch
 from torch import nn
+import torch.optim as optim
 
 
 from model.HSTU import HSTU
@@ -128,23 +129,8 @@ class HSTUBaseTrainer:
 
 
     def get_loss(self):
-        loss_module = self.FLAGS.loss_module
-        temperature = self.FLAGS.temperature
-        num_negatives = self.FLAGS.num_negatives
-        loss_activation_checkpoint = self.FLAGS.loss_activation_checkpoint
-        if loss_module == "BCELoss":
-            assert temperature == 1.0
-            ar_loss = BCELoss(temperature=temperature, model=self.model)
-        elif loss_module == "SampledSoftmaxLoss":
-            ar_loss = SampledSoftmaxLoss(
-                num_to_sample=num_negatives,
-                softmax_temperature=temperature,
-                model=self.model,
-                activation_checkpoint=loss_activation_checkpoint,
-            )
-        else:
-            raise ValueError(f"Unrecognized loss module {loss_module}.")
-        self.ar_loss = ar_loss
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
 
 
     def get_sampler(self):
@@ -199,10 +185,12 @@ class HSTUBaseTrainer:
         self.device = self.FLAGS.device
         self.get_dataset()
         self.get_model()
+        self.get_loss()
         logging.info(f'model structure: {self.model}')
 
         batch_id = 0
         epoch = 0
+        self.optimizer.zero_grad()
         for epoch in range(self.FLAGS.num_epochs):
             logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             if self.train_data_sampler is not None:
@@ -218,13 +206,16 @@ class HSTUBaseTrainer:
                 logging.info(f'target_ids: {target_ids}')
                 logging.info(f'target_ratings: {target_ratings}')
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                ret = self.model(
+                outputs = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
-                logging.info(f'ret: {ret}')
+                loss = self.criterion(outputs, (target_ratings-1))
+                loss.backward()
+                self.optimizer.step()
+                self.optimizer.zero_grad()
                 break
         return
 
