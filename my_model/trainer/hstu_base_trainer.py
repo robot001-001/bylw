@@ -259,7 +259,7 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
-                targets = (target_ratings - 1).long().view(-1)
+                targets = (target_ratings - 1).view(-1)
                 loss = self.criterion(outputs, targets)
                 batch_losses.append(loss.item())
                 pred_ids = torch.argmax(outputs, dim=1)
