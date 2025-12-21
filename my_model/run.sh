@@ -8,8 +8,8 @@ python main.py \
     --max_seq_len 200 \
     --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \
-    --train_batch_size 5 \
-    --eval_batch_size 1 \
+    --train_batch_size 128 \
+    --eval_batch_size 128 \
     --device 'cuda:0' \
     --num_epochs 3 \
     --eval_interval 20 \

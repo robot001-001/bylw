@@ -247,7 +247,7 @@ class HSTUBaseTrainer:
                     avg_auc = np.mean(metrics_accum['auc'])
                     logging.info(f"[Eval] Step {batch_id}: Loss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={avg_auc:.4f}")
                     self.model.train()
-                break
+                # break
         return
 
 
