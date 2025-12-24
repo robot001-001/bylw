@@ -239,6 +239,16 @@ class HSTUBaseTrainer:
             avg_loss, avg_acc, global_auc = self.test()
             logging.info(f"[End of Epoch {epoch}] TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
             self.model.train()
+
+        torch.save(
+            {
+                "epoch": epoch,
+                "embedding_state_dict": self.embedding_module.state_dict(),
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+            },
+            f"./ckpts/test.pt"
+        )
         return
 
 
