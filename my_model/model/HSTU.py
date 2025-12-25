@@ -178,6 +178,8 @@ def _hstu_attention_maybe_from_cache(
         padded_q.view(B, n, num_heads, attention_dim),
         padded_k.view(B, n, num_heads, attention_dim),
     )
+    logging.info(f'qk_attn.shape: {qk_attn.shape}')
+    logging.info(f'all_timestamps.shape: {all_timestamps.shape}')
     if all_timestamps is not None:
         qk_attn = qk_attn + rel_attn_bias(all_timestamps).unsqueeze(1)
     qk_attn = F.silu(qk_attn) / n
