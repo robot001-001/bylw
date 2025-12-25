@@ -536,7 +536,7 @@ class HSTU(nn.Module):
         enable_relative_attention_bias: bool = True,
     ):
         super().__init__()
-        self._max_seq_len = max_seq_len+1  # +tgt
+        self._max_seq_len = max_seq_len  # +tgt
         self._embedding_dim: int = embedding_dim
         self._dropout_rate = dropout_rate
         self._num_ratings = num_ratings
@@ -555,7 +555,7 @@ class HSTU(nn.Module):
         
 
         self._input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
-            max_sequence_len = self._max_seq_len,
+            max_sequence_len = self._max_seq_len+1,
             item_embedding_dim = self._embedding_dim,
             dropout_rate = self._dropout_rate,
             num_ratings=self._num_ratings
@@ -578,7 +578,7 @@ class HSTU(nn.Module):
                     num_heads=self._num_heads,
                     relative_attention_bias_module=(
                         RelativeBucketedTimeAndPositionBasedBias(
-                            max_seq_len=self._max_seq_len,
+                            max_seq_len=self._max_seq_len+1,
                             num_buckets=128,
                             bucketization_fn=lambda x: (
                                 torch.log(torch.abs(x).clamp(min=1)) / 0.301
@@ -601,8 +601,8 @@ class HSTU(nn.Module):
             torch.triu(
                 torch.ones(
                     (
-                        self._max_seq_len,
-                        self._max_seq_len,
+                        self._max_seq_len*2+1,
+                        self._max_seq_len*2+1,
                     ),
                     dtype=torch.bool,
                 ),
