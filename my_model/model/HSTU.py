@@ -632,15 +632,13 @@ class HSTU(nn.Module):
         float_dtype = user_embeddings.dtype
         x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
         logging.info(f'past_embeddings: {past_embeddings.shape}')
-        logging.info(f'past_embeddings values: {past_embeddings[:, :, 0]}')
         logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
-        logging.info(f'user_embeddings: {user_embeddings.shape}')
-        logging.info(f'user_embeddings values: {user_embeddings[:, :, 0]}')
+        logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
         user_embeddings, cached_states = self._hstu(
             x=user_embeddings,
             x_offsets=x_offsets,
             all_timestamps=(
-                past_payloads[TIMESTAMPS_KEY]
+                past_payloads[TIMESTAMPS_KEY].repeat_interleave(repeats=2, dim=1)[:-1]
                 if TIMESTAMPS_KEY in past_payloads
                 else None
             ),
