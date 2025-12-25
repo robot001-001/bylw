@@ -354,10 +354,10 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV1(InputFeaturesPreprocessor
             dim=2,
         ) * (self._embedding_dim**0.5)
         user_embeddings = user_embeddings.view(B, N * 2, D)
-        user_embeddings = user_embeddings + self._pos_emb(
-            torch.arange(N * 2, device=past_ids.device).unsqueeze(0).repeat(B, 1)
-        )
-        user_embeddings = self._emb_dropout(user_embeddings)
+        # user_embeddings = user_embeddings + self._pos_emb(
+        #     torch.arange(N * 2, device=past_ids.device).unsqueeze(0).repeat(B, 1)
+        # )
+        # user_embeddings = self._emb_dropout(user_embeddings)
 
         valid_mask = (
             self.get_preprocessed_masks(
