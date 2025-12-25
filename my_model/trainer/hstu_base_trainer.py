@@ -208,7 +208,7 @@ class HSTUBaseTrainer:
                 self.train_data_sampler.set_epoch(epoch)
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
-                # logging.info(f'row info: {row}')
+                logging.info(f'row info: {row}')
                 logging.info(f'batch: {batch_id}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
