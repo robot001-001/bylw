@@ -578,7 +578,7 @@ class HSTU(nn.Module):
                     num_heads=self._num_heads,
                     relative_attention_bias_module=(
                         RelativeBucketedTimeAndPositionBasedBias(
-                            max_seq_len=(self._max_seq_len+1)*2,
+                            max_seq_len=self._max_seq_len*2+1,
                             num_buckets=128,
                             bucketization_fn=lambda x: (
                                 torch.log(torch.abs(x).clamp(min=1)) / 0.301
