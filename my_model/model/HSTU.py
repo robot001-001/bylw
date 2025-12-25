@@ -93,7 +93,7 @@ class RelativeBucketedTimeAndPositionBasedBias(RelativeAttentionBiasModule):
         """
         B = all_timestamps.size(0)
         N = self._max_seq_len
-        logging.info(f'B, N, all_timestamps.shape: {B}, {N}, {all_timestamps.shape}')
+        # logging.info(f'B, N, all_timestamps.shape: {B}, {N}, {all_timestamps.shape}')
         t = F.pad(self._pos_w[: 2 * N - 1], [0, N]).repeat(N)
         t = t[..., :-N].reshape(1, N, 3 * N - 2)
         r = (2 * N - 1) // 2
@@ -179,8 +179,8 @@ def _hstu_attention_maybe_from_cache(
         padded_q.view(B, n, num_heads, attention_dim),
         padded_k.view(B, n, num_heads, attention_dim),
     )
-    logging.info(f'qk_attn.shape: {qk_attn.shape}')
-    logging.info(f'all_timestamps.shape: {all_timestamps.shape}')
+    # logging.info(f'qk_attn.shape: {qk_attn.shape}')
+    # logging.info(f'all_timestamps.shape: {all_timestamps.shape}')
     if all_timestamps is not None:
         qk_attn = qk_attn + rel_attn_bias(all_timestamps).unsqueeze(1)
     qk_attn = F.silu(qk_attn) / n
@@ -634,9 +634,9 @@ class HSTU(nn.Module):
 
         float_dtype = user_embeddings.dtype
         x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
-        logging.info(f'past_embeddings: {past_embeddings.shape}')
-        logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
-        logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
+        # logging.info(f'past_embeddings: {past_embeddings.shape}')
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
+        # logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
         user_embeddings, cached_states = self._hstu(
             x=user_embeddings,
             x_offsets=x_offsets,
@@ -650,9 +650,9 @@ class HSTU(nn.Module):
             cache=None,
             return_cache_states=False,
         )
-        logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
         output_embedding = self._output_postproc(user_embeddings)
-        logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
         end_boundaries = (past_lengths//2) - 1
         # logging.info(f'output_embedding.shape: {output_embedding.shape}')
         # logging.info(f'end_boundaries: {end_boundaries}')
