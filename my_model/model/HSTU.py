@@ -631,6 +631,7 @@ class HSTU(nn.Module):
 
         float_dtype = user_embeddings.dtype
         x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
+        logging.info(f'past_embeddings: {past_embeddings.shape}')
         logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
         logging.info(f'user_embedding: {user_embeddings.shape}')
         user_embeddings, cached_states = self._hstu(

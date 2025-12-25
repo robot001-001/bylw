@@ -8,7 +8,7 @@ python main.py \
     --max_seq_len 200 \
     --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \
-    --train_batch_size 128 \
+    --train_batch_size 1 \
     --eval_batch_size 128 \
     --device 'cuda:0' \
     --learning_rate 1e-3 \
