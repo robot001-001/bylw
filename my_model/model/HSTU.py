@@ -93,6 +93,7 @@ class RelativeBucketedTimeAndPositionBasedBias(RelativeAttentionBiasModule):
         """
         B = all_timestamps.size(0)
         N = self._max_seq_len
+        logging.info(f'B, N, all_timestamps.shape: {B}, {N}, {all_timestamps.shape}')
         t = F.pad(self._pos_w[: 2 * N - 1], [0, N]).repeat(N)
         t = t[..., :-N].reshape(1, N, 3 * N - 2)
         r = (2 * N - 1) // 2
