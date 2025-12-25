@@ -641,7 +641,7 @@ class HSTU(nn.Module):
             x=user_embeddings,
             x_offsets=x_offsets,
             all_timestamps=(
-                past_payloads[TIMESTAMPS_KEY].repeat_interleave(repeats=2, dim=1)[:, :-1]
+                past_payloads[TIMESTAMPS_KEY].repeat_interleave(repeats=2, dim=1)
                 if TIMESTAMPS_KEY in past_payloads
                 else None
             ),
