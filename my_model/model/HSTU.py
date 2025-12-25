@@ -578,7 +578,7 @@ class HSTU(nn.Module):
                     num_heads=self._num_heads,
                     relative_attention_bias_module=(
                         RelativeBucketedTimeAndPositionBasedBias(
-                            max_seq_len=self._max_seq_len*2+1,
+                            max_seq_len=self._max_seq_len*2+2,
                             num_buckets=128,
                             bucketization_fn=lambda x: (
                                 torch.log(torch.abs(x).clamp(min=1)) / 0.301
@@ -638,7 +638,7 @@ class HSTU(nn.Module):
             x=user_embeddings,
             x_offsets=x_offsets,
             all_timestamps=(
-                past_payloads[TIMESTAMPS_KEY].repeat_interleave(repeats=2, dim=1)
+                past_payloads[TIMESTAMPS_KEY].repeat_interleave(repeats=2, dim=1)[:, :-1]
                 if TIMESTAMPS_KEY in past_payloads
                 else None
             ),
