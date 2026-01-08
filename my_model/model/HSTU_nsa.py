@@ -1,0 +1,599 @@
+import torch
+from torch import nn
+from torch.nn import functional as F
+from torchrec import JaggedTensor
+
+import abc
+from typing import Dict, Optional, List, Tuple, Callable
+import math
+import logging
+
+from model.sequential.input_features_preprocessors import (
+    LearnablePositionalEmbeddingInputFeaturesPreprocessor,
+    CombinedItemAndRatingInputFeaturesPreprocessor,
+    CombinedItemAndRatingInputFeaturesPreprocessorV1
+)
+from model.sequential.output_postprocessors import LayerNormEmbeddingPostprocessor
+from model.similarity_module import SequentialEncoderWithLearnedSimilarityModule
+from model.MainTower import MainTowerMLP
+from model.GateModel import GateModel
+from model.nsa.nsa_pytorch import naive_nsa_with_compression
+
+TIMESTAMPS_KEY = "timestamps"
+
+class RelativeAttentionBiasModule(torch.nn.Module):
+    @abc.abstractmethod
+    def forward(
+        self,
+        all_timestamps: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Args:
+            all_timestamps: [B, N] x int64
+        Returns:
+            torch.float tensor broadcastable to [B, N, N]
+        """
+        pass
+
+
+class RelativePositionalBias(RelativeAttentionBiasModule):
+    def __init__(self, max_seq_len: int) -> None:
+        super().__init__()
+
+        self._max_seq_len: int = max_seq_len
+        self._w = torch.nn.Parameter(
+            torch.empty(2 * max_seq_len - 1).normal_(mean=0, std=0.02),
+        )
+
+    def forward(
+        self,
+        all_timestamps: torch.Tensor,
+    ) -> torch.Tensor:
+        del all_timestamps
+        n: int = self._max_seq_len
+        t = F.pad(self._w[: 2 * n - 1], [0, n]).repeat(n)
+        t = t[..., :-n].reshape(1, n, 3 * n - 2)
+        r = (2 * n - 1) // 2
+        return t[..., r:-r]
+
+
+
+class RelativeBucketedTimeAndPositionBasedBias(RelativeAttentionBiasModule):
+    """
+    Bucketizes timespans based on ts(next-item) - ts(current-item).
+    """
+
+    def __init__(
+        self,
+        max_seq_len: int,
+        num_buckets: int,
+        bucketization_fn: Callable[[torch.Tensor], torch.Tensor],
+    ) -> None:
+        super().__init__()
+
+        self._max_seq_len: int = max_seq_len
+        self._ts_w = torch.nn.Parameter(
+            torch.empty(num_buckets + 1).normal_(mean=0, std=0.02),
+        )
+        self._pos_w = torch.nn.Parameter(
+            torch.empty(2 * max_seq_len - 1).normal_(mean=0, std=0.02),
+        )
+        self._num_buckets: int = num_buckets
+        self._bucketization_fn: Callable[[torch.Tensor], torch.Tensor] = (
+            bucketization_fn
+        )
+
+    def forward(
+        self,
+        all_timestamps: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Args:
+            all_timestamps: (B, N).
+        Returns:
+            (B, N, N).
+        """
+        B = all_timestamps.size(0)
+        N = self._max_seq_len
+        # logging.info(f'B, N, all_timestamps.shape: {B}, {N}, {all_timestamps.shape}')
+        t = F.pad(self._pos_w[: 2 * N - 1], [0, N]).repeat(N)
+        t = t[..., :-N].reshape(1, N, 3 * N - 2)
+        r = (2 * N - 1) // 2
+
+        # [B, N + 1] to simplify tensor manipulations.
+        ext_timestamps = torch.cat(
+            [all_timestamps, all_timestamps[:, N - 1 : N]], dim=1
+        )
+        # causal masking. Otherwise [:, :-1] - [:, 1:] works
+        bucketed_timestamps = torch.clamp(
+            self._bucketization_fn(
+                ext_timestamps[:, 1:].unsqueeze(2) - ext_timestamps[:, :-1].unsqueeze(1)
+            ),
+            min=0,
+            max=self._num_buckets,
+        ).detach()
+        rel_pos_bias = t[:, :, r:-r]
+        rel_ts_bias = torch.index_select(
+            self._ts_w, dim=0, index=bucketed_timestamps.view(-1)
+        ).view(B, N, N)
+        return rel_pos_bias + rel_ts_bias
+
+
+HSTUCacheState = Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
+
+
+def _hstu_attention_with_nsa(
+    num_heads: int,
+    attention_dim: int,
+    linear_dim: int,
+    q: torch.Tensor,
+    k: torch.Tensor,
+    v: torch.Tensor,
+    cached_q: Optional[torch.Tensor],
+    cached_k: Optional[torch.Tensor],
+    delta_x_offsets: Optional[Tuple[torch.Tensor, torch.Tensor]],
+    x_offsets: torch.Tensor,
+    all_timestamps: Optional[torch.Tensor],
+    invalid_attn_mask: torch.Tensor,
+    rel_attn_bias: RelativeAttentionBiasModule,
+    gate_model: nn.Module
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    B: int = x_offsets.size(0) - 1
+    n: int = invalid_attn_mask.size(-1)
+    padded_q = torch.ops.fbgemm.jagged_to_padded_dense(
+        values=q, offsets=[x_offsets], max_lengths=[n], padding_value=0.0
+    ).view(B, n, num_heads, attention_dim)
+    padded_k = torch.ops.fbgemm.jagged_to_padded_dense(
+        values=k, offsets=[x_offsets], max_lengths=[n], padding_value=0.0
+    ).view(B, n, num_heads, attention_dim)
+    padded_v = torch.ops.fbgemm.jagged_to_padded_dense(
+        values=v, offsets=[x_offsets], max_lengths=[n], padding_value=0.0
+    ).view(B, n, num_heads, linear_dim)
+
+    g_cmp, g_slc, g_swa = gate_model(padded_q)
+
+    attn_output, block_indices = naive_nsa_with_compression(
+        q=padded_q,
+        k=padded_k,
+        v=padded_v,
+        g_cmp=g_cmp,
+        g_slc=g_slc,
+        g_swa=g_swa,
+        block_counts=2,
+        block_size=64,
+        window_size=0,
+        scale=False,
+        cu_seqlens=None,
+        head_first=False
+    )
+    attn_output = torch.ops.fbgemm.dense_to_jagged(
+        attn_output,
+        [x_offsets],
+    )[0]
+    
+    return attn_output, padded_q, padded_k
+
+
+
+class SequentialTransductionUnitJagged(torch.nn.Module):
+    def __init__(
+        self,
+        embedding_dim: int,
+        linear_hidden_dim: int,
+        attention_dim: int,
+        dropout_ratio: float,
+        attn_dropout_ratio: float,
+        num_heads: int,
+        linear_activation: str,
+        relative_attention_bias_module: Optional[RelativeAttentionBiasModule] = None,
+        normalization: str = "rel_bias",
+        linear_config: str = "uvqk",
+        concat_ua: bool = False,
+        epsilon: float = 1e-6,
+        max_length: Optional[int] = None,
+        gate_hidden_dim: int = 64
+    ) -> None:
+        super().__init__()
+        self._embedding_dim: int = embedding_dim
+        self._linear_dim: int = linear_hidden_dim
+        self._attention_dim: int = attention_dim
+        self._dropout_ratio: float = dropout_ratio
+        self._attn_dropout_ratio: float = attn_dropout_ratio
+        self._num_heads: int = num_heads
+        self._rel_attn_bias: Optional[RelativeAttentionBiasModule] = (
+            relative_attention_bias_module
+        )
+        self._normalization: str = normalization
+        self._linear_config: str = linear_config
+        self._gate_hidden_dim: int = gate_hidden_dim
+        self._gate_model = GateModel(in_features=self._attention_dim, hidden_dim=self._gate_hidden_dim)
+        if self._linear_config == "uvqk":
+            self._uvqk: torch.nn.Parameter = torch.nn.Parameter(
+                torch.empty(
+                    (
+                        embedding_dim,
+                        linear_hidden_dim * 2 * num_heads
+                        + attention_dim * num_heads * 2,
+                    )
+                ).normal_(mean=0, std=0.02),
+            )
+        else:
+            raise ValueError(f"Unknown linear_config {self._linear_config}")
+        self._linear_activation: str = linear_activation
+        self._concat_ua: bool = concat_ua
+        self._o = torch.nn.Linear(
+            in_features=linear_hidden_dim * num_heads * (3 if concat_ua else 1),
+            out_features=embedding_dim,
+        )
+        torch.nn.init.xavier_uniform_(self._o.weight)
+        self._eps: float = epsilon
+
+    def _norm_input(self, x: torch.Tensor) -> torch.Tensor:
+        return F.layer_norm(x, normalized_shape=[self._embedding_dim], eps=self._eps)
+
+    def _norm_attn_output(self, x: torch.Tensor) -> torch.Tensor:
+        return F.layer_norm(
+            x, normalized_shape=[self._linear_dim * self._num_heads], eps=self._eps
+        )
+
+    def forward(  # pyre-ignore [3]
+        self,
+        x: torch.Tensor,
+        x_offsets: torch.Tensor,
+        all_timestamps: Optional[torch.Tensor],
+        invalid_attn_mask: torch.Tensor,
+        delta_x_offsets: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        cache: Optional[HSTUCacheState] = None,
+        return_cache_states: bool = False,
+    ):
+        """
+        Args:
+            x: (\sum_i N_i, D) x float.
+            x_offsets: (B + 1) x int32.
+            all_timestamps: optional (B, N) x int64.
+            invalid_attn_mask: (B, N, N) x float, each element in {0, 1}.
+            delta_x_offsets: optional 2-tuple ((B,) x int32, (B,) x int32).
+                For the 1st element in the tuple, each element is in [0, x_offsets[-1]). For the
+                2nd element in the tuple, each element is in [0, N).
+            cache: Optional 4-tuple of (v, padded_q, padded_k, output) from prior runs,
+                where all except padded_q, padded_k are jagged.
+        Returns:
+            x' = f(x), (\sum_i N_i, D) x float.
+        """
+        n: int = invalid_attn_mask.size(-1)
+        cached_q = None
+        cached_k = None
+        if delta_x_offsets is not None:
+            # In this case, for all the following code, x, u, v, q, k become restricted to
+            # [delta_x_offsets[0], :].
+            assert cache is not None
+            x = x[delta_x_offsets[0], :]
+            cached_v, cached_q, cached_k, cached_outputs = cache
+
+        normed_x = self._norm_input(x)
+
+        if self._linear_config == "uvqk":
+            batched_mm_output = torch.mm(normed_x, self._uvqk)
+            if self._linear_activation == "silu":
+                batched_mm_output = F.silu(batched_mm_output)
+            elif self._linear_activation == "none":
+                batched_mm_output = batched_mm_output
+            u, v, q, k = torch.split(
+                batched_mm_output,
+                [
+                    self._linear_dim * self._num_heads,
+                    self._linear_dim * self._num_heads,
+                    self._attention_dim * self._num_heads,
+                    self._attention_dim * self._num_heads,
+                ],
+                dim=1,
+            )
+        else:
+            raise ValueError(f"Unknown self._linear_config {self._linear_config}")
+
+        if delta_x_offsets is not None:
+            v = cached_v.index_copy_(dim=0, index=delta_x_offsets[0], source=v)
+
+        B: int = x_offsets.size(0) - 1
+        if self._normalization == "rel_bias" or self._normalization == "hstu_rel_bias":
+            assert self._rel_attn_bias is not None
+            attn_output, padded_q, padded_k = _hstu_attention_with_nsa(
+                num_heads=self._num_heads,
+                attention_dim=self._attention_dim,
+                linear_dim=self._linear_dim,
+                q=q,
+                k=k,
+                v=v,
+                cached_q=cached_q,
+                cached_k=cached_k,
+                delta_x_offsets=delta_x_offsets,
+                x_offsets=x_offsets,
+                all_timestamps=all_timestamps,
+                invalid_attn_mask=invalid_attn_mask,
+                rel_attn_bias=self._rel_attn_bias,
+                gate_model=self._gate_model
+            )
+        elif self._normalization == "softmax_rel_bias":
+            pass
+        else:
+            raise ValueError(f"Unknown normalization method {self._normalization}")
+
+        attn_output = (
+            attn_output
+            if delta_x_offsets is None
+            else attn_output[delta_x_offsets[0], :]
+        )
+        if self._concat_ua:
+            a = self._norm_attn_output(attn_output)
+            o_input = torch.cat([u, a, u * a], dim=-1)
+        else:
+            o_input = u * self._norm_attn_output(attn_output)
+
+        new_outputs = (
+            self._o(
+                F.dropout(
+                    o_input,
+                    p=self._dropout_ratio,
+                    training=self.training,
+                )
+            )
+            + x
+        )
+
+        if delta_x_offsets is not None:
+            new_outputs = cached_outputs.index_copy_(
+                dim=0, index=delta_x_offsets[0], source=new_outputs
+            )
+
+        if return_cache_states and delta_x_offsets is None:
+            v = v.contiguous()
+
+        return new_outputs, (v, padded_q, padded_k, new_outputs)
+
+
+
+class HSTUJagged(torch.nn.Module):
+    def __init__(
+        self,
+        modules: List[SequentialTransductionUnitJagged],
+        autocast_dtype: Optional[torch.dtype],
+    ) -> None:
+        super().__init__()
+
+        self._attention_layers: torch.nn.ModuleList = torch.nn.ModuleList(
+            modules=modules
+        )
+        self._autocast_dtype: Optional[torch.dtype] = autocast_dtype
+
+    def jagged_forward(
+        self,
+        x: torch.Tensor,
+        x_offsets: torch.Tensor,
+        all_timestamps: Optional[torch.Tensor],
+        invalid_attn_mask: torch.Tensor,
+        delta_x_offsets: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        cache: Optional[List[HSTUCacheState]] = None,
+        return_cache_states: bool = False,
+    ) -> Tuple[torch.Tensor, List[HSTUCacheState]]:
+        """
+        Args:
+            x: (\sum_i N_i, D) x float
+            x_offsets: (B + 1) x int32
+            all_timestamps: (B, 1 + N) x int64
+            invalid_attn_mask: (B, N, N) x float, each element in {0, 1}
+            return_cache_states: bool. True if we should return cache states.
+
+        Returns:
+            x' = f(x), (\sum_i N_i, D) x float
+        """
+        cache_states: List[HSTUCacheState] = []
+
+        with torch.autocast(
+            "cuda",
+            enabled=self._autocast_dtype is not None,
+            dtype=self._autocast_dtype or torch.float16,
+        ):
+            for i, layer in enumerate(self._attention_layers):
+                x, cache_states_i = layer(
+                    x=x,
+                    x_offsets=x_offsets,
+                    all_timestamps=all_timestamps,
+                    invalid_attn_mask=invalid_attn_mask,
+                    delta_x_offsets=delta_x_offsets,
+                    cache=cache[i] if cache is not None else None,
+                    return_cache_states=return_cache_states,
+                )
+                if return_cache_states:
+                    cache_states.append(cache_states_i)
+
+        return x, cache_states
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        x_offsets: torch.Tensor,
+        all_timestamps: Optional[torch.Tensor],
+        invalid_attn_mask: torch.Tensor,
+        delta_x_offsets: Optional[Tuple[torch.Tensor, torch.Tensor]] = None,
+        cache: Optional[List[HSTUCacheState]] = None,
+        return_cache_states: bool = False,
+    ) -> Tuple[torch.Tensor, List[HSTUCacheState]]:
+        """
+        Args:
+            x: (B, N, D) x float.
+            x_offsets: (B + 1) x int32.
+            all_timestamps: (B, 1 + N) x int64
+            invalid_attn_mask: (B, N, N) x float, each element in {0, 1}.
+        Returns:
+            x' = f(x), (B, N, D) x float
+        """
+        if len(x.size()) == 3:
+            x = torch.ops.fbgemm.dense_to_jagged(x, [x_offsets])[0]
+
+        jagged_x, cache_states = self.jagged_forward(
+            x=x,
+            x_offsets=x_offsets,
+            all_timestamps=all_timestamps,
+            invalid_attn_mask=invalid_attn_mask,
+            delta_x_offsets=delta_x_offsets,
+            cache=cache,
+            return_cache_states=return_cache_states,
+        )
+        y = torch.ops.fbgemm.jagged_to_padded_dense(
+            values=jagged_x,
+            offsets=[x_offsets],
+            max_lengths=[invalid_attn_mask.size(1)],
+            padding_value=0.0,
+        )
+        return y, cache_states
+
+
+
+class HSTU(nn.Module):
+    def __init__(
+        self,
+        max_seq_len: int,
+        embedding_dim: int,
+        dropout_rate: int,
+        num_ratings: int,
+        linear_dim: int,
+        attention_dim: int,
+        normalization: str,
+        linear_config: str,
+        linear_activation: str,
+        num_blocks: int,
+        num_heads: int,
+        linear_dropout_rate: float,
+        attn_dropout_rate: float,
+        main_tower_units: List[int],
+        concat_ua: bool = False,
+        enable_relative_attention_bias: bool = True,
+    ):
+        super().__init__()
+        self._max_seq_len = max_seq_len  # +tgt
+        self._embedding_dim: int = embedding_dim
+        self._dropout_rate = dropout_rate
+        self._num_ratings = num_ratings
+        self._linear_dim = linear_dim
+        self._attention_dim = attention_dim
+        self._normalization = normalization
+        self._linear_config = linear_config
+        self._linear_activation = linear_activation
+        self._num_blocks = num_blocks
+        self._num_heads = num_heads
+        self._linear_dropout_rate = linear_dropout_rate
+        self._attn_dropout_rate = attn_dropout_rate
+        self._main_tower_units = main_tower_units
+        self._concat_ua = concat_ua
+        self._enable_relative_attention_bias = enable_relative_attention_bias
+        
+
+        self._input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
+            max_sequence_len = self._max_seq_len+1,
+            item_embedding_dim = self._embedding_dim,
+            dropout_rate = self._dropout_rate,
+            num_ratings=self._num_ratings
+        )
+        self._output_postproc = (
+            LayerNormEmbeddingPostprocessor(
+                embedding_dim=self._embedding_dim,
+                eps=1e-6,
+            )
+        )
+        self._hstu = HSTUJagged(
+            modules=[
+                SequentialTransductionUnitJagged(
+                    embedding_dim=self._embedding_dim,
+                    linear_hidden_dim=self._linear_dim,
+                    attention_dim=self._attention_dim,
+                    normalization=self._normalization,
+                    linear_config=self._linear_config,
+                    linear_activation=self._linear_activation,
+                    num_heads=self._num_heads,
+                    relative_attention_bias_module=(
+                        RelativeBucketedTimeAndPositionBasedBias(
+                            max_seq_len=self._max_seq_len*2+1,
+                            num_buckets=128,
+                            bucketization_fn=lambda x: (
+                                torch.log(torch.abs(x).clamp(min=1)) / 0.301
+                            ).long(),
+                        )
+                        if self._enable_relative_attention_bias
+                        else None
+                    ),
+                    dropout_ratio=self._linear_dropout_rate,
+                    attn_dropout_ratio=self._attn_dropout_rate,
+                    concat_ua=self._concat_ua,
+                )
+                for _ in range(self._num_blocks)
+            ],
+            autocast_dtype=None,
+        )
+        self.main_tower = MainTowerMLP(self._embedding_dim, main_tower_units)
+        self.register_buffer(
+            "_attn_mask",
+            torch.triu(
+                torch.ones(
+                    (
+                        self._max_seq_len*2+1,
+                        self._max_seq_len*2+1,
+                    ),
+                    dtype=torch.bool,
+                ),
+                diagonal=1,
+            ),
+        )
+
+    def forward(
+        self,
+        past_lengths: torch.Tensor, # 一个batch的历史序列长度, (B,) x int64
+        past_ids: torch.Tensor, # 历史行为的物品ID序列, (B, N,) x int64
+        past_embeddings: torch.Tensor, # (B, N, D) x float
+        past_payloads: Dict[str, torch.Tensor], # 额外的元数据（Metadata）字典, 如timestamp
+        batch_id: Optional[int] = None,
+    ):
+        device = past_lengths.device
+        float_dtype = past_embeddings.dtype
+        B, N, _ = past_embeddings.size()
+
+        past_lengths, user_embeddings, _ = self._input_features_preproc(
+            past_lengths=past_lengths,
+            past_ids=past_ids,
+            past_embeddings=past_embeddings,
+            past_payloads=past_payloads,
+        )
+
+        float_dtype = user_embeddings.dtype
+        x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
+        # logging.info(f'past_embeddings: {past_embeddings.shape}')
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
+        # logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
+        user_embeddings, cached_states = self._hstu(
+            x=user_embeddings,
+            x_offsets=x_offsets,
+            all_timestamps=(
+                past_payloads[TIMESTAMPS_KEY].repeat_interleave(repeats=2, dim=1)[:, :-1]
+                if TIMESTAMPS_KEY in past_payloads
+                else None
+            ),
+            invalid_attn_mask=1.0 - self._attn_mask.to(float_dtype),
+            delta_x_offsets=None,
+            cache=None,
+            return_cache_states=False,
+        )
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
+        output_embedding = self._output_postproc(user_embeddings)
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        end_boundaries = (past_lengths//2) - 1
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        # logging.info(f'end_boundaries: {end_boundaries}')
+        # logging.info(f'past_lengths: {past_lengths}')
+        # logging.info(f'x_offsets: {x_offsets}')
+        # last_embeddings = output_embedding[..., end_boundaries, ...] # 获取最后一个item的嵌入
+        batch_indices = torch.arange(output_embedding.shape[0], device=output_embedding.device)
+        last_embeddings = output_embedding[batch_indices, end_boundaries]
+        # logging.info(f'last_embeddings.shape: {last_embeddings.shape}')
+        out = self.main_tower(last_embeddings)
+        return out
+        
+

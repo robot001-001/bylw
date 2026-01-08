@@ -3,6 +3,7 @@ clear
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/ \
+    --model HSTU_nsa \
     --mode dev \
     --dataset_name 'ml-1m' \
     --max_seq_len 200 \

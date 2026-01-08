@@ -14,7 +14,7 @@ from torch import nn
 import torch.optim as optim
 
 
-from model.HSTU import HSTU
+# from model.HSTU import HSTU
 from model.sequential.losses.autoregressive_losses import (
     BCELoss,
     InBatchNegativesSampler,
@@ -42,6 +42,7 @@ class HSTUBaseTrainer:
 
     def define_flags(self):
         # setup params
+        flags.DEFINE_string('model', 'HSTU', 'HSTU/HSTU_nsa')
         flags.DEFINE_string('mode', None, 'mode')
         flags.DEFINE_string('device', 'cpu', 'device')
         # shared params
@@ -68,6 +69,12 @@ class HSTUBaseTrainer:
         flags.DEFINE_string('test_data_dir', None, 'test_data_dir')
         flags.DEFINE_integer('eval_batch_size', -1, 'eval_batch_size')
         self.FLAGS = flags.FLAGS
+        if self.FLAGS.model == 'HSTU':
+            from model.HSTU import HSTU
+        elif self.FLAGS.model == 'HSTU_nsa':
+            from model.HSTU_nsa import HSTU
+        else:
+            pass
 
 
     def run(self):
