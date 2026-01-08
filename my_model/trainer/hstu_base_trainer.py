@@ -69,6 +69,9 @@ class HSTUBaseTrainer:
         flags.DEFINE_string('test_data_dir', None, 'test_data_dir')
         flags.DEFINE_integer('eval_batch_size', -1, 'eval_batch_size')
         self.FLAGS = flags.FLAGS
+
+
+    def run(self):
         if self.FLAGS.model == 'HSTU':
             logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
             from model.HSTU import HSTU
@@ -79,9 +82,6 @@ class HSTUBaseTrainer:
             self.model_cls = HSTU
         else:
             pass
-
-
-    def run(self):
         if self.FLAGS.mode == 'train':
             logging.info(f'mode: {self.FLAGS.mode}')
         elif self.FLAGS.mode == 'test':
