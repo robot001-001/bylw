@@ -13,7 +13,6 @@ class GateModel(nn.Module):
         self.atv1 = nn.ReLU()
         self.mlp2 = nn.Linear(in_features=hidden_dim, out_features=3) # g_cmp, g_slc, g_swa
         self.atv2 = nn.Sigmoid()
-        logging.info(f'successfully init gate model')
 
     def forward(self, x): # x: [bsize, seq_len, head_num, head_dim]
         x = self.mlp1(x)
