@@ -71,8 +71,10 @@ class HSTUBaseTrainer:
         self.FLAGS = flags.FLAGS
         if self.FLAGS.model == 'HSTU':
             from model.HSTU import HSTU
+            self.model_cls = HSTU
         elif self.FLAGS.model == 'HSTU_nsa':
             from model.HSTU_nsa import HSTU
+            self.model_cls = HSTU
         else:
             pass
 
@@ -92,7 +94,7 @@ class HSTUBaseTrainer:
     
     def get_model(self):
         self.model_args = json.loads(self.FLAGS.model_args)
-        self.model = HSTU(**self.model_args)
+        self.model = self.model_cls(**self.model_args)
         self.model.to(self.device)
         total_params = sum(p.numel() for p in self.model.parameters())
         trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
