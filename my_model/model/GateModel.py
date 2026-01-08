@@ -19,5 +19,7 @@ class GateModel(nn.Module):
         x = self.mlp1(x)
         x = self.atv1(x)
         x = self.mlp2(x)
-        x = self.atv2(x)
-        return x # x: [bsize, seq_len, head_num, 3]
+        x = self.atv2(x)# x: [bsize, seq_len, head_num, 3]
+        g_cmp, g_slc, g_swa = x.unbind(dim=-1)
+        
+        return g_cmp, g_slc, g_swa
