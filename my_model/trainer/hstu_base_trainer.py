@@ -70,9 +70,11 @@ class HSTUBaseTrainer:
         flags.DEFINE_integer('eval_batch_size', -1, 'eval_batch_size')
         self.FLAGS = flags.FLAGS
         if self.FLAGS.model == 'HSTU':
+            logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
             from model.HSTU import HSTU
             self.model_cls = HSTU
         elif self.FLAGS.model == 'HSTU_nsa':
+            logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
             from model.HSTU_nsa import HSTU
             self.model_cls = HSTU
         else:
