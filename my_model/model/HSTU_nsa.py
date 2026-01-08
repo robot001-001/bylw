@@ -167,8 +167,6 @@ def _hstu_attention_with_nsa(
         head_first=False
     )
     attn_output = attn_output.reshape(B, n, num_heads * linear_dim)
-    logging.info(f'_hstu_attention_with_nsa: attn_output.shape: {attn_output.shape}')
-    logging.info(f'_hstu_attention_with_nsa: x_offsets: {x_offsets}')
     attn_output = torch.ops.fbgemm.dense_to_jagged(
         attn_output,
         [x_offsets],
