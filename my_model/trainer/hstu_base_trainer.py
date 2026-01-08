@@ -94,6 +94,7 @@ class HSTUBaseTrainer:
     
     def get_model(self):
         self.model_args = json.loads(self.FLAGS.model_args)
+        logging.info(f'self.model_cls: {self.model_cls}')
         self.model = self.model_cls(**self.model_args)
         self.model.to(self.device)
         total_params = sum(p.numel() for p in self.model.parameters())
