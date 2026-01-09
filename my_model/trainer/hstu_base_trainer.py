@@ -242,7 +242,8 @@ class HSTUBaseTrainer:
                 self.optimizer.step()
                 self.optimizer.zero_grad()
                 # eval
-                if (batch_id % self.FLAGS.eval_interval) == 0:
+                if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
+                    logging.info(f'start testing!')
                     avg_loss, avg_acc, global_auc = self.test()
                     logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
                     self.embedding_module.train()

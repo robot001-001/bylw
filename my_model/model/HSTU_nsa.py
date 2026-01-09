@@ -395,7 +395,7 @@ class HSTUJagged(torch.nn.Module):
             dtype=self._autocast_dtype or torch.float16,
         ):
             for i, layer in enumerate(self._attention_layers):
-                logging.info(f'current running layer: {i}')
+                # logging.info(f'current running layer: {i}')
                 x, cache_states_i = layer(
                     x=x,
                     x_offsets=x_offsets,
