@@ -395,7 +395,7 @@ class HSTUJagged(torch.nn.Module):
             dtype=self._autocast_dtype or torch.float16,
         ):
             for i, layer in enumerate(self._attention_layers):
-                logging.info(f'current running layer: {i}')
+                # logging.info(f'current running layer: {i}')
                 x, cache_states_i = layer(
                     x=x,
                     x_offsets=x_offsets,
@@ -583,7 +583,7 @@ class HSTU(nn.Module):
             cache=None,
             return_cache_states=False,
         )
-        logging.info(f'user_embeddings.shape: {user_embeddings.shape}')
+        # logging.info(f'user_embeddings.shape: {user_embeddings.shape}')
         # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
         output_embedding = self._output_postproc(user_embeddings)
         # logging.info(f'output_embedding.shape: {output_embedding.shape}')
