@@ -65,6 +65,7 @@ class HSTUBaseTrainer:
         flags.DEFINE_bool('item_l2_norm', False, 'for SSoftmaxLoss')
         flags.DEFINE_float('l2_norm_eps', 1e-6, 'for SSoftmaxLoss')
         flags.DEFINE_float('weight_decay', 1e-3, 'weight decay')
+        flags.DEFINE_integer('accum_steps', 1, 'accum_steps')
         # test params
         flags.DEFINE_string('test_data_dir', None, 'test_data_dir')
         flags.DEFINE_integer('eval_batch_size', -1, 'eval_batch_size')
@@ -117,36 +118,60 @@ class HSTUBaseTrainer:
         self.get_dataset()
         self.get_model()
         self.get_loss()
-        self.model.to(self.device)
-        self.ar_loss.to(self.device)
-        opt = torch.optim.AdamW(
-            self.model.parameters(),
-            lr=self.FLAGS.learning_rate,
-            betas=(0.9, 0.98),
-            weight_decay=self.FLAGS.weight_decay,
-        )
-        date_str = date.today().strftime("%Y-%m-%d")
-        model_subfolder = f"{self.FLAGS.dataset_name}-l{self.FLAGS.max_sequence_length}"
-        os.makedirs(f"./exps/{model_subfolder}", exist_ok=True)
-        os.makedirs(f"./ckpts/{model_subfolder}", exist_ok=True)
-        
-        last_training_time = time.time()
-        torch.autograd.set_detect_anomaly(True)
+        logging.info(f'model structure: {self.model}')
 
         batch_id = 0
         epoch = 0
+        self.optimizer.zero_grad()
         for epoch in range(self.FLAGS.num_epochs):
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
-            if self.eval_data_sampler is not None:
-                self.eval_data_sampler.set_epoch(epoch)
-            self.model.train()
-            for row in iter(self.train_data_loader):
+            for batch_id, row in enumerate(iter(self.train_data_loader)):
+                # train
+                # logging.info(f'row info: {row}')
+                logging.info(f'batch: {batch_id}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=11,
+                    max_output_length=0, # 精排架构不需要补充
                 )
+                # logging.info(f'seq_features: {seq_features}')
+                # logging.info(f'target_ids: {target_ids}')
+                # logging.info(f'target_ratings: {target_ratings}')
+                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+                outputs = self.model(
+                    past_lengths=seq_features.past_lengths,
+                    past_ids=seq_features.past_ids,
+                    past_embeddings=input_embeddings,
+                    past_payloads=seq_features.past_payloads,
+                )
+                loss = self.criterion(outputs, (target_ratings-1).squeeze())
+                loss.backward()
+                self.optimizer.step()
+                self.optimizer.zero_grad()
+                # eval
+                if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
+                    logging.info(f'start testing!')
+                    avg_loss, avg_acc, global_auc = self.test()
+                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                    self.embedding_module.train()
+                    self.model.train()
+                # return
+            avg_loss, avg_acc, global_auc = self.test()
+            logging.info(f"[End of Epoch {epoch}] TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+            self.model.train()
+
+        torch.save(
+            {
+                "epoch": epoch,
+                "embedding_state_dict": self.embedding_module.state_dict(),
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+            },
+            f"./ckpts/test.pt"
+        )
+        return
 
 
     def get_loss(self):
@@ -210,26 +235,33 @@ class HSTUBaseTrainer:
         self.get_model()
         self.get_loss()
         logging.info(f'model structure: {self.model}')
+        self.accum_steps = self.FLAGS.accum_steps
+
+        try:
+            num_batches = len(self.train_data_loader)
+        except:
+            num_batches = float('inf')
 
         batch_id = 0
         epoch = 0
-        self.optimizer.zero_grad()
+        
+        # 1. 确保循环开始前梯度清零
+        self.optimizer.zero_grad() 
+        
         for epoch in range(self.FLAGS.num_epochs):
             logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
+            
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
-                # logging.info(f'row info: {row}')
                 logging.info(f'batch: {batch_id}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
-                    max_output_length=0, # 精排架构不需要补充
+                    max_output_length=0, 
                 )
-                # logging.info(f'seq_features: {seq_features}')
-                # logging.info(f'target_ids: {target_ids}')
-                # logging.info(f'target_ratings: {target_ratings}')
+
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 outputs = self.model(
                     past_lengths=seq_features.past_lengths,
@@ -237,20 +269,30 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
+                
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
+                
+                loss_to_display = loss.item()
+                loss = loss / self.accum_steps
+                
                 loss.backward()
-                self.optimizer.step()
-                self.optimizer.zero_grad()
+                is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
+                
+                if is_update_step:
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                
                 # eval
                 if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
                     logging.info(f'start testing!')
                     avg_loss, avg_acc, global_auc = self.test()
-                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
                     self.embedding_module.train()
                     self.model.train()
-                # return
+
+            # End of Epoch
             avg_loss, avg_acc, global_auc = self.test()
-            logging.info(f"[End of Epoch {epoch}] TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+            logging.info(f"[End of Epoch {epoch}] TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
             self.model.train()
 
         torch.save(
