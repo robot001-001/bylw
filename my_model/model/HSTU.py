@@ -625,6 +625,8 @@ class HSTU(nn.Module):
         float_dtype = past_embeddings.dtype
         B, N, _ = past_embeddings.size()
 
+        logging.info(f'past_lengths: {past_lengths}, past_ids: {past_ids}, past_embeddings: {past_embeddings}')
+
         past_lengths, user_embeddings, _ = self._input_features_preproc(
             past_lengths=past_lengths,
             past_ids=past_ids,
