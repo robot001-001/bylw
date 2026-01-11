@@ -408,7 +408,7 @@ class HSTUBaseTrainer:
                 # --- 分支逻辑：处理二分类指标所需的概率和标签 ---
                 probs = torch.softmax(outputs, dim=1)
                 
-                if self.use_binary_ratings:
+                if self.FLAGS.use_binary_ratings:
                     # === 模式 A: Binary 输入 (Rating 1, 2) ===
                     # 此时 outputs 的 shape 应该是 [B, 2]
                     # Index 0 是负例(1分)，Index 1 是正例(2分)
