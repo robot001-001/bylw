@@ -370,8 +370,8 @@ class HSTUBaseTrainer:
         self.model.eval()
         
         batch_losses = []
-        batch_accs = []         # 对应 5分类 (Exact Match)
-        batch_binary_accs = []  # 新增：对应 二分类 (Binary Accuracy)
+        batch_accs = []         # Exact Match Accuracy
+        batch_binary_accs = []  # Binary Accuracy
         
         all_pos_probs = []
         all_binary_targets = []
@@ -391,45 +391,61 @@ class HSTUBaseTrainer:
                     past_payloads=seq_features.past_payloads,
                 )
                 
-                # 原始 Target 是 0-4 (对应评分 1-5)
+                # --- 通用 Label 处理 ---
+                # 如果是 1-5分，变为 0-4
+                # 如果是 1-2(Binary)，变为 0-1 (0:False, 1:True)
                 targets = (target_ratings - 1).view(-1)
                 
                 loss = self.criterion(outputs, targets)
                 batch_losses.append(loss.item())
                 
-                # --- 1. 原有的 5分类准确率 (Exact Match) ---
-                # 要求预测分毫不差 (例如预测4分，实际4分)
+                # --- 计算 Exact Match Accuracy ---
+                # 在二分类模式下，这个值等于 Binary Acc
                 pred_ids = torch.argmax(outputs, dim=1)
                 acc = (pred_ids == targets).float().mean().item()
                 batch_accs.append(acc)
                 
-                # --- 2. 准备二分类数据 ---
+                # --- 分支逻辑：处理二分类指标所需的概率和标签 ---
                 probs = torch.softmax(outputs, dim=1)
                 
-                # 计算属于"正类" (>=4分) 的概率
-                # targets为0-4，所以 index 3 和 4 对应评分 4 和 5
-                if probs.shape[1] >= 5:
-                    pos_probs_batch = probs[:, 3:].sum(dim=1)
+                if self.use_binary_ratings:
+                    # === 模式 A: Binary 输入 (Rating 1, 2) ===
+                    # 此时 outputs 的 shape 应该是 [B, 2]
+                    # Index 0 是负例(1分)，Index 1 是正例(2分)
+                    
+                    # 正类概率就是 Index 1 的概率
+                    pos_probs_batch = probs[:, 1]
+                    
+                    # 真实标签已经是 0/1 了，无需转换
+                    binary_targets_batch = targets.float()
+                    
                 else:
-                    pos_probs_batch = probs[:, -1]
+                    # === 模式 B: 5-Star 输入 (Rating 1-5) ===
+                    # 此时 outputs 的 shape 应该是 [B, 5]
+                    
+                    # 正类概率是 4星(index 3) 和 5星(index 4) 之和
+                    if probs.shape[1] >= 5:
+                        pos_probs_batch = probs[:, 3:].sum(dim=1)
+                    else:
+                        pos_probs_batch = probs[:, -1] # 兜底逻辑
+                    
+                    # 真实标签需要手动截断 (>=3 为正例)
+                    binary_targets_batch = (targets >= 3).float()
                 
-                # 真实的二分类标签 (1: >=4分, 0: <4分)
-                binary_targets_batch = (targets >= 3).float()
+                # --- 统一计算 Binary Accuracy 和 收集 AUC 数据 ---
+                # 此时 pos_probs_batch 和 binary_targets_batch 已经对齐了
                 
-                # --- 3. 新增：计算二分类准确率 (Binary Accuracy) ---
-                # 阈值取 0.5 (即认为 >=4分的概率超过50% 就是"喜欢")
+                # 阈值取 0.5 判断
                 binary_preds = (pos_probs_batch >= 0.5).float()
                 binary_acc = (binary_preds == binary_targets_batch).float().mean().item()
                 batch_binary_accs.append(binary_acc)
                 
-                # 收集用于计算 AUC 的数据
                 all_pos_probs.extend(pos_probs_batch.cpu().numpy().tolist())
                 all_binary_targets.extend(binary_targets_batch.cpu().numpy().tolist())
         
-        # 计算各种平均值
         avg_loss = np.mean(batch_losses)
-        avg_acc = np.mean(batch_accs)               # 原始 Acc (约 35%)
-        avg_binary_acc = np.mean(batch_binary_accs) # 新增 Binary Acc (约 75%+)
+        avg_acc = np.mean(batch_accs)
+        avg_binary_acc = np.mean(batch_binary_accs)
         
         try:
             global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
@@ -437,5 +453,4 @@ class HSTUBaseTrainer:
             logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
             global_auc = 0.5
 
-        # 返回值增加了 avg_binary_acc
         return avg_loss, avg_acc, avg_binary_acc, global_auc
