@@ -22,3 +22,9 @@
     * 尝试从召回模型embedding做embedding冷启动，只训上游模型参数
     * 尝试加大参数量、数据量，看是否能解决冷启问题
     * 直接follow原脚本训hstu显存占用12g，但是自定义脚本显存占用2g，分析问题所在
+
+# 2026-01-11
+* 跑通hstu_nsa、hstu_interleave代码
+* 完成binary数据清洗与训练脚本
+* todo
+    * hstu模型中endboundaries计算有问题，排查
