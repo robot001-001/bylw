@@ -7,6 +7,7 @@ python main.py \
     --mode dev \
     --dataset_name 'ml-1m' \
     --use_binary_ratings True \
+    --num_ratings 2 \
     --max_seq_len 200 \
     --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \

@@ -42,6 +42,7 @@ def get_reco_dataset(
     max_sequence_length: int,
     chronological: bool,
     use_binary_ratings: bool,
+    num_ratings: int,
     positional_sampling_ratio: float = 1.0,
 ) -> RecoDataset:
     if dataset_name == "ml-1m":
@@ -52,6 +53,7 @@ def get_reco_dataset(
             ignore_last_n=1,
             chronological=chronological,
             sample_ratio=positional_sampling_ratio,
+            num_ratings=num_ratings,
         )
         eval_dataset = DatasetV3(
             ratings_file=dp.output_format_csv().replace('.csv', '_binary.csv') if use_binary_ratings else dp.output_format_csv(),
@@ -59,6 +61,7 @@ def get_reco_dataset(
             ignore_last_n=0,
             chronological=chronological,
             sample_ratio=1.0,  # do not sample
+            num_ratings=num_ratings,
         )
     elif dataset_name == "ml-20m":
         dp = get_common_preprocessors()[dataset_name]

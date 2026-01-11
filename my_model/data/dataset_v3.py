@@ -25,6 +25,7 @@ class DatasetV3(torch.utils.data.Dataset):
         shift_id_by: int = 0,
         chronological: bool = False,
         sample_ratio: float = 1.0,
+        num_ratings: int=5
     ) -> None:
         """
         Args:
@@ -43,6 +44,7 @@ class DatasetV3(torch.utils.data.Dataset):
         self._shift_id_by: int = shift_id_by
         self._chronological: bool = chronological
         self._sample_ratio: float = sample_ratio
+        self._num_ratings: int = num_ratings
 
     def __len__(self) -> int:
         return len(self.ratings_frame)
@@ -134,7 +136,7 @@ class DatasetV3(torch.utils.data.Dataset):
 
         historical_ids = movie_history[:]
         historical_ratings = movie_history_ratings[:]
-        historical_ratings[0] = 6 # mask掉真实评分
+        historical_ratings[0] = self._num_ratings +1 # mask掉真实评分
         historical_timestamps = movie_timestamps[:]
         target_ids = movie_history[0]
         target_ratings = movie_history_ratings[0]
