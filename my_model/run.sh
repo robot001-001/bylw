@@ -3,7 +3,7 @@ clear
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/ \
-    --model HSTU \
+    --model HSTU_interleave \
     --mode dev \
     --dataset_name 'ml-1m' \
     --use_binary_ratings True \
