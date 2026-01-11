@@ -287,8 +287,9 @@ class HSTUBaseTrainer:
                 # eval
                 if (batch_id % (self.FLAGS.eval_interval*self.accum_steps)) == 0 and batch_id != 0:
                     logging.info(f'start testing!')
-                    avg_loss, avg_acc, global_auc = self.test()
-                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                    # avg_loss, avg_acc, global_auc = self.test()
+                    avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
+                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
                     self.embedding_module.train()
                     self.model.train()
 
@@ -359,4 +360,77 @@ class HSTUBaseTrainer:
         return avg_loss, avg_acc, global_auc
 
 
+    def test_with_binary_acc(self):
+        self.embedding_module.eval()
+        self.model.eval()
+        
+        batch_losses = []
+        batch_accs = []         # 对应 5分类 (Exact Match)
+        batch_binary_accs = []  # 新增：对应 二分类 (Binary Accuracy)
+        
+        all_pos_probs = []
+        all_binary_targets = []
+        
+        with torch.no_grad():
+            for row in iter(self.eval_data_loader):
+                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
+                    row,
+                    device=self.device,
+                    max_output_length=0, 
+                )
+                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+                outputs = self.model(
+                    past_lengths=seq_features.past_lengths,
+                    past_ids=seq_features.past_ids,
+                    past_embeddings=input_embeddings,
+                    past_payloads=seq_features.past_payloads,
+                )
+                
+                # 原始 Target 是 0-4 (对应评分 1-5)
+                targets = (target_ratings - 1).view(-1)
+                
+                loss = self.criterion(outputs, targets)
+                batch_losses.append(loss.item())
+                
+                # --- 1. 原有的 5分类准确率 (Exact Match) ---
+                # 要求预测分毫不差 (例如预测4分，实际4分)
+                pred_ids = torch.argmax(outputs, dim=1)
+                acc = (pred_ids == targets).float().mean().item()
+                batch_accs.append(acc)
+                
+                # --- 2. 准备二分类数据 ---
+                probs = torch.softmax(outputs, dim=1)
+                
+                # 计算属于"正类" (>=4分) 的概率
+                # targets为0-4，所以 index 3 和 4 对应评分 4 和 5
+                if probs.shape[1] >= 5:
+                    pos_probs_batch = probs[:, 3:].sum(dim=1)
+                else:
+                    pos_probs_batch = probs[:, -1]
+                
+                # 真实的二分类标签 (1: >=4分, 0: <4分)
+                binary_targets_batch = (targets >= 3).float()
+                
+                # --- 3. 新增：计算二分类准确率 (Binary Accuracy) ---
+                # 阈值取 0.5 (即认为 >=4分的概率超过50% 就是"喜欢")
+                binary_preds = (pos_probs_batch >= 0.5).float()
+                binary_acc = (binary_preds == binary_targets_batch).float().mean().item()
+                batch_binary_accs.append(binary_acc)
+                
+                # 收集用于计算 AUC 的数据
+                all_pos_probs.extend(pos_probs_batch.cpu().numpy().tolist())
+                all_binary_targets.extend(binary_targets_batch.cpu().numpy().tolist())
+        
+        # 计算各种平均值
+        avg_loss = np.mean(batch_losses)
+        avg_acc = np.mean(batch_accs)               # 原始 Acc (约 35%)
+        avg_binary_acc = np.mean(batch_binary_accs) # 新增 Binary Acc (约 75%+)
+        
+        try:
+            global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
+        except ValueError:
+            logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
+            global_auc = 0.5
 
+        # 返回值增加了 avg_binary_acc
+        return avg_loss, avg_acc, avg_binary_acc, global_auc
