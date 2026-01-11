@@ -73,13 +73,15 @@ class HSTUBaseTrainer:
 
 
     def run(self):
+        logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
         if self.FLAGS.model == 'HSTU':
-            logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
             from model.HSTU import HSTU
             self.model_cls = HSTU
         elif self.FLAGS.model == 'HSTU_nsa':
-            logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
             from model.HSTU_nsa import HSTU
+            self.model_cls = HSTU
+        elif self.FLAGS.model == 'HSTU_interleave':
+            from model.HSTU_interleave import HSTU
             self.model_cls = HSTU
         else:
             pass
