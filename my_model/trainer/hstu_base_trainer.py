@@ -453,4 +453,5 @@ class HSTUBaseTrainer:
             logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
             global_auc = 0.5
 
+        print(f"Debug: 预测为正例的比例: {binary_preds.mean().item():.2f}")
         return avg_loss, avg_acc, avg_binary_acc, global_auc
