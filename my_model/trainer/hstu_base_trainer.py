@@ -294,7 +294,7 @@ class HSTUBaseTrainer:
                     self.model.train()
 
             # End of Epoch
-            avg_loss, avg_acc, global_auc = self.test()
+            avg_loss, avg_acc, global_auc = self.test_with_binary_acc()
             logging.info(f"[End of Epoch {epoch}] TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
             self.model.train()
 
