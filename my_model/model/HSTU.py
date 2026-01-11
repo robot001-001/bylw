@@ -655,7 +655,7 @@ class HSTU(nn.Module):
         # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
         output_embedding = self._output_postproc(user_embeddings)
         # logging.info(f'output_embedding.shape: {output_embedding.shape}')
-        end_boundaries = (past_lengths//2) - 1
+        end_boundaries = (past_lengths//2) + 1
         # logging.info(f'output_embedding.shape: {output_embedding.shape}')
         # logging.info(f'end_boundaries: {end_boundaries}')
         # logging.info(f'past_lengths: {past_lengths}')
