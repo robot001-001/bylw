@@ -430,7 +430,7 @@ class HSTUBaseTrainer:
                         pos_probs_batch = probs[:, -1] # 兜底逻辑
                     
                     # 真实标签需要手动截断 (>=3 为正例)
-                    binary_targets_batch = (targets > 3).float()
+                    binary_targets_batch = (targets >= 3).float()
                 
                 # --- 统一计算 Binary Accuracy 和 收集 AUC 数据 ---
                 # 此时 pos_probs_batch 和 binary_targets_batch 已经对齐了
