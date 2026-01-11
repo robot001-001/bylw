@@ -48,6 +48,7 @@ class HSTUBaseTrainer:
         # shared params
         flags.DEFINE_string('model_args', '{}', 'model args in json')
         flags.DEFINE_string('dataset_name', 'ml-20m', 'dataset name')
+        flags.DEFINE_bool('use_binary_ratings', False, 'multi/binary ratings')
         flags.DEFINE_integer('max_seq_len', 200, 'max seq len')
         flags.DEFINE_float('positional_sampling_ratio', 1.0, 'only used for ml-1m')
         flags.DEFINE_integer('embedding_dim', 200, 'embedding_dim')
@@ -209,6 +210,7 @@ class HSTUBaseTrainer:
             max_sequence_length=self.FLAGS.max_seq_len,
             chronological=True,
             positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
+            use_binary_ratings=self.FLAGS.use_binary_ratings,
         )
         logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
         self.train_data_sampler, self.train_data_loader = create_data_loader(
