@@ -301,7 +301,7 @@ class HSTUBaseTrainer:
 
             # End of Epoch
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
-            logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
+            logging.info(f"[Eval] End of Epoch{epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
             self.embedding_module.train()
             self.model.train()
 
