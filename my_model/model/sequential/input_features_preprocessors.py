@@ -486,7 +486,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         user_embeddings = user_embeddings + self._pos_emb(
             torch.arange(N * 2, device=past_ids.device).unsqueeze(0).repeat(B, 1)
         )
-        user_embeddings = user_embeddings + self._iasig_embedding
+        user_embeddings = user_embeddings + self._iasig_embedding.to(past_ids.device)
         user_embeddings = self._emb_dropout(user_embeddings)
 
         valid_mask = (
