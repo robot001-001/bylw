@@ -11,7 +11,8 @@ import logging
 from model.sequential.input_features_preprocessors import (
     LearnablePositionalEmbeddingInputFeaturesPreprocessor,
     CombinedItemAndRatingInputFeaturesPreprocessor,
-    CombinedItemAndRatingInputFeaturesPreprocessorV1
+    CombinedItemAndRatingInputFeaturesPreprocessorV1,
+    CombinedItemAndRatingInputFeaturesPreprocessorV2
 )
 from model.sequential.output_postprocessors import LayerNormEmbeddingPostprocessor
 from model.similarity_module import SequentialEncoderWithLearnedSimilarityModule
@@ -490,7 +491,7 @@ class HSTU(nn.Module):
         self._enable_relative_attention_bias = enable_relative_attention_bias
         
 
-        self._input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV1(
+        self._input_features_preproc = CombinedItemAndRatingInputFeaturesPreprocessorV2(
             max_sequence_len = self._max_seq_len+1,
             item_embedding_dim = self._embedding_dim,
             dropout_rate = self._dropout_rate,
