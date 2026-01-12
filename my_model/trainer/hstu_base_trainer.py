@@ -291,13 +291,13 @@ class HSTUBaseTrainer:
                     self.optimizer.zero_grad()
                 
                 # eval
-                if (batch_id % (self.FLAGS.eval_interval*self.accum_steps)) == 0 and batch_id != 0:
-                    logging.info(f'start testing!')
-                    # avg_loss, avg_acc, global_auc = self.test()
-                    avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
-                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
-                    self.embedding_module.train()
-                    self.model.train()
+                # if (batch_id % (self.FLAGS.eval_interval*self.accum_steps)) == 0 and batch_id != 0:
+                #     logging.info(f'start testing!')
+                #     # avg_loss, avg_acc, global_auc = self.test()
+                #     avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
+                #     logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
+                #     self.embedding_module.train()
+                #     self.model.train()
 
             # End of Epoch
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()

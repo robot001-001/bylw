@@ -28,3 +28,12 @@
 * 完成binary数据清洗与训练脚本
 * todo
     * hstu模型中endboundaries计算有问题，排查
+
+# 2026-01-12
+* 验证`endboundaries`取值
+    * 应为 past_lengths -2
+    * 是因为 past_lengths 已经*2了，然后需要移除末位元素-1，索引从0开始-1
+* hstu_baseline中新加入 item/action signal encoding
+    * hstu_baseline中有收益
+    * hstu_interleave中无收益
+
