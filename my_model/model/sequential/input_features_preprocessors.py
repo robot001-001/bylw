@@ -396,7 +396,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
             2,
             self._embedding_dim,
         )
-        self.get_iasig_emb()
+        self.get_iasig_embedding()
         self._dropout_rate: float = dropout_rate
         self._emb_dropout = torch.nn.Dropout(p=dropout_rate)
         self._rating_emb: torch.nn.Embedding = torch.nn.Embedding(
