@@ -3,7 +3,7 @@ clear
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/ \
-    --model HSTU_interleave \
+    --model HSTU \
     --mode dev \
     --dataset_name 'ml-1m' \
     --use_binary_ratings True \
@@ -11,7 +11,7 @@ python main.py \
     --max_seq_len 200 \
     --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \
-    --train_batch_size 128 \
+    --train_batch_size 2 \
     --accum_steps 1 \
     --eval_batch_size 128 \
     --device 'cuda:0' \
