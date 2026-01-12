@@ -389,6 +389,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
 
         self._embedding_dim: int = item_embedding_dim
         self._max_sequence_len: int = max_sequence_len
+        self._num_ratings: int = num_ratings
         # Due to [item_0, rating_0, item_1, rating_1, ...]
         self._pos_emb: torch.nn.Embedding = torch.nn.Embedding(
             max_sequence_len * 2,
@@ -454,7 +455,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         """
         B, N = past_ids.size()
         past_ids_valid = (past_ids != 0)
-        past_ratings_valid = (past_ratings !=0) & (past_ratings !=6)
+        past_ratings_valid = (past_ratings !=0) & (past_ratings !=self._num_ratings+1)
         valid_mask = torch.stack([past_ids_valid, past_ratings_valid], dim=-1).flatten(start_dim=1)
         return valid_mask
     
