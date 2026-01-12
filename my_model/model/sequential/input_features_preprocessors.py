@@ -396,7 +396,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
             2,
             self._embedding_dim,
         )
-        self.get_iasig_embedding()
+        self.get_iasig_onehot()
         self._dropout_rate: float = dropout_rate
         self._emb_dropout = torch.nn.Dropout(p=dropout_rate)
         self._rating_emb: torch.nn.Embedding = torch.nn.Embedding(
@@ -456,13 +456,11 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         valid_mask = torch.stack([past_ids_valid, past_ratings_valid], dim=-1).flatten(start_dim=1)
         return valid_mask
     
-    def get_iasig_embedding(self):
+    def get_iasig_onehot(self):
         seq_len = self._max_sequence_len * 2
         ids = torch.zeros((seq_len,), dtype=torch.long)
         ids[1::2] = 1
-        emb = self._iasig_emb(ids)
-        emb = emb.unsqueeze(0)
-        self.register_buffer("_iasig_embedding", emb)
+        self.register_buffer("_iasig_onehot", ids)
 
     def forward(
         self,
@@ -486,7 +484,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         user_embeddings = user_embeddings + self._pos_emb(
             torch.arange(N * 2, device=past_ids.device).unsqueeze(0).repeat(B, 1)
         )
-        user_embeddings = user_embeddings + self._iasig_embedding.to(past_ids.device)
+        user_embeddings = user_embeddings + self._iasig_emb(self._iasig_onehot)
         user_embeddings = self._emb_dropout(user_embeddings)
 
         valid_mask = (
