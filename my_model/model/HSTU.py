@@ -652,14 +652,14 @@ class HSTU(nn.Module):
             cache=None,
             return_cache_states=False,
         )
-        logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
+        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
         output_embedding = self._output_postproc(user_embeddings)
-        logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
         end_boundaries = past_lengths - 1 - 1
-        logging.info(f'output_embedding.shape: {output_embedding.shape}')
-        logging.info(f'end_boundaries: {end_boundaries}')
-        logging.info(f'past_lengths: {past_lengths}')
-        logging.info(f'x_offsets: {x_offsets}')
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        # logging.info(f'end_boundaries: {end_boundaries}')
+        # logging.info(f'past_lengths: {past_lengths}')
+        # logging.info(f'x_offsets: {x_offsets}')
         # last_embeddings = output_embedding[..., end_boundaries, ...] # 获取最后一个item的嵌入
         batch_indices = torch.arange(output_embedding.shape[0], device=output_embedding.device)
         last_embeddings = output_embedding[batch_indices, end_boundaries]

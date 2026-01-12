@@ -262,7 +262,7 @@ class HSTUBaseTrainer:
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
                 logging.info(f'batch: {batch_id}')
-                logging.info(f'row: {row}')
+                # logging.info(f'row: {row}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
@@ -278,7 +278,7 @@ class HSTUBaseTrainer:
                 )
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
-                return
+                # return
                 
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
