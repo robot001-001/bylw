@@ -642,7 +642,7 @@ class HSTU(nn.Module):
         logging.info(f'past_lengths: {past_lengths}')
         logging.info(f'past_embeddings: {past_embeddings.shape}')
         logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
-        logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
+        logging.info(f'user_embeddings: {user_embeddings.shape}, {user_embeddings[..., 0]}') # [2, 402, 50]
         user_embeddings, cached_states = self._hstu(
             x=user_embeddings,
             x_offsets=x_offsets,
