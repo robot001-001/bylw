@@ -308,8 +308,6 @@ class HSTUBaseTrainer:
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 
-                # [关键修改] 获取 Target Embedding
-                target_emb = self.embedding_module.get_item_embeddings(target_ids).squeeze(1)
 
                 # --- 2. 模型前向 ---
                 outputs = self.model(
@@ -317,7 +315,6 @@ class HSTUBaseTrainer:
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
-                    target_embeddings=target_emb # [关键修改] 传入 Target
                 )
                 
                 # --- 3. Loss 计算 (分支逻辑) ---
