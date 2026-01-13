@@ -396,7 +396,6 @@ class HSTUBaseTrainer:
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
-                    target_embeddings=target_emb
                 )
                 
                 # --- 分支逻辑 ---
