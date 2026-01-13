@@ -476,7 +476,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         B, N = past_ids.size()
         D = past_embeddings.size(-1)
-        logging.info(f'CombinedItemAndRatingInputFeaturesPreprocessorV2: B, N, D: {(B, N, D)}')
+        # logging.info(f'CombinedItemAndRatingInputFeaturesPreprocessorV2: B, N, D: {(B, N, D)}')
 
         past_ratings = past_payloads["ratings"].int()
         user_embeddings = torch.cat(
