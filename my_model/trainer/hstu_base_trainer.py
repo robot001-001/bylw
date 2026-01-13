@@ -122,124 +122,6 @@ class HSTUBaseTrainer:
         self.get_dataset()
         self.get_model()
         self.get_loss()
-        logging.info(f'model structure: {self.embedding_module}, {self.model}')
-
-        batch_id = 0
-        epoch = 0
-        self.optimizer.zero_grad()
-        for epoch in range(self.FLAGS.num_epochs):
-            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
-            if self.train_data_sampler is not None:
-                self.train_data_sampler.set_epoch(epoch)
-            for batch_id, row in enumerate(iter(self.train_data_loader)):
-                # train
-                # logging.info(f'row info: {row}')
-                logging.info(f'batch: {batch_id}')
-                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
-                    row,
-                    device=self.device,
-                    max_output_length=0, # 精排架构不需要补充
-                )
-                # logging.info(f'seq_features: {seq_features}')
-                # logging.info(f'target_ids: {target_ids}')
-                # logging.info(f'target_ratings: {target_ratings}')
-                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                outputs = self.model(
-                    past_lengths=seq_features.past_lengths,
-                    past_ids=seq_features.past_ids,
-                    past_embeddings=input_embeddings,
-                    past_payloads=seq_features.past_payloads,
-                )
-                loss = self.criterion(outputs, (target_ratings-1).squeeze())
-                loss.backward()
-                self.optimizer.step()
-                self.optimizer.zero_grad()
-                # eval
-                if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
-                    logging.info(f'start testing!')
-                    avg_loss, avg_acc, global_auc = self.test()
-                    logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
-                    self.embedding_module.train()
-                    self.model.train()
-                # return
-            avg_loss, avg_acc, global_auc = self.test()
-            logging.info(f"[End of Epoch {epoch}] TrainLoss={loss:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
-            self.model.train()
-
-        torch.save(
-            {
-                "epoch": epoch,
-                "embedding_state_dict": self.embedding_module.state_dict(),
-                "model_state_dict": self.model.state_dict(),
-                "optimizer_state_dict": self.optimizer.state_dict(),
-            },
-            f"./ckpts/test.pt"
-        )
-        return
-
-
-    def get_loss(self):
-        self.criterion = nn.CrossEntropyLoss()
-        model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
-        self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
-
-    def get_sampler(self):
-        sampling_strategy = self.FLAGS.sampling_strategy
-        item_l2_norm = self.FLAGS.item_l2_norm
-        l2_norm_eps = self.FLAGS.l2_norm_eps
-        if sampling_strategy == "in-batch":
-            self.negatives_sampler = InBatchNegativesSampler(
-                l2_norm=item_l2_norm,
-                l2_norm_eps=l2_norm_eps,
-                dedup_embeddings=True,
-            )
-        elif sampling_strategy == "local":
-            self.negatives_sampler = LocalNegativesSampler(
-                num_items=self.dataset.max_item_id,
-                item_emb=self.model._embedding_module._item_emb,
-                all_item_ids=self.dataset.all_item_ids,
-                l2_norm=item_l2_norm,
-                l2_norm_eps=l2_norm_eps,
-            )
-        else:
-            raise ValueError(f"Unrecognized sampling strategy {sampling_strategy}.")
-
-
-    def get_dataset(self):
-        self.dataset = get_reco_dataset(
-            dataset_name=self.FLAGS.dataset_name,
-            max_sequence_length=self.FLAGS.max_seq_len,
-            chronological=True,
-            positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
-            use_binary_ratings=self.FLAGS.use_binary_ratings,
-            num_ratings=self.FLAGS.num_ratings,
-        )
-        logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
-        self.train_data_sampler, self.train_data_loader = create_data_loader(
-            self.dataset.train_dataset,
-            batch_size=self.FLAGS.train_batch_size,
-            world_size=1,
-            rank=0,
-            shuffle=True,
-            drop_last=False,
-        )
-        self.eval_data_sampler, self.eval_data_loader = create_data_loader(
-            self.dataset.eval_dataset,
-            batch_size=self.FLAGS.eval_batch_size,
-            world_size=1,
-            rank=0,
-            shuffle=True,  # needed for partial eval
-            drop_last=False,
-        )
-        logging.info(f'train_dataloader_num: {len(self.train_data_loader)}')
-        logging.info(f'eval_dataloader_num: {len(self.eval_data_loader)}')
-
-
-    def dev(self):
-        self.device = self.FLAGS.device
-        self.get_dataset()
-        self.get_model()
-        self.get_loss()
         logging.info(f'model structure: {self.model}')
         self.accum_steps = self.FLAGS.accum_steps
 
@@ -321,17 +203,185 @@ class HSTUBaseTrainer:
         return
 
 
-    def test_dev(self):
-        return
+    def get_loss(self):
+        self.criterion = nn.CrossEntropyLoss()
+        model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
+        self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
+
+    def get_sampler(self):
+        sampling_strategy = self.FLAGS.sampling_strategy
+        item_l2_norm = self.FLAGS.item_l2_norm
+        l2_norm_eps = self.FLAGS.l2_norm_eps
+        if sampling_strategy == "in-batch":
+            self.negatives_sampler = InBatchNegativesSampler(
+                l2_norm=item_l2_norm,
+                l2_norm_eps=l2_norm_eps,
+                dedup_embeddings=True,
+            )
+        elif sampling_strategy == "local":
+            self.negatives_sampler = LocalNegativesSampler(
+                num_items=self.dataset.max_item_id,
+                item_emb=self.model._embedding_module._item_emb,
+                all_item_ids=self.dataset.all_item_ids,
+                l2_norm=item_l2_norm,
+                l2_norm_eps=l2_norm_eps,
+            )
+        else:
+            raise ValueError(f"Unrecognized sampling strategy {sampling_strategy}.")
+
+
+    def get_dataset(self):
+        self.dataset = get_reco_dataset(
+            dataset_name=self.FLAGS.dataset_name,
+            max_sequence_length=self.FLAGS.max_seq_len,
+            chronological=True,
+            positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
+            use_binary_ratings=self.FLAGS.use_binary_ratings,
+            num_ratings=self.FLAGS.num_ratings,
+        )
+        logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
+        self.train_data_sampler, self.train_data_loader = create_data_loader(
+            self.dataset.train_dataset,
+            batch_size=self.FLAGS.train_batch_size,
+            world_size=1,
+            rank=0,
+            shuffle=True,
+            drop_last=False,
+        )
+        self.eval_data_sampler, self.eval_data_loader = create_data_loader(
+            self.dataset.eval_dataset,
+            batch_size=self.FLAGS.eval_batch_size,
+            world_size=1,
+            rank=0,
+            shuffle=True,  # needed for partial eval
+            drop_last=False,
+        )
+        logging.info(f'train_dataloader_num: {len(self.train_data_loader)}')
+        logging.info(f'eval_dataloader_num: {len(self.eval_data_loader)}')
+
+
+    def get_loss_with_bce(self):
+        # 根据 flag 选择 Loss 函数
+        if self.FLAGS.use_binary_ratings:
+            logging.info("Using BCEWithLogitsLoss for Binary Classification")
+            self.criterion = nn.BCEWithLogitsLoss()
+        else:
+            # 原逻辑：多分类使用 CrossEntropyLoss
+            # 注意：如果你用SampledSoftmax，这里需要根据 flag.loss_module 再细分，这里默认回退到标准CE
+            logging.info("Using CrossEntropyLoss for Multi-class Classification")
+            self.criterion = nn.CrossEntropyLoss()
             
+        model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
+        self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
+
+
+    def dev(self):
+        self.device = self.FLAGS.device
+        self.get_dataset()
+        self.get_model()
+        self.get_loss_with_bce() # 初始化 Loss
+        logging.info(f'model structure: {self.model}')
+        self.accum_steps = self.FLAGS.accum_steps
+
+        try:
+            num_batches = len(self.train_data_loader)
+        except:
+            num_batches = float('inf')
+
+        batch_id = 0
+        epoch = 0
+        
+        self.optimizer.zero_grad() 
+        
+        for epoch in range(self.FLAGS.num_epochs):
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            if self.train_data_sampler is not None:
+                self.train_data_sampler.set_epoch(epoch)
+            
+            for batch_id, row in enumerate(iter(self.train_data_loader)):
+                # --- 1. 数据读取 ---
+                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
+                    row,
+                    device=self.device,
+                    max_output_length=0, 
+                )
+
+                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+                
+                # [关键修改] 获取 Target Embedding
+                target_emb = self.embedding_module.get_item_embeddings(target_ids).squeeze(1)
+
+                # --- 2. 模型前向 ---
+                outputs = self.model(
+                    past_lengths=seq_features.past_lengths,
+                    past_ids=seq_features.past_ids,
+                    past_embeddings=input_embeddings,
+                    past_payloads=seq_features.past_payloads,
+                    target_embeddings=target_emb # [关键修改] 传入 Target
+                )
+                
+                # --- 3. Loss 计算 (分支逻辑) ---
+                if self.FLAGS.use_binary_ratings:
+                    # === Binary Mode (BCE) ===
+                    # Target: 1/2 -> 0/1 (Float)
+                    # Output: [B, 1] -> [B] (Logits)
+                    targets = (target_ratings - 1).float().squeeze()
+                    logits = outputs.squeeze()
+                    loss = self.criterion(logits, targets)
+                else:
+                    # === Original Mode (CE) ===
+                    # Target: 1-5 -> 0-4 (Long)
+                    # Output: [B, 5] (Logits)
+                    targets = (target_ratings - 1).squeeze().long()
+                    loss = self.criterion(outputs, targets)
+                
+                # --- 4. 反向传播 ---
+                loss_to_display = loss.item()
+                loss = loss / self.accum_steps
+                
+                loss.backward()
+                is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
+                
+                if is_update_step:
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                
+                # --- 5. 阶段性 Eval ---
+                if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
+                     logging.info(f'start testing at step {batch_id}!')
+                     avg_loss, avg_acc, global_auc = self.test()
+                     logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                     self.embedding_module.train()
+                     self.model.train()
+
+            # --- End of Epoch Eval ---
+            logging.info(f'start testing at end of epoch {epoch}!')
+            avg_loss, avg_acc, global_auc = self.test()
+            logging.info(f"[Eval] End of Epoch {epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+            self.embedding_module.train()
+            self.model.train()
+
+            torch.save(
+                {
+                    "epoch": epoch,
+                    "embedding_state_dict": self.embedding_module.state_dict(),
+                    "model_state_dict": self.model.state_dict(),
+                    "optimizer_state_dict": self.optimizer.state_dict(),
+                },
+                f"./ckpts/test.pt"
+            )
+        return
 
     def test(self):
         self.embedding_module.eval()
         self.model.eval()
+        
         batch_losses = []
         batch_accs = []
-        all_pos_probs = []
-        all_binary_targets = []
+        
+        all_probs = [] # 用于计算 AUC
+        all_targets = [] 
+        
         with torch.no_grad():
             for row in iter(self.eval_data_loader):
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
@@ -340,35 +390,84 @@ class HSTUBaseTrainer:
                     max_output_length=0, 
                 )
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+                
+                # [关键修改] 同样需要传入 Target Embedding
+                target_emb = self.embedding_module.get_item_embeddings(target_ids).squeeze(1)
+
                 outputs = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
+                    target_embeddings=target_emb
                 )
-                targets = (target_ratings - 1).view(-1)
-                loss = self.criterion(outputs, targets)
-                batch_losses.append(loss.item())
-                pred_ids = torch.argmax(outputs, dim=1)
-                acc = (pred_ids == targets).float().mean().item()
-                batch_accs.append(acc)
-                probs = torch.softmax(outputs, dim=1)
-                if probs.shape[1] >= 5:
-                    pos_probs_batch = probs[:, 3:].sum(dim=1)
+                
+                # --- 分支逻辑 ---
+                if self.FLAGS.use_binary_ratings:
+                    # === Binary Mode (BCE) ===
+                    targets = (target_ratings - 1).float().squeeze() # 0.0 or 1.0
+                    logits = outputs.squeeze()
+                    
+                    # Loss
+                    loss = self.criterion(logits, targets)
+                    batch_losses.append(loss.item())
+                    
+                    # Prob & Acc
+                    probs = torch.sigmoid(logits)
+                    preds = (probs > 0.5).float()
+                    acc = (preds == targets).float().mean().item()
+                    batch_accs.append(acc)
+                    
+                    # AUC Data Collection
+                    all_probs.extend(probs.cpu().numpy().tolist())
+                    all_targets.extend(targets.cpu().numpy().tolist())
+                    
                 else:
-                    pos_probs_batch = probs[:, -1]
-                binary_targets_batch = (targets >= 3).float()
-                all_pos_probs.extend(pos_probs_batch.cpu().numpy().tolist())
-                all_binary_targets.extend(binary_targets_batch.cpu().numpy().tolist())
+                    # === Original Mode (Multiclass / >3 is Positive) ===
+                    targets = (target_ratings - 1).long().view(-1)
+                    loss = self.criterion(outputs, targets)
+                    batch_losses.append(loss.item())
+                    
+                    # Accuracy (Exact Match: 几星预测几星)
+                    pred_ids = torch.argmax(outputs, dim=1)
+                    acc = (pred_ids == targets).float().mean().item()
+                    batch_accs.append(acc)
+                    
+                    # AUC Data Collection (保留你原始的 Softmax 逻辑)
+                    probs = torch.softmax(outputs, dim=1)
+                    if probs.shape[1] >= 5:
+                        # 预测为 4星或5星 的概率和
+                        pos_probs_batch = probs[:, 3:].sum(dim=1)
+                    else:
+                        # 兜底
+                        pos_probs_batch = probs[:, -1]
+                    
+                    # 真实标签 >= 3星 (即 rating 4,5) 为正例
+                    binary_targets_batch = (targets >= 3).float()
+                    
+                    all_probs.extend(pos_probs_batch.cpu().numpy().tolist())
+                    all_targets.extend(binary_targets_batch.cpu().numpy().tolist())
+
         avg_loss = np.mean(batch_losses)
         avg_acc = np.mean(batch_accs)
+        
+        # Calculate Global AUC
         try:
-            global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
-        except ValueError:
-            logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
+            # 只有当测试集中同时存在正例和负例时才能计算 AUC
+            if len(np.unique(all_targets)) > 1:
+                global_auc = roc_auc_score(all_targets, all_probs)
+            else:
+                logging.warning("Valid set contains only one class. AUC set to 0.5")
+                global_auc = 0.5
+        except Exception as e:
+            logging.warning(f"AUC calculation failed: {e}")
             global_auc = 0.5
 
         return avg_loss, avg_acc, global_auc
+
+
+    def test_dev(self):
+        return
 
 
     def test_with_binary_acc(self):
