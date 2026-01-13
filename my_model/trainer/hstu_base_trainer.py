@@ -344,12 +344,12 @@ class HSTUBaseTrainer:
                     self.optimizer.zero_grad()
                 
                 # --- 5. 阶段性 Eval ---
-                if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
-                     logging.info(f'start testing at step {batch_id}!')
-                     avg_loss, avg_acc, global_auc = self.test()
-                     logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
-                     self.embedding_module.train()
-                     self.model.train()
+                # if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
+                #      logging.info(f'start testing at step {batch_id}!')
+                #      avg_loss, avg_acc, global_auc = self.test()
+                #      logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+                #      self.embedding_module.train()
+                #      self.model.train()
 
             # --- End of Epoch Eval ---
             logging.info(f'start testing at end of epoch {epoch}!')
