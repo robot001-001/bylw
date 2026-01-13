@@ -541,6 +541,7 @@ class HSTU(nn.Module):
     ):
         super().__init__()
         self._max_seq_len = max_seq_len  # +tgt
+        logging.info(f'HSTU: self._max_seq_len: {self._max_seq_len}')
         self._embedding_dim: int = embedding_dim
         self._dropout_rate = dropout_rate
         self._num_ratings = num_ratings

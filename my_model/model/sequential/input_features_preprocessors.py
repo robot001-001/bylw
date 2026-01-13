@@ -391,6 +391,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         self._embedding_dim: int = item_embedding_dim
         self._max_sequence_len: int = max_sequence_len
         self._num_ratings: int = num_ratings
+        logging.info(f'CombinedItemAndRatingInputFeaturesPreprocessorV2: self._max_seq_len: {self._max_sequence_len}')
         # Due to [item_0, rating_0, item_1, rating_1, ...]
         self._pos_emb: torch.nn.Embedding = torch.nn.Embedding(
             max_sequence_len * 2,
