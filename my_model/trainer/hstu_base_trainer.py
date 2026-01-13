@@ -122,7 +122,7 @@ class HSTUBaseTrainer:
         self.get_dataset()
         self.get_model()
         self.get_loss()
-        logging.info(f'model structure: {self.model}')
+        logging.info(f'model structure: {self.embedding_module}, {self.model}')
 
         batch_id = 0
         epoch = 0
