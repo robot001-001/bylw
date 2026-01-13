@@ -665,8 +665,8 @@ class HSTU(nn.Module):
         output_embedding = self._output_postproc(user_embeddings)
         # logging.info(f'output_embedding.shape: {output_embedding.shape}')
         end_boundaries = past_lengths - 1 - 1
-        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
-        # logging.info(f'end_boundaries: {end_boundaries}')
+        logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        logging.info(f'end_boundaries: {end_boundaries}')
         # logging.info(f'past_lengths: {past_lengths}')
         # logging.info(f'x_offsets: {x_offsets}')
         # last_embeddings = output_embedding[..., end_boundaries, ...] # 获取最后一个item的嵌入
