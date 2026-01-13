@@ -389,9 +389,9 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         super().__init__()
 
         self._embedding_dim: int = item_embedding_dim
-        self._max_sequence_len: int = max_sequence_len
+        self._max_sequence_len: int = max_sequence_len # 201
         self._num_ratings: int = num_ratings
-        logging.info(f'CombinedItemAndRatingInputFeaturesPreprocessorV2: self._max_seq_len: {self._max_sequence_len}')
+        # logging.info(f'CombinedItemAndRatingInputFeaturesPreprocessorV2: self._max_seq_len: {self._max_sequence_len}')
         # Due to [item_0, rating_0, item_1, rating_1, ...]
         self._pos_emb: torch.nn.Embedding = torch.nn.Embedding(
             max_sequence_len * 2,
@@ -462,7 +462,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
         return valid_mask
     
     def get_iasig_onehot(self):
-        seq_len = self._max_sequence_len * 2
+        seq_len = self._max_sequence_len * 2 # 402
         ids = torch.zeros((seq_len,), dtype=torch.long)
         ids[1::2] = 1
         self.register_buffer("_iasig_onehot", ids)
@@ -476,6 +476,7 @@ class CombinedItemAndRatingInputFeaturesPreprocessorV2(InputFeaturesPreprocessor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         B, N = past_ids.size()
         D = past_embeddings.size(-1)
+        logging.info(f'CombinedItemAndRatingInputFeaturesPreprocessorV2: B, N, D: {(B, N, D)}')
 
         past_ratings = past_payloads["ratings"].int()
         user_embeddings = torch.cat(
