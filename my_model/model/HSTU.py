@@ -136,6 +136,7 @@ def _hstu_attention_maybe_from_cache(
     invalid_attn_mask: torch.Tensor,
     rel_attn_bias: RelativeAttentionBiasModule,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    logging.info(f'_hstu_attention_maybe_from_cache: q, k, v: {q.shape, k.shape, v.shape}')
     B: int = x_offsets.size(0) - 1
     n: int = invalid_attn_mask.size(-1)
     if delta_x_offsets is not None:
