@@ -278,7 +278,7 @@ class HSTUBaseTrainer:
                 )
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
-                # return
+                return
                 
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
