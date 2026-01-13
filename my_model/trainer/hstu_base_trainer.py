@@ -268,11 +268,11 @@ class HSTUBaseTrainer:
                     device=self.device,
                     max_output_length=0, 
                 )
-                logging.info(f'seq_features: {seq_features}')
-                logging.info(f'target_ratings: {target_ratings}')
+                # logging.info(f'seq_features: {seq_features}')
+                # logging.info(f'target_ratings: {target_ratings}')
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                logging.info(f'trainer: input_embeddings: {input_embeddings.shape}, {input_embeddings[..., 0]}')
+                # logging.info(f'trainer: input_embeddings: {input_embeddings.shape}, {input_embeddings[..., 0]}')
                 outputs = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
@@ -281,7 +281,7 @@ class HSTUBaseTrainer:
                 )
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
-                return
+                # return
                 
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
@@ -303,6 +303,7 @@ class HSTUBaseTrainer:
                 #     self.model.train()
 
             # End of Epoch
+            logging.info(f'start testing!')
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
             logging.info(f"[Eval] End of Epoch {epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
             self.embedding_module.train()
