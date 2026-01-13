@@ -627,7 +627,8 @@ class HSTU(nn.Module):
         float_dtype = past_embeddings.dtype
         B, N, _ = past_embeddings.size()
 
-        logging.info(f'past_lengths: {past_lengths}, past_ids: {past_ids}, past_payloads: {past_payloads}')
+        # logging.info(f'past_lengths: {past_lengths}, past_ids: {past_ids}, past_payloads: {past_payloads}')
+        # past_lengths: [19, 201]
 
         past_lengths, user_embeddings, _ = self._input_features_preproc(
             past_lengths=past_lengths,
@@ -638,10 +639,10 @@ class HSTU(nn.Module):
 
         float_dtype = user_embeddings.dtype
         x_offsets=torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
-        # logging.info(f'past_lengths: {past_lengths}')
-        # logging.info(f'past_embeddings: {past_embeddings.shape}')
-        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
-        # logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
+        logging.info(f'past_lengths: {past_lengths}')
+        logging.info(f'past_embeddings: {past_embeddings.shape}')
+        logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}') # [-1, 201]
+        logging.info(f'user_embeddings: {user_embeddings.shape}') # [-1, 401]
         user_embeddings, cached_states = self._hstu(
             x=user_embeddings,
             x_offsets=x_offsets,
