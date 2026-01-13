@@ -268,6 +268,8 @@ class HSTUBaseTrainer:
                     device=self.device,
                     max_output_length=0, 
                 )
+                logging.info(f'seq_features: {seq_features}')
+                logging.info(f'target_ratings: {target_ratings}')
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
                 outputs = self.model(
