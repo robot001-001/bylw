@@ -176,7 +176,7 @@ def _hstu_attention_maybe_from_cache(
         padded_k = torch.ops.fbgemm.jagged_to_padded_dense(
             values=k, offsets=[x_offsets], max_lengths=[n], padding_value=0.0
         )
-
+    logging.info(f'_hstu_attention_maybe_from_cache: x_offsets: {x_offsets}')
     logging.info(f'_hstu_attention_maybe_from_cache: padded_q, padded_k: {padded_q.shape}, {padded_k.shape}')
 
     qk_attn = torch.einsum(
