@@ -89,6 +89,7 @@ class HSTUBaseTrainer:
             pass
         if self.FLAGS.mode == 'train':
             logging.info(f'mode: {self.FLAGS.mode}')
+            self.train()
         elif self.FLAGS.mode == 'test':
             logging.info(f'mode: {self.FLAGS.mode}')
         elif self.FLAGS.mode == 'dev':
