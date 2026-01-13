@@ -136,10 +136,10 @@ def _hstu_attention_maybe_from_cache(
     invalid_attn_mask: torch.Tensor,
     rel_attn_bias: RelativeAttentionBiasModule,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    logging.info(f'_hstu_attention_maybe_from_cache: q, k, v: {q.shape, k.shape, v.shape}')
+    # logging.info(f'_hstu_attention_maybe_from_cache: q, k, v: {q.shape, k.shape, v.shape}')
     B: int = x_offsets.size(0) - 1
     n: int = invalid_attn_mask.size(-1)
-    logging.info(f'_hstu_attention_maybe_from_cache: B, n: {(B, n)}')
+    # logging.info(f'_hstu_attention_maybe_from_cache: B, n: {(B, n)}')
     if delta_x_offsets is not None:
         padded_q, padded_k = cached_q, cached_k
         flattened_offsets = delta_x_offsets[1] + torch.arange(
@@ -176,16 +176,16 @@ def _hstu_attention_maybe_from_cache(
         padded_k = torch.ops.fbgemm.jagged_to_padded_dense(
             values=k, offsets=[x_offsets], max_lengths=[n], padding_value=0.0
         )
-    logging.info(f'_hstu_attention_maybe_from_cache: x_offsets: {x_offsets}')
-    logging.info(f'_hstu_attention_maybe_from_cache: padded_q, padded_k: {padded_q.shape}, {padded_k.shape}')
+    # logging.info(f'_hstu_attention_maybe_from_cache: x_offsets: {x_offsets}')
+    # logging.info(f'_hstu_attention_maybe_from_cache: padded_q, padded_k: {padded_q.shape}, {padded_k.shape}')
 
     qk_attn = torch.einsum(
         "bnhd,bmhd->bhnm",
         padded_q.view(B, n, num_heads, attention_dim),
         padded_k.view(B, n, num_heads, attention_dim),
     )
-    logging.info(f'_hstu_attention_maybe_from_cache: qk_attn.shape: {qk_attn.shape}')
-    logging.info(f'_hstu_attention_maybe_from_cache: all_timestamps.shape: {all_timestamps.shape}')
+    # logging.info(f'_hstu_attention_maybe_from_cache: qk_attn.shape: {qk_attn.shape}')
+    # logging.info(f'_hstu_attention_maybe_from_cache: all_timestamps.shape: {all_timestamps.shape}')
     if all_timestamps is not None:
         qk_attn = qk_attn + rel_attn_bias(all_timestamps).unsqueeze(1)
     qk_attn = F.silu(qk_attn) / n
