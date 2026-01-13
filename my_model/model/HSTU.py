@@ -139,6 +139,7 @@ def _hstu_attention_maybe_from_cache(
     logging.info(f'_hstu_attention_maybe_from_cache: q, k, v: {q.shape, k.shape, v.shape}')
     B: int = x_offsets.size(0) - 1
     n: int = invalid_attn_mask.size(-1)
+    logging.info(f'_hstu_attention_maybe_from_cache: B, n: {(B, n)}')
     if delta_x_offsets is not None:
         padded_q, padded_k = cached_q, cached_k
         flattened_offsets = delta_x_offsets[1] + torch.arange(
@@ -175,6 +176,8 @@ def _hstu_attention_maybe_from_cache(
         padded_k = torch.ops.fbgemm.jagged_to_padded_dense(
             values=k, offsets=[x_offsets], max_lengths=[n], padding_value=0.0
         )
+
+    logging.info(f'_hstu_attention_maybe_from_cache: padded_q, padded_k: {padded_q.shape}, {padded_k.shape}')
 
     qk_attn = torch.einsum(
         "bnhd,bmhd->bhnm",
