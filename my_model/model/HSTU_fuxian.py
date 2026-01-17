@@ -12,6 +12,8 @@ torch.set_printoptions(
 
 import logging
 
+from model.MainTower import MainTowerMLP
+
 
 
 class HSTULayer(nn.Module):
@@ -125,6 +127,7 @@ class HSTU(nn.Module):
                 )
             )
         self.get_attn_mask()
+        self.main_tower = MainTowerMLP(self._embedding_dim, main_tower_units)
         
 
     def forward(
@@ -154,6 +157,10 @@ class HSTU(nn.Module):
         logging.info(f'user_embeddings: {user_embeddings[..., 0]}')
 
         user_embeddings = self.hstu_forward(user_embeddings, float_dtype)
+        end_boundaries = past_lengths * 2 - 2
+        batch_indices = torch.arange(user_embeddings.shape[0], device=user_embeddings.device)
+        last_embeddings = user_embeddings[batch_indices, end_boundaries]
+        out = self.main_tower(last_embeddings)
         return user_embeddings
     
     def hstu_forward(
