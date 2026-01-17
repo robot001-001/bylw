@@ -4,7 +4,7 @@ CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/hstu/ \
     --model HSTU \
-    --mode dev \
+    --mode train \
     --dataset_name 'ml-1m' \
     --use_binary_ratings True \
     --num_ratings 2 \
