@@ -37,10 +37,13 @@ class HSTU(nn.Module):
         logging.info(f'past_lengths: {past_lengths}')
         logging.info(f'past_ids: {past_ids}')
         logging.info(f'past_embeddings: {past_embeddings.shape}')
+
         timestamps = past_payloads['timestamps']
         ratings = past_payloads['ratings']
+        rating_embeddings = self.rating_emb(ratings)
         logging.info(f'timestamps: {timestamps}')
         logging.info(f'ratings: {ratings}')
+        logging.info(f'rating_embeddings: {rating_embeddings.shape}')
         return
     
     
