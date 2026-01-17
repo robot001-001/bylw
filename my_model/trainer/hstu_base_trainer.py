@@ -280,7 +280,7 @@ class HSTUBaseTrainer:
         self.device = self.FLAGS.device
         self.get_dataset()
         self.get_model()
-        self.get_loss_with_bce() # 初始化 Loss
+        self.get_loss()
         logging.info(f'model structure: {self.model}')
         self.accum_steps = self.FLAGS.accum_steps
 
@@ -292,6 +292,7 @@ class HSTUBaseTrainer:
         batch_id = 0
         epoch = 0
         
+        # 1. 确保循环开始前梯度清零
         self.optimizer.zero_grad() 
         
         for epoch in range(self.FLAGS.num_epochs):
@@ -300,17 +301,19 @@ class HSTUBaseTrainer:
                 self.train_data_sampler.set_epoch(epoch)
             
             for batch_id, row in enumerate(iter(self.train_data_loader)):
-                # --- 1. 数据读取 ---
+                # train
+                logging.info(f'batch: {batch_id}')
+                # logging.info(f'row: {row}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
                     max_output_length=0, 
                 )
+                # logging.info(f'seq_features: {seq_features}')
+                # logging.info(f'target_ratings: {target_ratings}')
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                
-
-                # --- 2. 模型前向 ---
+                # logging.info(f'trainer: input_embeddings: {input_embeddings.shape}, {input_embeddings[..., 0]}')
                 outputs = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
@@ -318,22 +321,9 @@ class HSTUBaseTrainer:
                     past_payloads=seq_features.past_payloads,
                 )
                 
-                # --- 3. Loss 计算 (分支逻辑) ---
-                if self.FLAGS.use_binary_ratings:
-                    # === Binary Mode (BCE) ===
-                    # Target: 1/2 -> 0/1 (Float)
-                    # Output: [B, 1] -> [B] (Logits)
-                    targets = (target_ratings - 1).float().squeeze()
-                    logits = outputs.squeeze()
-                    loss = self.criterion(logits, targets)
-                else:
-                    # === Original Mode (CE) ===
-                    # Target: 1-5 -> 0-4 (Long)
-                    # Output: [B, 5] (Logits)
-                    targets = (target_ratings - 1).squeeze().long()
-                    loss = self.criterion(outputs, targets)
+                loss = self.criterion(outputs, (target_ratings-1).squeeze())
+                return
                 
-                # --- 4. 反向传播 ---
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
                 
@@ -344,30 +334,31 @@ class HSTUBaseTrainer:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                 
-                # --- 5. 阶段性 Eval ---
-                # if (batch_id % self.FLAGS.eval_interval) == 0 and batch_id != 0:
-                #      logging.info(f'start testing at step {batch_id}!')
-                #      avg_loss, avg_acc, global_auc = self.test()
-                #      logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
-                #      self.embedding_module.train()
-                #      self.model.train()
+                # eval
+                # if (batch_id % (self.FLAGS.eval_interval*self.accum_steps)) == 0 and batch_id != 0:
+                #     logging.info(f'start testing!')
+                #     # avg_loss, avg_acc, global_auc = self.test()
+                #     avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
+                #     logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
+                #     self.embedding_module.train()
+                #     self.model.train()
 
-            # --- End of Epoch Eval ---
-            logging.info(f'start testing at end of epoch {epoch}!')
-            avg_loss, avg_acc, global_auc = self.test()
-            logging.info(f"[Eval] End of Epoch {epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, AUC={global_auc:.4f}")
+            # End of Epoch
+            logging.info(f'start testing!')
+            avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
+            logging.info(f"[Eval] End of Epoch {epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
             self.embedding_module.train()
             self.model.train()
 
-            torch.save(
-                {
-                    "epoch": epoch,
-                    "embedding_state_dict": self.embedding_module.state_dict(),
-                    "model_state_dict": self.model.state_dict(),
-                    "optimizer_state_dict": self.optimizer.state_dict(),
-                },
-                f"./ckpts/test.pt"
-            )
+        torch.save(
+            {
+                "epoch": epoch,
+                "embedding_state_dict": self.embedding_module.state_dict(),
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+            },
+            f"./ckpts/test.pt"
+        )
         return
 
     def test(self):

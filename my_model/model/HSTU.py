@@ -661,6 +661,7 @@ class HSTU(nn.Module):
             cache=None,
             return_cache_states=False,
         )
+        logging.info(f'1.0 - self._attn_mask.to(float_dtype): {1.0 - self._attn_mask.to(float_dtype)}')
         # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
         output_embedding = self._output_postproc(user_embeddings)
         # logging.info(f'output_embedding.shape: {output_embedding.shape}')
