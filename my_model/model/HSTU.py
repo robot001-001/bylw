@@ -187,8 +187,8 @@ def _hstu_attention_maybe_from_cache(
     # logging.info(f'_hstu_attention_maybe_from_cache: qk_attn.shape: {qk_attn.shape}')
     # logging.info(f'_hstu_attention_maybe_from_cache: all_timestamps.shape: {all_timestamps.shape}')
     if all_timestamps is not None:
-        # qk_attn = qk_attn + rel_attn_bias(all_timestamps).unsqueeze(1)
-        pass
+        qk_attn = qk_attn + rel_attn_bias(all_timestamps).unsqueeze(1)
+        # pass
     qk_attn = F.silu(qk_attn) / n
     qk_attn = qk_attn * invalid_attn_mask.unsqueeze(0).unsqueeze(0)
     attn_output = torch.ops.fbgemm.dense_to_jagged(
