@@ -85,6 +85,9 @@ class HSTUBaseTrainer:
         elif self.FLAGS.model == 'HSTU_interleave':
             from model.HSTU_interleave import HSTU
             self.model_cls = HSTU
+        elif self.FLAGS.model == 'HSTU_fuxian':
+            from model.HSTU_fuxian import HSTU
+            self.model_cls = HSTU
         else:
             pass
         if self.FLAGS.mode == 'train':
@@ -320,6 +323,8 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
+
+                return
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
                 # return
