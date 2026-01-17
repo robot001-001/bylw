@@ -477,7 +477,7 @@ class HSTUBaseTrainer:
         all_binary_targets = []
         
         with torch.no_grad():
-            for row in iter(self.train_data_loader):
+            for row in iter(self.eval_data_loader):
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
