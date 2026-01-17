@@ -161,7 +161,7 @@ class HSTU(nn.Module):
         batch_indices = torch.arange(user_embeddings.shape[0], device=user_embeddings.device)
         last_embeddings = user_embeddings[batch_indices, end_boundaries]
         out = self.main_tower(last_embeddings)
-        return user_embeddings
+        return out
     
     def hstu_forward(
         self,
