@@ -24,7 +24,7 @@ class HSTU(nn.Module):
         enable_relative_attention_bias
     ):
         super().__init__()
-        # self.rating_emb = nn.Embedding(num_embeddings=-1, embedding_dim=-1)
+        self.rating_emb = nn.Embedding(num_embeddings=num_ratings+2, embedding_dim=embedding_dim)
         
 
     def forward(
@@ -37,7 +37,10 @@ class HSTU(nn.Module):
         logging.info(f'past_lengths: {past_lengths}')
         logging.info(f'past_ids: {past_ids}')
         logging.info(f'past_embeddings: {past_embeddings.shape}')
-        logging.info(f'past_payloads: {past_payloads}')
+        timestamps = past_payloads['timestamps']
+        ratings = past_payloads['ratings']
+        logging.info(f'timestamps: {timestamps}')
+        logging.info(f'ratings: {ratings}')
         return
     
     
