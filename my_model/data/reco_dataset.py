@@ -48,7 +48,7 @@ def get_reco_dataset(
     if dataset_name == "ml-1m":
         dp = get_common_preprocessors()[dataset_name]
         train_dataset = DatasetV3(
-            ratings_file=dp.output_format_csv().replace('.csv', '_binary.csv') if use_binary_ratings else dp.output_format_csv(),
+            ratings_file=dp.output_format_csv().replace('.csv', '_binary_augment.csv') if use_binary_ratings else dp.output_format_csv(),
             padding_length=max_sequence_length + 1,  # target
             ignore_last_n=1,
             chronological=chronological,
