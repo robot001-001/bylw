@@ -324,7 +324,7 @@ class HSTUBaseTrainer:
                     past_payloads=seq_features.past_payloads,
                 )
 
-                return
+                # return
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
                 # return

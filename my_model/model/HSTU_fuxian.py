@@ -137,24 +137,24 @@ class HSTU(nn.Module):
         past_embeddings,
         past_payloads
     ):
-        logging.info(f'past_lengths: {past_lengths}')
-        logging.info(f'past_ids: {past_ids}')
-        logging.info(f'past_embeddings: {past_embeddings.shape}')
+        # logging.info(f'past_lengths: {past_lengths}')
+        # logging.info(f'past_ids: {past_ids}')
+        # logging.info(f'past_embeddings: {past_embeddings.shape}')
         device = past_lengths.device
         float_dtype = past_embeddings.dtype
 
         timestamps = past_payloads['timestamps']
         ratings = past_payloads['ratings']
         rating_embeddings = self.rating_emb(ratings)
-        logging.info(f'timestamps: {timestamps}')
-        logging.info(f'ratings: {ratings}')
-        logging.info(f'rating_embeddings: {rating_embeddings.shape}')
+        # logging.info(f'timestamps: {timestamps}')
+        # logging.info(f'ratings: {ratings}')
+        # logging.info(f'rating_embeddings: {rating_embeddings.shape}')
 
         B, S, D = past_embeddings.shape
         user_embeddings = torch.stack([past_embeddings, rating_embeddings], dim=2).reshape(B, S*2, D)
-        logging.info(f'past_embeddings: {past_embeddings[..., 0]}')
-        logging.info(f'rating_embeddings: {rating_embeddings[..., 0]}')
-        logging.info(f'user_embeddings: {user_embeddings[..., 0]}')
+        # logging.info(f'past_embeddings: {past_embeddings[..., 0]}')
+        # logging.info(f'rating_embeddings: {rating_embeddings[..., 0]}')
+        # logging.info(f'user_embeddings: {user_embeddings[..., 0]}')
 
         user_embeddings = self.hstu_forward(user_embeddings, float_dtype)
         end_boundaries = past_lengths * 2 - 2
