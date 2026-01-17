@@ -306,7 +306,7 @@ class HSTUBaseTrainer:
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
                 logging.info(f'batch: {batch_id}')
-                logging.info(f'row: {row}')
+                # logging.info(f'row: {row}')
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
@@ -324,9 +324,9 @@ class HSTUBaseTrainer:
                     past_payloads=seq_features.past_payloads,
                 )
 
-                logging.info(f'outputs: {outputs}')
-                logging.info(f'target_ratings: {target_ratings}')
-                return
+                # logging.info(f'outputs: {outputs}')
+                # logging.info(f'target_ratings: {target_ratings}')
+                # return
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
                 # return
@@ -477,7 +477,7 @@ class HSTUBaseTrainer:
         all_binary_targets = []
         
         with torch.no_grad():
-            for row in iter(self.eval_data_loader):
+            for row in iter(self.train_data_loader):
                 seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
                     row,
                     device=self.device,
