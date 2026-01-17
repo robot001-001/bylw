@@ -76,7 +76,7 @@ class HSTULayer(nn.Module):
         qk_attn = F.silu(qk_attn)
         qk_attn *= attn_mask.unsqueeze(0).unsqueeze(0)
         attn_out = torch.einsum("bhnm,bmhd->bnhd", qk_attn, v)
-        attn_out = attn_out.view(B, S, _)
+        attn_out = attn_out.reshape(B, S, _)
         attn_out = self._attn_out_norm(attn_out)*u
         return attn_out
 
