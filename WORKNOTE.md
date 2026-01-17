@@ -38,3 +38,13 @@
     * hstu_interleave中无收益
 * TODO:
     * 时间戳/preprocess/hstu长度有问题，统一修改成402截断而不是401
+
+# 2026-01-13
+* 时间戳/preprocess/hstu长度修正
+    * 没涨点
+* 测试bceloss
+    * 没涨点
+* 测试调参
+    * 没涨点
+* TODO：
+    * 检查代码中mask的取值是否符合预期
