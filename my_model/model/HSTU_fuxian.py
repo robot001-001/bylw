@@ -45,6 +45,8 @@ class HSTULayer(nn.Module):
         attn_mask
     ):
         normed_x = self._input_norm(user_embedding)
+        logging.info(f'normed_x: {normed_x.shape}')
+        logging.info(f'self._uvqk: {self._uvqk.shape}')
         batched_mm_output = torch.matmul(normed_x, self._uvqk)
         u, v, q, k = torch.split(
             batched_mm_output,
