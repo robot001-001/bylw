@@ -150,7 +150,9 @@ class HSTU(nn.Module):
         logging.info(f'past_embeddings: {past_embeddings[..., 0]}')
         logging.info(f'rating_embeddings: {rating_embeddings[..., 0]}')
         logging.info(f'user_embeddings: {user_embeddings[..., 0]}')
-        return
+
+        user_embeddings = self.hstu_forward(user_embeddings, float_dtype)
+        return user_embeddings
     
     def hstu_forward(
         self,
