@@ -103,6 +103,7 @@ class HSTU(nn.Module):
         enable_relative_attention_bias
     ):
         super().__init__()
+        self._max_seq_len = max_seq_len
         self._embedding_dim = embedding_dim
         self._linear_dim = linear_dim
         self._attention_dim = attention_dim
