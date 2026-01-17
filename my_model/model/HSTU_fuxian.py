@@ -56,7 +56,7 @@ class HSTULayer(nn.Module):
                 self._attention_dim * self._num_heads,
                 self._attention_dim * self._num_heads,
             ],
-            dim=1,
+            dim=2,
         )
         attn_out = self._hstu_attention(q, k, v, u, attn_mask)
         return user_embedding + attn_out
