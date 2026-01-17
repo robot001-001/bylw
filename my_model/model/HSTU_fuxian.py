@@ -114,6 +114,7 @@ class HSTU(nn.Module):
         self._num_ratings = num_ratings
         self._num_heads = num_heads
 
+        self.item_emb = nn.Embedding(num_embeddings=10000, embedding_dim=self._embedding_dim)
         self.rating_emb = nn.Embedding(num_embeddings=self._num_ratings+2, embedding_dim=self._embedding_dim)
         self._hstu = nn.ModuleList()
         for idx in range(num_blocks):
@@ -140,6 +141,7 @@ class HSTU(nn.Module):
         # logging.info(f'past_lengths: {past_lengths}')
         # logging.info(f'past_ids: {past_ids}')
         # logging.info(f'past_embeddings: {past_embeddings.shape}')
+        past_embeddings = self.item_emb(past_ids)
         device = past_lengths.device
         float_dtype = past_embeddings.dtype
 
