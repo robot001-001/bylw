@@ -1,5 +1,13 @@
 import torch
 from torch import nn
+torch.set_printoptions(
+    precision=4,        # 显示的小数位数
+    threshold=float('inf'),     # 触发折叠（显示省略号）的元素总数阈值
+    edgeitems=3,        # 折叠时，开头和结尾显示的元素个数
+    linewidth=80,       # 每行的字符宽度
+    profile=None,       # 使用预设配置 ('default', 'short', 'full')
+    sci_mode=True       # 是否使用科学计数法 (True/False)
+)
 
 import logging
 
