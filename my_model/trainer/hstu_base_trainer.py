@@ -324,7 +324,9 @@ class HSTUBaseTrainer:
                     past_payloads=seq_features.past_payloads,
                 )
 
-                # return
+                logging.info(f'outputs: {outputs}')
+                logging.info(f'target_ratings: {target_ratings}')
+                return
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
                 # return
