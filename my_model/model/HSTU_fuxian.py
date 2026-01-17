@@ -27,7 +27,7 @@ class HSTULayer(nn.Module):
         self._linear_dim = linear_dim
         self._attention_dim = attention_dim
         self._num_heads = num_heads
-        self._uqkv: torch.nn.Parameter = torch.nn.Parameter(
+        self._uvqk: torch.nn.Parameter = torch.nn.Parameter(
             torch.empty(
                 (
                     self._embedding_dim,
