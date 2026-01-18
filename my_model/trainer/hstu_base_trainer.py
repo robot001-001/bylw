@@ -317,7 +317,7 @@ class HSTUBaseTrainer:
                 )
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                jagged_out, out_offsets, valid_mask = self.model(
+                jagged_out, out_offsets = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
@@ -325,7 +325,11 @@ class HSTUBaseTrainer:
                 )
                 pred_logits = jagged_out[::2, :].reshape(-1, 2)
                 raw_targets = seq_features.past_payloads['ratings'].long()
+                MaxLen = raw_targets.shape[1]
+                col_indices = torch.arange(MaxLen, device=raw_targets.device).unsqueeze(0)
+                valid_mask = col_indices <= (seq_features.past_lengths-1).unsqueeze(1)
                 targets = raw_targets[valid_mask]
+                logging.info(f'raw_targets: {raw_targets}')
                 logging.info(f'targets: {targets}')
 
                 return
