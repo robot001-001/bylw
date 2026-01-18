@@ -338,7 +338,7 @@ class HSTUBaseTrainer:
                 logging.info(f'jagged_out: {jagged_out.shape}')
                 logging.info(f'pre_logit: {pred_logits.shape}')
                 # logging.info(f'raw_targets: {raw_targets}')
-                logging.info(f'targets: {targets} {targets.shape}')
+                logging.info(f'targets: {targets.shape}')
                 logging.info(f'out_offsets: {out_offsets}')
                 # return
                 
