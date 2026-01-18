@@ -88,6 +88,9 @@ class HSTUBaseTrainer:
         elif self.FLAGS.model == 'HSTU_fuxian':
             from model.HSTU_fuxian import HSTU
             self.model_cls = HSTU
+        elif self.FLAGS.model == 'HSTU_pretrain':
+            from model.HSTU_pretrain import HSTU
+            self.model_cls = HSTU
         else:
             pass
         if self.FLAGS.mode == 'train':
@@ -326,7 +329,7 @@ class HSTUBaseTrainer:
 
                 # logging.info(f'outputs: {outputs}')
                 # logging.info(f'target_ratings: {target_ratings}')
-                # return
+                return
                 
                 loss = self.criterion(outputs, (target_ratings-1).squeeze())
                 # return
