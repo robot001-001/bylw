@@ -331,8 +331,8 @@ class HSTUBaseTrainer:
                 targets = raw_targets[valid_mask]
                 # logging.info(f'raw_targets: {raw_targets}')
                 # logging.info(f'targets: {targets} {targets.shape}')
-                logging.info(f'out_offsets: {out_offsets}')
-                return
+                # logging.info(f'out_offsets: {out_offsets}')
+                # return
                 
                 loss = self.criterion(pred_logits, (targets-1).squeeze())
                 # return
@@ -391,7 +391,7 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
-                outputs = jagged_out[x_offsets]
+                outputs = jagged_out[x_offsets[1:]-2]
                 
                 # --- 通用 Label 处理 ---
                 # 如果是 1-5分，变为 0-4
