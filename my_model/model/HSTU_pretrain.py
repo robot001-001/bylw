@@ -658,21 +658,16 @@ class HSTU(nn.Module):
             return_cache_states=False,
         )
         output_embedding = self._output_postproc(user_embeddings)
-        # logging.info(f'output_embedding: {output_embedding.shape}')
         end_boundaries = past_lengths - 1 - 1 # 获取最后一个item的嵌入
         # batch_indices = torch.arange(output_embedding.shape[0], device=output_embedding.device)
         # last_embeddings = output_embedding[batch_indices, end_boundaries]
         out = self.main_tower(output_embedding)
-        # logging.info(f'out: {out.shape}')
 
         MaxLen = out.shape[1]
         col_indices = torch.arange(MaxLen, device=out.device).unsqueeze(0)
         valid_mask = col_indices <= (past_lengths-1).unsqueeze(1)
         jagged_out = out[valid_mask]
-        logging.info(f'past_lengths: {past_lengths}')
-        logging.info(f'x_offsets: {x_offsets}')
-        logging.info(f'valid_mask: {valid_mask}')
-        logging.info(f'jagged_out: {jagged_out.shape}')
+        logging.info(f'jagged_out: {jagged_out}')
         return jagged_out, x_offsets
         
 

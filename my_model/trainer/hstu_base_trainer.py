@@ -323,7 +323,8 @@ class HSTUBaseTrainer:
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
-                pred_logits = jagged_out[:, ::2, :].reshape(-1, 2)
+                pred_logits = jagged_out[::2, :].reshape(-1, 2)
+                logging.info(f'pred_logits: {pred_logits}')
                 raw_targets = seq_features.past_payloads['ratings'].long()
                 logging.info(f'raw_targets: {raw_targets}')
 
