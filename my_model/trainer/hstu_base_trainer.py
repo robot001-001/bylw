@@ -334,7 +334,7 @@ class HSTUBaseTrainer:
 
                 # return
                 
-                loss = self.criterion(pred_logits, (target_ratings-1).squeeze())
+                loss = self.criterion(pred_logits, (targets-1).squeeze())
                 # return
                 
                 loss_to_display = loss.item()
