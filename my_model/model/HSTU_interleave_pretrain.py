@@ -584,12 +584,12 @@ class HSTU(nn.Module):
             cache=None,
             return_cache_states=False,
         )
-        logging.info(f'user_embeddings.shape: {user_embeddings.shape}')
+        # logging.info(f'user_embeddings.shape: {user_embeddings.shape}')
         output_embedding = self._output_postproc(user_embeddings)
-        logging.info(f'output_embedding.shape: {output_embedding.shape}')
+        # logging.info(f'output_embedding.shape: {output_embedding.shape}')
         end_boundaries = past_lengths - 1 - 1 # 获取最后一个item的嵌入
         out = self.main_tower(output_embedding)
-        logging.info(f'out.shape: {out.shape}')
+        # logging.info(f'out.shape: {out.shape}')
 
         MaxLen = out.shape[1]
         col_indices = torch.arange(MaxLen, device=out.device).unsqueeze(0)
