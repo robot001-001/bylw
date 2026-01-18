@@ -91,6 +91,12 @@ class HSTUBaseTrainer:
         elif self.FLAGS.model == 'HSTU_pretrain':
             from model.HSTU_pretrain import HSTU
             self.model_cls = HSTU
+        elif self.FLAGS.model == 'HSTU_nsa_pretrain':
+            from model.HSTU_nsa_pretrain import HSTU
+            self.model_cls = HSTU
+        elif self.FLAGS.model == 'HSTU_interleave_pretrain':
+            from model.HSTU_interleave_pretrain import HSTU
+            self.model_cls = HSTU
         else:
             pass
         if self.FLAGS.mode == 'train':
