@@ -665,14 +665,14 @@ class HSTU(nn.Module):
         out = self.main_tower(output_embedding)
         # logging.info(f'out: {out.shape}')
 
-        out_offsets = torch.ops.fbgemm.asynchronous_complete_cumsum(past_lengths)
         MaxLen = out.shape[1]
         col_indices = torch.arange(MaxLen, device=out.device).unsqueeze(0)
         valid_mask = col_indices <= (past_lengths-1).unsqueeze(1)
         jagged_out = out[valid_mask]
         logging.info(f'past_lengths: {past_lengths}')
-        logging.info(f'out_offsets: {out_offsets}')
+        logging.info(f'x_offsets: {x_offsets}')
         logging.info(f'valid_mask: {valid_mask}')
-        return jagged_out, out_offsets
+        logging.info(f'jagged_out: {jagged_out.shape}')
+        return jagged_out, x_offsets
         
 
