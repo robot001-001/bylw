@@ -338,10 +338,10 @@ class HSTUBaseTrainer:
                 logging.info(f'raw_targets: {raw_targets}')
                 logging.info(f'targets: {targets} {targets.shape}')
                 logging.info(f'out_offsets: {out_offsets}')
-                return
+                # return
                 
                 loss = self.criterion(pred_logits, (targets-1).squeeze())
-                # return
+                return
                 
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
