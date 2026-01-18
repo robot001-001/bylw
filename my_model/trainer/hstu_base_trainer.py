@@ -330,7 +330,7 @@ class HSTUBaseTrainer:
                 valid_mask = col_indices <= (seq_features.past_lengths-1).unsqueeze(1)
                 targets = raw_targets[valid_mask]
                 logging.info(f'raw_targets: {raw_targets}')
-                logging.info(f'targets: {targets}')
+                logging.info(f'targets: {targets} {targets.shape}')
 
                 return
                 
