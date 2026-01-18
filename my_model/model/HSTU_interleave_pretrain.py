@@ -584,8 +584,7 @@ class HSTU(nn.Module):
             cache=None,
             return_cache_states=False,
         )
-        # logging.info(f'user_embeddings.shape: {user_embeddings.shape}')
-        # logging.info(f'past_payloads[TIMESTAMPS_KEY].shape: {past_payloads[TIMESTAMPS_KEY].shape}')
+        logging.info(f'user_embeddings.shape: {user_embeddings.shape}')
         output_embedding = self._output_postproc(user_embeddings)
         logging.info(f'output_embedding.shape: {output_embedding.shape}')
         end_boundaries = past_lengths - 1 - 1 # 获取最后一个item的嵌入
