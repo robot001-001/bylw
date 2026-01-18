@@ -667,7 +667,7 @@ class HSTU(nn.Module):
         col_indices = torch.arange(MaxLen, device=out.device).unsqueeze(0)
         valid_mask = col_indices <= (past_lengths-1).unsqueeze(1)
         jagged_out = out[valid_mask]
-        logging.info(f'jagged_out: {jagged_out}')
+        # logging.info(f'jagged_out: {jagged_out}')
         return jagged_out, x_offsets
         
 
