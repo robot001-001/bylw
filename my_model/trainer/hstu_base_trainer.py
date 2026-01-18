@@ -317,17 +317,16 @@ class HSTUBaseTrainer:
                 )
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                jagged_out, out_offsets = self.model(
+                jagged_out, out_offsets, valid_mask = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
                 pred_logits = jagged_out[::2, :].reshape(-1, 2)
-                logging.info(f'pred_logits: {pred_logits}')
                 raw_targets = seq_features.past_payloads['ratings'].long()
-                logging.info(f'raw_targets: {raw_targets}')
-                logging.info(f'target_ratings: {target_ratings}')
+                targets = raw_targets[valid_mask]
+                logging.info(f'targets: {targets}')
 
                 return
                 
