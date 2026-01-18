@@ -663,7 +663,7 @@ class HSTU(nn.Module):
         batch_indices = torch.arange(output_embedding.shape[0], device=output_embedding.device)
         # last_embeddings = output_embedding[batch_indices, end_boundaries]
         out = self.main_tower(output_embedding)
-        logging.info(f'out: {out.shape}')
+        # logging.info(f'out: {out.shape}')
         return out, batch_indices, end_boundaries
         
 
