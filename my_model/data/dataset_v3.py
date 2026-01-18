@@ -136,7 +136,7 @@ class DatasetV3(torch.utils.data.Dataset):
 
         historical_ids = movie_history[:]
         historical_ratings = movie_history_ratings[:]
-        historical_ratings[0] = self._num_ratings +1 # mask掉真实评分
+        # historical_ratings[0] = self._num_ratings +1 # mask掉真实评分
         historical_timestamps = movie_timestamps[:]
         target_ids = movie_history[0]
         target_ratings = movie_history_ratings[0]
