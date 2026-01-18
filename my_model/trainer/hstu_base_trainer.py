@@ -331,8 +331,8 @@ class HSTUBaseTrainer:
                 targets = raw_targets[valid_mask]
                 # logging.info(f'raw_targets: {raw_targets}')
                 # logging.info(f'targets: {targets} {targets.shape}')
-
-                # return
+                logging.info(f'out_offsets: {out_offsets}')
+                return
                 
                 loss = self.criterion(pred_logits, (targets-1).squeeze())
                 # return
@@ -371,10 +371,11 @@ class HSTUBaseTrainer:
         self.model.eval()
         
         batch_losses = []
-        batch_accs = []
+        batch_accs = []         # Exact Match Accuracy
+        batch_binary_accs = []  # Binary Accuracy
         
-        all_probs = [] # 用于计算 AUC
-        all_targets = [] 
+        all_pos_probs = []
+        all_binary_targets = []
         
         with torch.no_grad():
             for row in iter(self.eval_data_loader):
@@ -384,79 +385,78 @@ class HSTUBaseTrainer:
                     max_output_length=0, 
                 )
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                
-                # [关键修改] 同样需要传入 Target Embedding
-                target_emb = self.embedding_module.get_item_embeddings(target_ids).squeeze(1)
-
-                outputs = self.model(
+                jagged_out, x_offsets = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
+                outputs = jagged_out[x_offsets]
                 
-                # --- 分支逻辑 ---
+                # --- 通用 Label 处理 ---
+                # 如果是 1-5分，变为 0-4
+                # 如果是 1-2(Binary)，变为 0-1 (0:False, 1:True)
+                targets = (target_ratings - 1).view(-1)
+                
+                loss = self.criterion(outputs, targets)
+                batch_losses.append(loss.item())
+                
+                # --- 计算 Exact Match Accuracy ---
+                # 在二分类模式下，这个值等于 Binary Acc
+                pred_ids = torch.argmax(outputs, dim=1)
+                acc = (pred_ids == targets).float().mean().item()
+                batch_accs.append(acc)
+                
+                # --- 分支逻辑：处理二分类指标所需的概率和标签 ---
+                probs = torch.softmax(outputs, dim=1)
+                
                 if self.FLAGS.use_binary_ratings:
-                    # === Binary Mode (BCE) ===
-                    targets = (target_ratings - 1).float().squeeze() # 0.0 or 1.0
-                    logits = outputs.squeeze()
+                    # === 模式 A: Binary 输入 (Rating 1, 2) ===
+                    # 此时 outputs 的 shape 应该是 [B, 2]
+                    # Index 0 是负例(1分)，Index 1 是正例(2分)
                     
-                    # Loss
-                    loss = self.criterion(logits, targets)
-                    batch_losses.append(loss.item())
+                    # 正类概率就是 Index 1 的概率
+                    pos_probs_batch = probs[:, 1]
                     
-                    # Prob & Acc
-                    probs = torch.sigmoid(logits)
-                    preds = (probs > 0.5).float()
-                    acc = (preds == targets).float().mean().item()
-                    batch_accs.append(acc)
-                    
-                    # AUC Data Collection
-                    all_probs.extend(probs.cpu().numpy().tolist())
-                    all_targets.extend(targets.cpu().numpy().tolist())
+                    # 真实标签已经是 0/1 了，无需转换
+                    binary_targets_batch = targets.float()
                     
                 else:
-                    # === Original Mode (Multiclass / >3 is Positive) ===
-                    targets = (target_ratings - 1).long().view(-1)
-                    loss = self.criterion(outputs, targets)
-                    batch_losses.append(loss.item())
+                    # === 模式 B: 5-Star 输入 (Rating 1-5) ===
+                    # 此时 outputs 的 shape 应该是 [B, 5]
                     
-                    # Accuracy (Exact Match: 几星预测几星)
-                    pred_ids = torch.argmax(outputs, dim=1)
-                    acc = (pred_ids == targets).float().mean().item()
-                    batch_accs.append(acc)
-                    
-                    # AUC Data Collection (保留你原始的 Softmax 逻辑)
-                    probs = torch.softmax(outputs, dim=1)
+                    # 正类概率是 4星(index 3) 和 5星(index 4) 之和
                     if probs.shape[1] >= 5:
-                        # 预测为 4星或5星 的概率和
                         pos_probs_batch = probs[:, 3:].sum(dim=1)
                     else:
-                        # 兜底
-                        pos_probs_batch = probs[:, -1]
+                        pos_probs_batch = probs[:, -1] # 兜底逻辑
                     
-                    # 真实标签 >= 3星 (即 rating 4,5) 为正例
+                    # 真实标签需要手动截断 (>=3 为正例)
                     binary_targets_batch = (targets >= 3).float()
-                    
-                    all_probs.extend(pos_probs_batch.cpu().numpy().tolist())
-                    all_targets.extend(binary_targets_batch.cpu().numpy().tolist())
-
+                
+                # --- 统一计算 Binary Accuracy 和 收集 AUC 数据 ---
+                # 此时 pos_probs_batch 和 binary_targets_batch 已经对齐了
+                
+                # 阈值取 0.5 判断
+                binary_preds = (pos_probs_batch >= 0.5).float()
+                binary_acc = (binary_preds == binary_targets_batch).float().mean().item()
+                batch_binary_accs.append(binary_acc)
+                
+                all_pos_probs.extend(pos_probs_batch.cpu().numpy().tolist())
+                all_binary_targets.extend(binary_targets_batch.cpu().numpy().tolist())
+        
         avg_loss = np.mean(batch_losses)
         avg_acc = np.mean(batch_accs)
+        avg_binary_acc = np.mean(batch_binary_accs)
         
-        # Calculate Global AUC
         try:
-            # 只有当测试集中同时存在正例和负例时才能计算 AUC
-            if len(np.unique(all_targets)) > 1:
-                global_auc = roc_auc_score(all_targets, all_probs)
-            else:
-                logging.warning("Valid set contains only one class. AUC set to 0.5")
-                global_auc = 0.5
-        except Exception as e:
-            logging.warning(f"AUC calculation failed: {e}")
+            global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
+        except ValueError:
+            logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
             global_auc = 0.5
 
-        return avg_loss, avg_acc, global_auc
+        print(f"Debug: 预测为正例的比例: {binary_preds.mean().item():.2f}")
+        return avg_loss, avg_acc, avg_binary_acc, global_auc
 
 
     def test_dev(self):
