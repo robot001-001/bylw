@@ -327,6 +327,7 @@ class HSTUBaseTrainer:
                 logging.info(f'pred_logits: {pred_logits}')
                 raw_targets = seq_features.past_payloads['ratings'].long()
                 logging.info(f'raw_targets: {raw_targets}')
+                logging.info(f'target_ratings: {target_ratings}')
 
                 return
                 
