@@ -11,7 +11,7 @@ python main.py \
     --max_seq_len 200 \
     --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \
-    --train_batch_size 2 \
+    --train_batch_size 512 \
     --accum_steps 1 \
     --eval_batch_size 512 \
     --device 'cuda:0' \
