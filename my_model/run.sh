@@ -83,7 +83,7 @@ python main.py \
 
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
-    --logging_dir log/hstu_interleave/ \
+    --logging_dir log/hstu_bsa/ \
     --model HSTU_bsa_pretrain \
     --mode dev \
     --dataset_name 'ml-1m' \
