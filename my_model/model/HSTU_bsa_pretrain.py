@@ -322,7 +322,7 @@ class SequentialTransductionUnitJagged(torch.nn.Module):
             a = self._norm_attn_output(attn_output)
             o_input = torch.cat([u, a, u * a], dim=-1)
         else:
-            pass
+            o_input = attn_output
 
         new_outputs = (
             self._o(
