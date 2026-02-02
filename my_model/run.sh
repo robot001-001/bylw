@@ -104,7 +104,7 @@ clear
 
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
-    --logging_dir log/hstu_bsa/ \
+    --logging_dir log/hstu_bsa_interleave/ \
     --model HSTU_bsa_pretrain_interleave \
     --mode dev \
     --dataset_name 'ml-1m' \
