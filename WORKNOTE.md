@@ -71,3 +71,15 @@
     * 训练速度与原版基本一致，大幅优于数据增强
 * TODO：
     * 读nsa相关逻辑，实现修正
+
+# 2026-02-01
+* 实现block_sparse_attn逻辑
+    * block_counts=2, block_size=64
+    * auc0.79整微负baseline
+    * 收敛速度明显慢于baseline
+* TODO
+    * 猜测可能是固定分块导致历史信息不全
+        * presort逻辑实现
+    * 调参
+        * block_counts++，block_size--
+        * lr++
