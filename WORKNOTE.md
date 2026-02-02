@@ -83,3 +83,10 @@
     * 调参
         * block_counts++，block_size--
         * lr++
+
+# 2026-02-02
+* 调参
+    * block_counts++，block_size-- 无收益
+    * lr++ auc 80.5超过baseline
+* TODO
+    * 添加presort逻辑
