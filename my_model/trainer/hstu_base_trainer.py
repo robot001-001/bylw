@@ -113,6 +113,9 @@ class HSTUBaseTrainer:
         elif self.FLAGS.mode == 'test_dev':
             logging.info(f'mode: {self.FLAGS.mode}')
             self.test_dev()
+        elif self.FLAGS.mode == 'train_presort':
+            logging.info(f'mode: {self.FLAGS.mode}')
+            self.train_presort()
 
     
     def get_model(self):
@@ -166,20 +169,22 @@ class HSTUBaseTrainer:
                     device=self.device,
                     max_output_length=0, 
                 )
-                # logging.info(f'seq_features: {seq_features}')
-                # logging.info(f'target_ratings: {target_ratings}')
 
                 input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
-                # logging.info(f'trainer: input_embeddings: {input_embeddings.shape}, {input_embeddings[..., 0]}')
-                outputs = self.model(
+                jagged_out, out_offsets = self.model(
                     past_lengths=seq_features.past_lengths,
                     past_ids=seq_features.past_ids,
                     past_embeddings=input_embeddings,
                     past_payloads=seq_features.past_payloads,
                 )
+                pred_logits = jagged_out[::2, :].reshape(-1, 2)
+                raw_targets = seq_features.past_payloads['ratings'].long()
+                MaxLen = raw_targets.shape[1]
+                col_indices = torch.arange(MaxLen, device=raw_targets.device).unsqueeze(0)
+                valid_mask = col_indices <= (seq_features.past_lengths-1).unsqueeze(1)
+                targets = raw_targets[valid_mask]
                 
-                loss = self.criterion(outputs, (target_ratings-1).squeeze())
-                # return
+                loss = self.criterion(pred_logits, (targets-1).squeeze())
                 
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
@@ -191,18 +196,9 @@ class HSTUBaseTrainer:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                 
-                # eval
-                # if (batch_id % (self.FLAGS.eval_interval*self.accum_steps)) == 0 and batch_id != 0:
-                #     logging.info(f'start testing!')
-                #     # avg_loss, avg_acc, global_auc = self.test()
-                #     avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
-                #     logging.info(f"[Eval] Step {batch_id}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
-                #     self.embedding_module.train()
-                #     self.model.train()
-
             # End of Epoch
             logging.info(f'start testing!')
-            avg_loss, avg_acc, avg_binary_acc, global_auc = self.test_with_binary_acc()
+            avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()
             logging.info(f"[Eval] End of Epoch {epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
             self.embedding_module.train()
             self.model.train()
@@ -338,15 +334,8 @@ class HSTUBaseTrainer:
                 col_indices = torch.arange(MaxLen, device=raw_targets.device).unsqueeze(0)
                 valid_mask = col_indices <= (seq_features.past_lengths-1).unsqueeze(1)
                 targets = raw_targets[valid_mask]
-                # logging.info(f'jagged_out: {jagged_out.shape}')
-                # logging.info(f'pre_logit: {pred_logits.shape}')
-                # logging.info(f'raw_targets: {raw_targets}')
-                # logging.info(f'targets: {targets.shape}')
-                # logging.info(f'out_offsets: {out_offsets}')
-                # return
                 
                 loss = self.criterion(pred_logits, (targets-1).squeeze())
-                # return
                 
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
@@ -358,7 +347,6 @@ class HSTUBaseTrainer:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                 
-
             # End of Epoch
             logging.info(f'start testing!')
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()
@@ -376,6 +364,7 @@ class HSTUBaseTrainer:
             f"./ckpts/test.pt"
         )
         return
+
 
     def test(self):
         self.embedding_module.eval()
@@ -564,3 +553,7 @@ class HSTUBaseTrainer:
 
         print(f"Debug: 预测为正例的比例: {binary_preds.mean().item():.2f}")
         return avg_loss, avg_acc, avg_binary_acc, global_auc
+
+
+    def train_presort(self):
+        return
