@@ -46,7 +46,7 @@ class RecoDataset:
             with torch.no_grad():
                 historical_id_emb = emb_matrix.get_item_embeddings(historical_ids.to(device))
             sorted_indices = self._group_vectors_by_similarity(historical_id_emb, block_size)
-            sample['historical_ids'] = historical_ids[sorted_indices]
+            sample['historical_ids'] = historical_ids[sorted_indices].to('cpu')
             sample['historical_ratings'] = historical_ratings[sorted_indices]
             sample['historical_timestamps'] = historical_timestamps[sorted_indices]
             train_dataset._cache[idx] = sample
