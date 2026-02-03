@@ -16,6 +16,7 @@
 
 from dataclasses import dataclass
 from typing import List
+import logging
 
 import pandas as pd
 
@@ -70,6 +71,7 @@ class RecoDataset:
             first_pc = torch.ones(embed_dim, device=tensor.device)
         scores = torch.matmul(centered, first_pc)
         sorted_indices = torch.argsort(scores)
+        logging.info(f'sorted_indices: {sorted_indices}')
         return sorted_indices.to('cpu')
 
 
