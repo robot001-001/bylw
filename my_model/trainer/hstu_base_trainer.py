@@ -561,18 +561,8 @@ class HSTUBaseTrainer:
 
 
     def train_presort(self):
-        from data.dataset_v4 import DatasetV4
         self.device = self.FLAGS.device
-        self.get_dataset()
-        self.dataset = DatasetV4(self.dataset)
-        self.train_data_sampler, self.train_data_loader = create_data_loader(
-            self.dataset.train_dataset,
-            batch_size=self.FLAGS.train_batch_size,
-            world_size=1,
-            rank=0,
-            shuffle=True,
-            drop_last=False,
-        )
+        self.get_dataset_presort()
 
         self.get_model()
         self.get_loss()
@@ -594,18 +584,43 @@ class HSTUBaseTrainer:
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
             if (epoch > 0) and (epoch % self.presort_steps==0):
-                self.dataset.presort(16, self.embedding_module)
-                self.train_data_sampler, self.train_data_loader = create_data_loader(
-                    self.dataset.train_dataset,
-                    batch_size=self.FLAGS.train_batch_size,
-                    world_size=1,
-                    rank=0,
-                    shuffle=True,
-                    drop_last=False,
-                )
+                logging.info(f'epoch {epoch}: starting presort data!')
+                self.get_dataset_presort(block_size=16, emb_matrix=self.embedding_module)
+                logging.info(f'epoch {epoch}: finishing presort data!')
                 return
             
 
-                
+    def get_dataset_presort(self, block_size=None, emb_matrix=None):
+        from data.reco_dataset_v1 import get_reco_dataset
+        self.dataset = get_reco_dataset(
+            dataset_name=self.FLAGS.dataset_name,
+            max_sequence_length=self.FLAGS.max_seq_len,
+            chronological=True,
+            positional_sampling_ratio=self.FLAGS.positional_sampling_ratio,
+            use_binary_ratings=self.FLAGS.use_binary_ratings,
+            num_ratings=self.FLAGS.num_ratings,
+        )
+        if (block_size is not None) and (emb_matrix is not None):
+            self.dataset.presort(block_size, emb_matrix)
+        else:
+            logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
+        self.train_data_sampler, self.train_data_loader = create_data_loader(
+            self.dataset.train_dataset,
+            batch_size=self.FLAGS.train_batch_size,
+            world_size=1,
+            rank=0,
+            shuffle=True,
+            drop_last=False,
+        )
+        self.eval_data_sampler, self.eval_data_loader = create_data_loader(
+            self.dataset.eval_dataset,
+            batch_size=self.FLAGS.eval_batch_size,
+            world_size=1,
+            rank=0,
+            shuffle=True,  # needed for partial eval
+            drop_last=False,
+        )
+        logging.info(f'train_dataloader_num: {len(self.train_data_loader)}')
+        logging.info(f'eval_dataloader_num: {len(self.eval_data_loader)}')
 
                 
