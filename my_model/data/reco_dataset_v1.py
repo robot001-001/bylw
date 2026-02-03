@@ -42,17 +42,18 @@ class RecoDataset:
         train_dataset = self.train_dataset
         for idx in tqdm(range(train_dataset.__len__()), desc='presort'):
             sample = train_dataset.__getitem__(idx)
+            history_lengths = sample['history_lengths']
             historical_ids = sample['historical_ids']
             historical_ratings = sample['historical_ratings']
             historical_timestamps = sample['historical_timestamps']
             with torch.no_grad():
-                historical_id_emb = emb_matrix.get_item_embeddings(historical_ids.to(device))
+                historical_id_emb = emb_matrix.get_item_embeddings(historical_ids[:history_lengths].to(device))
             # logging.info(f'historical_ids.shape: {historical_ids.shape}')
             # logging.info(f'historical_id_emb.shape: {historical_id_emb.shape}')
             sorted_indices = self._group_vectors_by_similarity(historical_id_emb, block_size)
-            sample['historical_ids'] = historical_ids[sorted_indices]
-            sample['historical_ratings'] = historical_ratings[sorted_indices]
-            sample['historical_timestamps'] = historical_timestamps[sorted_indices]
+            sample['historical_ids'][:history_lengths] = historical_ids[sorted_indices]
+            sample['historical_ratings'][:history_lengths] = historical_ratings[sorted_indices]
+            sample['historical_timestamps'][:history_lengths] = historical_timestamps[sorted_indices]
             train_dataset._cache[idx] = sample
         self.train_dataset = train_dataset
         return
