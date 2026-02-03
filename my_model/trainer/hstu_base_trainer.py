@@ -584,9 +584,7 @@ class HSTUBaseTrainer:
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
             if (epoch > 0) and (epoch % self.presort_steps==0):
-                logging.info(f'epoch {epoch}: starting presort data!')
                 self.get_dataset_presort(block_size=16, emb_matrix=self.embedding_module)
-                logging.info(f'epoch {epoch}: finishing presort data!')
                 return
             
 

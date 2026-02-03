@@ -17,6 +17,7 @@
 from dataclasses import dataclass
 from typing import List
 import logging
+from tqdm import tqdm
 
 import pandas as pd
 
@@ -39,7 +40,7 @@ class RecoDataset:
 
     def presort(self, block_size, emb_matrix, device):
         train_dataset = self.train_dataset
-        for idx in range(train_dataset.__len__()):
+        for idx in tqdm(range(train_dataset.__len__()), desc='presort'):
             sample = train_dataset.__getitem__(idx)
             historical_ids = sample['historical_ids']
             historical_ratings = sample['historical_ratings']
