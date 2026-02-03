@@ -68,6 +68,7 @@ class HSTUBaseTrainer:
         flags.DEFINE_float('l2_norm_eps', 1e-6, 'for SSoftmaxLoss')
         flags.DEFINE_float('weight_decay', 1e-3, 'weight decay')
         flags.DEFINE_integer('accum_steps', 1, 'accum_steps')
+        flags.DEFINE_integer('presort_steps', None, 'run kmeans every x step')
         # test params
         flags.DEFINE_string('test_data_dir', None, 'test_data_dir')
         flags.DEFINE_integer('eval_batch_size', -1, 'eval_batch_size')
@@ -222,6 +223,7 @@ class HSTUBaseTrainer:
         self.criterion = nn.CrossEntropyLoss()
         model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
         self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
+
 
     def get_sampler(self):
         sampling_strategy = self.FLAGS.sampling_strategy
@@ -559,4 +561,34 @@ class HSTUBaseTrainer:
 
 
     def train_presort(self):
-        return
+        from data.dataset_v4 import DatasetV4
+        self.device = self.FLAGS.device
+        self.get_dataset()
+        self.train_data_loader = DatasetV4(self.train_data_loader)
+        self.get_model()
+        self.get_loss()
+        logging.info(f'model structure: {self.model}')
+        self.accum_steps = self.FLAGS.accum_steps
+        self.presort_steps = self.FLAGS.presort_steps
+
+        try:
+            num_batches = len(self.train_data_loader)
+        except:
+            num_batches = float('inf')
+
+        batch_id = 0
+        epoch = 0
+        self.optimizer.zero_grad() 
+        
+        for epoch in range(self.FLAGS.num_epochs):
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            if self.train_data_sampler is not None:
+                self.train_data_sampler.set_epoch(epoch)
+            if (epoch > 0) and (epoch % self.presort_steps==0):
+                self.train_data_loader.presort(16, self.embedding_module)
+                return
+            
+
+                
+
+                
