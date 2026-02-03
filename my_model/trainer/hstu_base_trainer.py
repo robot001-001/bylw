@@ -564,7 +564,16 @@ class HSTUBaseTrainer:
         from data.dataset_v4 import DatasetV4
         self.device = self.FLAGS.device
         self.get_dataset()
-        self.train_data_loader = DatasetV4(self.train_data_loader)
+        self.dataset = DatasetV4(self.dataset)
+        self.train_data_sampler, self.train_data_loader = create_data_loader(
+            self.dataset.train_dataset,
+            batch_size=self.FLAGS.train_batch_size,
+            world_size=1,
+            rank=0,
+            shuffle=True,
+            drop_last=False,
+        )
+
         self.get_model()
         self.get_loss()
         logging.info(f'model structure: {self.model}')
@@ -585,7 +594,15 @@ class HSTUBaseTrainer:
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
             if (epoch > 0) and (epoch % self.presort_steps==0):
-                self.train_data_loader.presort(16, self.embedding_module)
+                self.dataset.presort(16, self.embedding_module)
+                self.train_data_sampler, self.train_data_loader = create_data_loader(
+                    self.dataset.train_dataset,
+                    batch_size=self.FLAGS.train_batch_size,
+                    world_size=1,
+                    rank=0,
+                    shuffle=True,
+                    drop_last=False,
+                )
                 return
             
 
