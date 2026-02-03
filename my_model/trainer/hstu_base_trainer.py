@@ -585,7 +585,12 @@ class HSTUBaseTrainer:
                 self.train_data_sampler.set_epoch(epoch)
             if (epoch > 0) and (epoch % self.presort_steps==0):
                 self.get_dataset_presort(block_size=16, emb_matrix=self.embedding_module)
-                return
+            
+            for batch_id, row in enumerate(iter(self.train_data_loader)):
+                # train
+                logging.info(f'batch: {batch_id}')
+                logging.info(f'row: {row}')
+                break
             
 
     def get_dataset_presort(self, block_size=None, emb_matrix=None):
