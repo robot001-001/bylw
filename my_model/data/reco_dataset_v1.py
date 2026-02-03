@@ -44,9 +44,10 @@ class RecoDataset:
             historical_ids = sample['historical_ids']
             historical_ratings = sample['historical_ratings']
             historical_timestamps = sample['historical_timestamps']
-            logging.info(f'historical_ids.shape: {historical_ids.shape}')
             with torch.no_grad():
                 historical_id_emb = emb_matrix.get_item_embeddings(historical_ids.to(device))
+            logging.info(f'historical_ids.shape: {historical_ids.shape}')
+            logging.info(f'historical_id_emb.shape: {historical_id_emb.shape}')
             sorted_indices = self._group_vectors_by_similarity(historical_id_emb, block_size)
             sample['historical_ids'] = historical_ids[sorted_indices]
             sample['historical_ratings'] = historical_ratings[sorted_indices]
