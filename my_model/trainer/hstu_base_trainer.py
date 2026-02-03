@@ -601,7 +601,8 @@ class HSTUBaseTrainer:
             num_ratings=self.FLAGS.num_ratings,
         )
         if (block_size is not None) and (emb_matrix is not None):
-            self.dataset.presort(block_size, emb_matrix)
+            self.device = self.FLAGS.device
+            self.dataset.presort(block_size, emb_matrix, self.device)
         else:
             logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
         self.train_data_sampler, self.train_data_loader = create_data_loader(
