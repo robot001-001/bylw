@@ -589,8 +589,56 @@ class HSTUBaseTrainer:
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
                 logging.info(f'batch: {batch_id}')
-                logging.info(f'row: {row}')
-                break
+                # logging.info(f'row: {row}')
+                seq_features, target_ids, target_ratings = movielens_seq_features_from_row(
+                    row,
+                    device=self.device,
+                    max_output_length=0, 
+                )
+
+                input_embeddings = self.embedding_module.get_item_embeddings(seq_features.past_ids)
+                jagged_out, out_offsets = self.model(
+                    past_lengths=seq_features.past_lengths,
+                    past_ids=seq_features.past_ids,
+                    past_embeddings=input_embeddings,
+                    past_payloads=seq_features.past_payloads,
+                )
+                pred_logits = jagged_out[::2, :].reshape(-1, 2)
+                raw_targets = seq_features.past_payloads['ratings'].long()
+                MaxLen = raw_targets.shape[1]
+                col_indices = torch.arange(MaxLen, device=raw_targets.device).unsqueeze(0)
+                valid_mask = col_indices <= (seq_features.past_lengths-1).unsqueeze(1)
+                targets = raw_targets[valid_mask]
+                
+                loss = self.criterion(pred_logits, (targets-1).squeeze())
+                
+                loss_to_display = loss.item()
+                loss = loss / self.accum_steps
+                
+                loss.backward()
+                is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
+                
+                if is_update_step:
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                
+            # End of Epoch
+            logging.info(f'start testing!')
+            avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()
+            logging.info(f"[Eval] End of Epoch {epoch}: TrainLoss={loss_to_display:4g}, EvalLoss={avg_loss:.4f}, Acc={avg_acc:.4f}, BinaryAcc={avg_binary_acc:.4f}, AUC={global_auc:.4f}")
+            self.embedding_module.train()
+            self.model.train()
+
+        torch.save(
+            {
+                "epoch": epoch,
+                "embedding_state_dict": self.embedding_module.state_dict(),
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+            },
+            f"./ckpts/test.pt"
+        )
+        return
             
 
     def get_dataset_presort(self, block_size=None, emb_matrix=None):

@@ -127,7 +127,7 @@ clear
 
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
-    --logging_dir log/hstu_bsa_interleave/ \
+    --logging_dir log/hstu_bsa_interleave_presort/ \
     --model HSTU_bsa_pretrain_interleave \
     --mode train_presort \
     --presort_steps 5 \
@@ -137,7 +137,7 @@ python main.py \
     --max_seq_len 200 \
     --embedding_dim 50 \
     --positional_sampling_ratio 1.0 \
-    --train_batch_size 2 \
+    --train_batch_size 128 \
     --accum_steps 4 \
     --eval_batch_size 128 \
     --device 'cuda:0' \
