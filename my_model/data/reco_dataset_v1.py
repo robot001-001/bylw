@@ -46,8 +46,8 @@ class RecoDataset:
             historical_timestamps = sample['historical_timestamps']
             with torch.no_grad():
                 historical_id_emb = emb_matrix.get_item_embeddings(historical_ids.to(device))
-            logging.info(f'historical_ids.shape: {historical_ids.shape}')
-            logging.info(f'historical_id_emb.shape: {historical_id_emb.shape}')
+            # logging.info(f'historical_ids.shape: {historical_ids.shape}')
+            # logging.info(f'historical_id_emb.shape: {historical_id_emb.shape}')
             sorted_indices = self._group_vectors_by_similarity(historical_id_emb, block_size)
             sample['historical_ids'] = historical_ids[sorted_indices]
             sample['historical_ratings'] = historical_ratings[sorted_indices]
@@ -73,7 +73,8 @@ class RecoDataset:
             first_pc = torch.ones(embed_dim, device=tensor.device)
         scores = torch.matmul(centered, first_pc)
         sorted_indices = torch.argsort(scores)
-        logging.info(f'sorted_indices: {sorted_indices}')
+        sorted_indices = sorted_indices[sorted_indices < seq_len]
+        # logging.info(f'sorted_indices: {sorted_indices}')
         return sorted_indices.to('cpu')
 
 
