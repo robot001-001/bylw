@@ -130,7 +130,7 @@ python main.py \
     --logging_dir log/hstu_bsa_interleave_presort/ \
     --model HSTU_bsa_pretrain_interleave \
     --mode train_presort \
-    --presort_steps 5 \
+    --presort_steps 10 \
     --dataset_name 'ml-1m' \
     --use_binary_ratings True \
     --num_ratings 2 \
