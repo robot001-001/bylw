@@ -28,7 +28,7 @@ def init_log():
     if FLAGS.logging_dir:
         if not os.path.exists(FLAGS.logging_dir):
             os.makedirs(FLAGS.logging_dir, exist_ok=True)
-        log_file_path = os.path.join(FLAGS.logging_dir, "train.log")
+        log_file_path = os.path.join(FLAGS.logging_dir, FLAGS.logging_file)
         file_handler = logging.FileHandler(log_file_path, mode='w')
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
