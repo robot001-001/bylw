@@ -12,7 +12,7 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 flags.DEFINE_string("logging_dir", None, "log dir")
 flags.DEFINE_string("trainer_type", "HSTUBaseTrainer", "trainer type")
 FLAGS = flags.FLAGS
-FLAGS(sys.argv[:4])
+FLAGS(sys.argv[:5])
 
 def init_log():
     root_logger = logging.getLogger()
@@ -37,6 +37,7 @@ def init_log():
 
 
 def get_trainer(trainer_type):
+    logging.info(f'trainer_type: {trainer_type}')
     trainer_dic = {
         'HSTUBaseTrainer': HSTUBaseTrainer,
         'ONETRANSTrainer': ONETRANSTrainer,
