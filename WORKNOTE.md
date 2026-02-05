@@ -90,3 +90,14 @@
     * lr++ auc 80.5超过baseline
 * TODO
     * 添加presort逻辑
+
+
+# 2026-02-03
+* 添加presort逻辑
+    * 每5个epoch一次重排序，效果不好
+* TODO
+    * 调参 增加epoch后效果变好，待分析
+    * onetrans复现
+        * paper读完
+        * onetrans block完成80%，未调试
+    * rankmixer复现

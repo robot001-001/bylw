@@ -4,11 +4,13 @@ import os
 import logging
 
 from trainer.hstu_base_trainer import HSTUBaseTrainer
+from trainer.onetrans_trainer import ONETRANSTrainer
 import torch
 torch.set_printoptions(profile="full")
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 flags.DEFINE_string("logging_dir", None, "log dir")
+flags.DEFINE_string("trainer_type", "HSTUBaseTrainer", "trainer type")
 FLAGS = flags.FLAGS
 FLAGS(sys.argv[:3])
 
@@ -34,9 +36,16 @@ def init_log():
         logging.warning("FLAGS.logging_dir is None. Logging to console only.")
 
 
+def get_trainer(trainer_type):
+    trainer_dic = {
+        'HSTUBaseTrainer': HSTUBaseTrainer,
+        'ONETRANSTrainer': ONETRANSTrainer,
+    }
+    return trainer_dic[trainer_type]
+
 
 def main():
-    trainer = HSTUBaseTrainer()
+    trainer = get_trainer(FLAGS.trainer_type)()
     FLAGS(sys.argv)
     trainer.run()
 
