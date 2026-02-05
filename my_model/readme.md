@@ -17,3 +17,6 @@
         * 移除max_output_len
     * preprocess模块改动
         * 重写mask函数，将有效输入限定至tgt结束，不保留tgt_rating
+4. ⭐数据处理
+    * binarify: python data/data_cleaning.py
+    * 一个序列扩展成多个: python data/data_augment.py
