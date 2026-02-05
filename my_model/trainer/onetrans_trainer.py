@@ -93,7 +93,27 @@ class ONETRANSTrainer:
 
 
     def train(self):
-        pass
+        self.device = self.FLAGS.device
+        self.get_dataset()
+        self.get_model()
+        self.get_loss()
+        logging.info(f'model structure: {self.model}')
+        self.accum_steps = self.FLAGS.accum_steps
+
+        try:
+            num_batches = len(self.train_data_loader)
+        except:
+            num_batches = float('inf')
+
+        batch_id = 0
+        epoch = 0
+        
+        # 1. 确保循环开始前梯度清零
+        self.optimizer.zero_grad() 
+
+        for epoch in range(self.FLAGS.num_epochs):
+            logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
+            pass
 
 
     def get_loss(self):
