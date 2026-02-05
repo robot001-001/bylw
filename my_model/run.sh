@@ -3,6 +3,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/hstu/ \
+#     --trainer_type HSTUBaseTrainer \
 #     --model HSTU_pretrain \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
@@ -23,6 +24,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/hstu_nsa/ \
+#     --trainer_type HSTUBaseTrainer \
 #     --model HSTU_nsa_pretrain \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
@@ -43,6 +45,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/hstu_interleave/ \
+#     --trainer_type HSTUBaseTrainer \
 #     --model HSTU_interleave_pretrain \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
@@ -63,6 +66,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/hstu_fuxian/ \
+#     --trainer_type HSTUBaseTrainer \
 #     --model HSTU_fuxian \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
@@ -84,6 +88,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/hstu_bsa/ \
+#     --trainer_type HSTUBaseTrainer \
 #     --model HSTU_bsa_pretrain \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
@@ -105,6 +110,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/hstu_bsa_interleave/ \
+#     --trainer_type HSTUBaseTrainer \
 #     --model HSTU_bsa_pretrain_interleave \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
@@ -128,7 +134,7 @@ clear
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/hstu_bsa_interleave_presort/ \
-    --trainer_type ONETRANSTrainer \
+    --trainer_type HSTUBaseTrainer \
     --model HSTU_bsa_pretrain_interleave \
     --mode train_presort \
     --presort_steps 10 \
@@ -146,3 +152,5 @@ python main.py \
     --num_epochs 50 \
     --eval_interval 20 \
     --model_args '{"max_seq_len": 200, "embedding_dim": 50, "dropout_rate": 0.2, "num_ratings": 2, "linear_dim": 25, "attention_dim": 25, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 8, "num_heads": 2, "linear_dropout_rate": 0.2, "attn_dropout_rate": 0.0, "main_tower_units": [128, 2], "concat_ua": false, "enable_relative_attention_bias": true}'
+
+
