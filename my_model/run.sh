@@ -134,6 +134,7 @@ clear
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/hstu_bsa_interleave_presort/ \
+    --logging_file train_10.log \
     --trainer_type HSTUBaseTrainer \
     --model HSTU_bsa_pretrain_interleave \
     --mode train_presort \
