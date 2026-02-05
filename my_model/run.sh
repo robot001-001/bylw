@@ -160,7 +160,7 @@ python main.py \
     --logging_dir log/onetrans/ \
     --logging_file train.log \
     --trainer_type ONETRANSTrainer \
-    --model ONETANS \
+    --model ONETRANS \
     --mode train \
     --dataset_name 'ml-1m' \
     --use_binary_ratings True \
