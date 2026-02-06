@@ -80,7 +80,7 @@ class OneTransEmb(nn.Module):
         click_emb = torch.cat([high_items_emb, high_times_emb, high_ratings_emb], dim=2)
         click_emb = self.click_fc(click_emb)
 
-        sep_emb = self.exposure_emb(torch.tensor(0, device=self.device)).view(1, 1, -1).expand(click_emb.shape[0], -1, -1)
+        sep_emb = self.exposure_emb(torch.tensor(0, device=self.device)).view(1, 1, -1).expand(click_emb.shape[0], 1, -1)
         logging.info(f'sep_emb: {sep_emb.shape}')
         seq_items_emb = self.exposure_emb(seq_items_pad)
         seq_times_emb = self.timestamp_fc(torch.log(seq_times_gap.unsqueeze(2)+1.0))
