@@ -100,12 +100,14 @@ class OneTransEmb(nn.Module):
         # logging.info(f'seq_times_emb.shape: {seq_times_emb.shape}')
         # logging.info(f'seq_ratings_emb.shape: {seq_ratings_emb.shape}')
         # logging.info(f'exposure_emb.shape: {exposure_emb.shape}')
+        logging.info(f'1')
 
         s_emb, s_len = self._concat_left_padded_tensors(
             torch.cat([click_emb, sep_emb], dim=1), high_len+1,
             exposure_emb, seq_len-1
         )
 
+        logging.info(f'2')
         # logging.info(f's_emb.shape: {s_emb.shape}')
         # logging.info(f's_len: {s_len}')
 
@@ -114,6 +116,7 @@ class OneTransEmb(nn.Module):
 
         uid_emb = self.uid_emb(user_id_tensor)
         tgt_emb = self.exposure_emb(item_id_tensor)
+        logging.info(f'3')
 
         # logging.info(f'uid_emb.shape: {uid_emb.shape}')
         # logging.info(f'tgt_emb.shape: {tgt_emb.shape}')
@@ -121,5 +124,6 @@ class OneTransEmb(nn.Module):
         ns_emb = torch.cat([uid_emb, tgt_emb], dim=1)
         input_embeddings = torch.cat([s_emb, ns_emb], dim=1)
         # logging.info(f'ns_emb.shape: {ns_emb.shape}')
+        logging.info(f'4')
 
         return input_embeddings, item_rating_tensor, s_len, 2
