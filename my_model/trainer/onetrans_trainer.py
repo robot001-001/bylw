@@ -110,7 +110,6 @@ class ONETRANSTrainer:
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
                 logging.info(f'batch: {batch_id}')
-                gc.collect()
                 # logging.info(f'row: {row}')
                 input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
                 # logging.info(f'input_embedding.shape: {input_embedding.shape}')
