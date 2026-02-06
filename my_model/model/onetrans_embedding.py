@@ -36,6 +36,9 @@ class OneTransEmb(nn.Module):
         self.rating_emb = nn.Embedding(num_ratings+1, d_model)
         self.device=device
 
+    def _concat_left_padded_tensors(self, left, left_len, right, right_len):
+        return
+
     def forward(self, row):
         high_items_pad = row[0].to(self.device)
         high_times_pad = row[1].to(self.device)
@@ -66,7 +69,7 @@ class OneTransEmb(nn.Module):
         click_emb = torch.cat([high_items_emb, high_times_emb, high_ratings_emb], dim=2)
         click_emb = self.click_fc(click_emb)
 
-        sep_emb = self.exposure_emb(torch.tensor(0, device=self.device))
+        sep_emb = self.exposure_emb(torch.tensor(0, device=self.device)).view(1, 1, -1).expand(click_emb.shape[0], -1, -1)
         logging.info(f'sep_emb: {sep_emb.shape}, {sep_emb}')
         seq_items_emb = self.exposure_emb(seq_items_pad)
         seq_times_emb = self.timestamp_fc(torch.log(seq_times_gap.unsqueeze(2)+1.0))
