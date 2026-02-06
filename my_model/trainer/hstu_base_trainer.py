@@ -339,9 +339,9 @@ class HSTUBaseTrainer:
                 col_indices = torch.arange(MaxLen, device=raw_targets.device).unsqueeze(0)
                 valid_mask = col_indices <= (seq_features.past_lengths-1).unsqueeze(1)
                 targets = raw_targets[valid_mask]
-                logging.info(f'pred_logits: {pred_logits.shape}, {pred_logits}')
-                logging.info(f'targets: {targets.shape}, {targets}')
-                return
+                # logging.info(f'pred_logits: {pred_logits.shape}, {pred_logits}')
+                # logging.info(f'targets: {targets.shape}, {targets}')
+                # return
                 
                 loss = self.criterion(pred_logits, (targets-1).squeeze())
                 
