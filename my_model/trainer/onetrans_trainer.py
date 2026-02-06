@@ -8,6 +8,7 @@ import time
 from sklearn.metrics import roc_auc_score, accuracy_score
 import numpy as np
 import itertools
+import gc
 
 import torch
 from torch import nn
@@ -109,6 +110,7 @@ class ONETRANSTrainer:
             for batch_id, row in enumerate(iter(self.train_data_loader)):
                 # train
                 logging.info(f'batch: {batch_id}')
+                gc.collect()
                 # logging.info(f'row: {row}')
                 input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
                 # logging.info(f'input_embedding.shape: {input_embedding.shape}')
