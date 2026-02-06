@@ -22,13 +22,15 @@ class OneTransEmb(nn.Module):
         self,
         max_itemid: int,
         max_uid: int,
-        d_model: int
+        d_model: int,
+        device='cpu'
     ):
         super().__init__()
         self.exposure_emb = nn.Embedding(max_itemid, d_model)
         self.click_emb = nn.Embedding(max_itemid, d_model)
         self.uid_emb = nn.Embedding(max_uid, d_model)
         self.timestamp_emb = nn.Embedding(3000, d_model)
+        self.device=device
 
     def forward(self, row):
         high_items_pad = row[0].to(self.device)
