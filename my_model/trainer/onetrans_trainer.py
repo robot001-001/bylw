@@ -110,7 +110,7 @@ class ONETRANSTrainer:
                 # train
                 logging.info(f'batch: {batch_id}')
                 logging.info(f'row: {row}')
-                break
+                return
 
 
     def get_loss(self):
