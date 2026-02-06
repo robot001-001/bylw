@@ -70,4 +70,14 @@ class OneTransEmb(nn.Module):
         seq_items_emb = self.exposure_emb(seq_items_pad)
         seq_times_emb = self.timestamp_fc(torch.log(seq_times_gap.unsqueeze(2)+1.0))
         seq_ratings_emb = self.rating_emb(seq_ratings_pad)
-        seq_emb = torch.cat([seq_items_emb, seq_times_emb, seq_ratings_emb], dim=1)
+        exposure_emb = torch.cat([seq_items_emb, seq_times_emb, seq_ratings_emb], dim=1)
+
+        logging.info(f'high_items_emb.shape: {high_items_emb.shape}')
+        logging.info(f'high_times_emb.shape: {high_times_emb.shape}')
+        logging.info(f'high_ratings_emb.shape: {high_ratings_emb.shape}')
+        logging.info(f'click_emb.shape: {click_emb.shape}')
+
+        logging.info(f'seq_items_emb.shape: {seq_items_emb.shape}')
+        logging.info(f'seq_times_emb.shape: {seq_times_emb.shape}')
+        logging.info(f'seq_ratings_emb.shape: {seq_ratings_emb.shape}')
+        logging.info(f'exposure_emb.shape: {exposure_emb.shape}')
