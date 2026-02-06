@@ -23,6 +23,7 @@ class OneTransEmb(nn.Module):
         max_itemid: int,
         max_uid: int,
         d_model: int,
+        num_ratings: int,
         device='cpu'
     ):
         super().__init__()
@@ -30,6 +31,9 @@ class OneTransEmb(nn.Module):
         self.click_emb = nn.Embedding(max_itemid, d_model)
         self.uid_emb = nn.Embedding(max_uid, d_model)
         self.timestamp_fc = nn.Linear(1, d_model)
+        self.exposure_fc = nn.Linear(3*d_model, d_model)
+        self.click_fc = nn.Linear(3*d_model, d_model)
+        self.rating_emb = nn.Embedding(num_ratings+1, d_model)
         self.device=device
 
     def forward(self, row):
@@ -57,6 +61,9 @@ class OneTransEmb(nn.Module):
         logging.info(f'seq_times_gap: {seq_times_gap}')
 
         high_items_emb = self.click_emb(high_items_pad)
-        high_times_emb = self.timestamp_fc(torch.log(high_times_gap+1.0))
+        high_times_emb = self.timestamp_fc(torch.log(high_times_gap.unsqueeze(2)+1.0))
+
         sep_emb = self.exposure_emb(torch.Tensor(0, device=self.device, dtype=torch.int32))
         logging.info(f'sep_emb: {sep_emb.shape}, {sep_emb}')
+        seq_items_emb = self.exposure_emb(seq_items_pad)
+        seq_times_emb = self.timestamp_fc(torch.log(seq_times_gap.unsqueeze(2)+1.0))

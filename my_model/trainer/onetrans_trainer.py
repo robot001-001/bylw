@@ -77,7 +77,7 @@ class ONETRANSTrainer:
         logging.info(f"Trainable Parameters: {trainable_params}")
 
         self.embedding_module = OneTransEmb(
-            self.max_item_id, self.max_user_id, self.FLAGS.embedding_dim, self.device
+            self.max_item_id, self.max_user_id, self.FLAGS.embedding_dim, self.FLAGS.num_ratings, self.device
         )
         self.embedding_module.to(self.device)
 
