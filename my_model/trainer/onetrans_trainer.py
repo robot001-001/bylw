@@ -111,11 +111,20 @@ class ONETRANSTrainer:
                 logging.info(f'batch: {batch_id}')
                 # logging.info(f'row: {row}')
                 input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
-                logging.info(f'input_embedding.shape: {input_embedding.shape}')
-                logging.info(f'tgt_ratings: {tgt_ratings.shape}, {tgt_ratings}')
-                logging.info(f's_len: {s_len.shape}, {s_len}')
+                # logging.info(f'input_embedding.shape: {input_embedding.shape}')
+                # logging.info(f'tgt_ratings: {tgt_ratings.shape}, {tgt_ratings}')
+                # logging.info(f's_len: {s_len.shape}, {s_len}')
                 ret = self.model(input_embedding, s_len)
-                logging.info(f'ret: {ret.shape}, {ret}')
+                # logging.info(f'ret: {ret.shape}, {ret}')
+                loss = self.criterion(ret, (tgt_ratings.long()-1).squeeze())
+                loss_to_display = loss.item()
+                loss = loss / self.accum_steps
+                loss.backward()
+                is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
+                if is_update_step:
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                logging.info(f'successfully train one batch')
                 return
 
 
