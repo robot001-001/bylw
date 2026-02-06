@@ -15,23 +15,7 @@ import torch.optim as optim
 
 
 # from model.HSTU import HSTU
-from model.sequential.losses.autoregressive_losses import (
-    BCELoss,
-    InBatchNegativesSampler,
-    LocalNegativesSampler,
-)
-from model.sequential.losses.sampled_softmax import (
-    SampledSoftmaxLoss,
-)
-from model.sequential.features import (
-    movielens_seq_features_from_row,
-)
-from model.sequential.embedding_modules import (
-    EmbeddingModule,
-    LocalEmbeddingModule,
-)
-
-from data.reco_dataset import get_reco_dataset
+from data.onetrans_dataloader import MovieLensFullDataset
 from data.data_loader import create_data_loader
 
 
@@ -121,7 +105,19 @@ class ONETRANSTrainer:
 
 
     def get_dataset(self):
-        pass
+        if self.FLAGS.dataset_name == 'ml-1m':
+            self.dataset = MovieLensFullDataset(
+                f'tmp/ml-1m/sasrec_format_binary_augment_onetrans.csv',
+                max_len=self.FLAGS.max_seq_len
+            )
+            self.train_data_sampler, self.train_data_loader = create_data_loader(
+                self.dataset.train_dataset,
+                batch_size=self.FLAGS.train_batch_size,
+                world_size=1,
+                rank=0,
+                shuffle=True,
+                drop_last=False,
+            )
 
 
     def dev(self):

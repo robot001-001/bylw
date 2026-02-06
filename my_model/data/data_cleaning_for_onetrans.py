@@ -11,7 +11,7 @@ def filter_high_ratings(row):
     ratings = str(row['sequence_ratings']).split(',')
     items = str(row['sequence_item_ids']).split(',')
     times = str(row['sequence_timestamps']).split(',')
-    high_indices = [i for i, r in enumerate(ratings) if r == '2']
+    high_indices = [i for i, r in enumerate(ratings[:-1]) if r == '2']
     high_items = [items[i] for i in high_indices]
     high_times = [times[i] for i in high_indices]
     return ",".join(high_items), ",".join(high_times)
