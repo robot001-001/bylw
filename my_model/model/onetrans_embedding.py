@@ -54,8 +54,8 @@ class OneTransEmb(nn.Module):
         high_items_pad = row[0].to(self.device)
         high_times_pad = row[1].to(self.device)
         high_len = row[2].to(self.device)
-        user_id_tensor = row[3].to(self.device).unsqueeze(1).unsqueeze(1)
-        item_id_tensor = row[4].to(self.device)[:, -1].unsqueeze(1).unsqueeze(1)
+        user_id_tensor = row[3].to(self.device).unsqueeze(1)
+        item_id_tensor = row[4].to(self.device)[:, -1].unsqueeze(1)
         item_rating_tensor = row[5].to(self.device)[:, -1]
         item_time_pad = row[6].to(self.device)[:, -1]
         seq_items_pad = row[4].to(self.device)[:, :-1]
