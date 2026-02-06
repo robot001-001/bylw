@@ -62,7 +62,7 @@ class OneTransEmb(nn.Module):
 
         high_items_emb = self.click_emb(high_items_pad)
         high_times_emb = self.timestamp_fc(torch.log(high_times_gap.unsqueeze(2)+1.0))
-        high_ratings_emb = self.rating_emb(torch.tensor(2, device=self.device)).unsqueeze(0).repeat(high_items_emb.size(0), 1)
+        high_ratings_emb = self.rating_emb(torch.tensor(2, device=self.device)).view(1, 1, -1).expand(high_items_emb.size(0), high_items_emb.size(1), -1)
         click_emb = torch.cat([high_items_emb, high_times_emb, high_ratings_emb], dim=1)
 
         sep_emb = self.exposure_emb(torch.tensor(0, device=self.device))
