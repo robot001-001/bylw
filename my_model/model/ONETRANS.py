@@ -186,7 +186,7 @@ class ONETRANS(nn.Module):
 
     def forward(self, x, in_seq_len):
         for i in range(self.num_layers):
-            print(f'running layer {i}')
+            # print(f'running layer {i}')
             x, in_seq_len = self.onetrans[i](x, in_seq_len)
         output_embedding = x.reshape(x.size(0), -1)
         out = self.main_tower(output_embedding)
