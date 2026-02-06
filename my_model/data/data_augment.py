@@ -36,7 +36,7 @@ for _, row in tqdm(data.iterrows(), total=data.shape[0]):
     # 你的Dataset逻辑是：取最后一个做Target，前面做History
     # 所以切片长度为 N 时，Input长度为 N-1
     
-    for length in range(MIN_SEQ_LEN, seq_len + 1):
+    for length in range(MIN_SEQ_LEN, seq_len):
         
         # 构造这一行的新数据
         # 使用 .copy() 保持元数据 (sex, age, zip_code 等) 不变

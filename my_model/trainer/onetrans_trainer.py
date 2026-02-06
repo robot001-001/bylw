@@ -110,14 +110,29 @@ class ONETRANSTrainer:
                 f'tmp/ml-1m/sasrec_format_binary_augment_onetrans.csv',
                 max_len=self.FLAGS.max_seq_len
             )
+            logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
             self.train_data_sampler, self.train_data_loader = create_data_loader(
-                self.dataset.train_dataset,
+                self.dataset,
                 batch_size=self.FLAGS.train_batch_size,
                 world_size=1,
                 rank=0,
                 shuffle=True,
                 drop_last=False,
             )
+            self.test_dataset = MovieLensFullDataset(
+                f'tmp/ml-1m/sasrec_format_binary_onetrans_testset.csv',
+                max_len=self.FLAGS.max_seq_len
+            )
+            self.eval_data_sampler, self.eval_data_loader = create_data_loader(
+                self.test_dataset,
+                batch_size=self.FLAGS.eval_batch_size,
+                world_size=1,
+                rank=0,
+                shuffle=True,  # needed for partial eval
+                drop_last=False,
+            )
+            logging.info(f'train_dataloader_num: {len(self.train_data_loader)}')
+            logging.info(f'eval_dataloader_num: {len(self.eval_data_loader)}')
 
 
     def dev(self):
