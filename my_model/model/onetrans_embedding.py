@@ -36,7 +36,7 @@ class OneTransEmb(nn.Module):
         self.rating_emb = nn.Embedding(num_ratings+1, d_model)
         self.device=device
 
-    def _concat_left_padded_tensors(self, left, left_len, right, right_len, final_len=512):
+    def _concat_left_padded_tensors(self, left, left_len, right, right_len, final_len=512-2):
         B, S, D = left.shape
         T = right.shape[1]
         device = left.device
@@ -49,7 +49,7 @@ class OneTransEmb(nn.Module):
         out = x_cat[batch_idx, indices]
         cat_len = left_len+right_len
         pad_size = final_len - S - T
-        logging.info(f'5')
+        # logging.info(f'5')
         out = F.pad(out, (0, 0, pad_size, 0), value=0)
         return out, cat_len
 
@@ -101,14 +101,14 @@ class OneTransEmb(nn.Module):
         # logging.info(f'seq_times_emb.shape: {seq_times_emb.shape}')
         # logging.info(f'seq_ratings_emb.shape: {seq_ratings_emb.shape}')
         # logging.info(f'exposure_emb.shape: {exposure_emb.shape}')
-        logging.info(f'1')
+        # logging.info(f'1')
 
         s_emb, s_len = self._concat_left_padded_tensors(
             torch.cat([click_emb, sep_emb], dim=1), high_len+1,
             exposure_emb, seq_len-1
         )
 
-        logging.info(f'2')
+        # logging.info(f'2')
         # logging.info(f's_emb.shape: {s_emb.shape}')
         # logging.info(f's_len: {s_len}')
 
@@ -117,7 +117,7 @@ class OneTransEmb(nn.Module):
 
         uid_emb = self.uid_emb(user_id_tensor)
         tgt_emb = self.exposure_emb(item_id_tensor)
-        logging.info(f'3')
+        # logging.info(f'3')
 
         # logging.info(f'uid_emb.shape: {uid_emb.shape}')
         # logging.info(f'tgt_emb.shape: {tgt_emb.shape}')
@@ -125,6 +125,6 @@ class OneTransEmb(nn.Module):
         ns_emb = torch.cat([uid_emb, tgt_emb], dim=1)
         input_embeddings = torch.cat([s_emb, ns_emb], dim=1)
         # logging.info(f'ns_emb.shape: {ns_emb.shape}')
-        logging.info(f'4')
+        # logging.info(f'4')
 
         return input_embeddings, item_rating_tensor, s_len, 2
