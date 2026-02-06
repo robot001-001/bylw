@@ -36,7 +36,7 @@ class OneTransEmb(nn.Module):
         self.rating_emb = nn.Embedding(num_ratings+1, d_model)
         self.device=device
 
-    def _concat_left_padded_tensors(self, left, left_len, right, right_len):
+    def _concat_left_padded_tensors(self, left, left_len, right, right_len, final_len=512):
         B, S, D = left.shape
         T = right.shape[1]
         device = left.device
@@ -48,6 +48,8 @@ class OneTransEmb(nn.Module):
         batch_idx = torch.arange(B, device=device).unsqueeze(1)
         out = x_cat[batch_idx, indices]
         cat_len = left_len+right_len
+        pad_size = final_len - S - T
+        out = F.pad(out, (0, 0, pad_size, 0), value=0)
         return out, cat_len
 
     def forward(self, row):

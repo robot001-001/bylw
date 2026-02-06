@@ -174,4 +174,4 @@ python main.py \
     --learning_rate 3e-4 \
     --num_epochs 50 \
     --eval_interval 20 \
-    --model_args '{"num_layers": 8, "max_seq_len": [256, 128, 64, 32, 16, 8, 4, 2], "ns_seq_len": 2, "d_model": 50, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
+    --model_args '{"num_layers": 8, "max_seq_len": [512, 256, 128, 64, 32, 16, 8, 4], "ns_seq_len": 2, "d_model": 50, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'

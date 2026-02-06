@@ -111,6 +111,9 @@ class ONETRANSTrainer:
                 logging.info(f'batch: {batch_id}')
                 logging.info(f'row: {row}')
                 input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
+                logging.info(f'input_embedding.shape: {input_embedding.shape}')
+                logging.info(f'tgt_ratings: {tgt_ratings.shape}, {tgt_ratings}')
+                logging.info(f's_len: {s_len.shape}, {s_len}')
                 ret = self.model(input_embedding, s_len)
                 logging.info(f'ret: {ret.shape}, {ret}')
                 return
