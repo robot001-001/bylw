@@ -103,7 +103,14 @@ class ONETRANSTrainer:
 
         for epoch in range(self.FLAGS.num_epochs):
             logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
-            pass
+            if self.train_data_sampler is not None:
+                self.train_data_sampler.set_epoch(epoch)
+            
+            for batch_id, row in enumerate(iter(self.train_data_loader)):
+                # train
+                logging.info(f'batch: {batch_id}')
+                logging.info(f'row: {row}')
+                break
 
 
     def get_loss(self):
