@@ -54,8 +54,8 @@ class OneTransEmb(nn.Module):
         high_items_pad = row[0].to(self.device)
         high_times_pad = row[1].to(self.device)
         high_len = row[2].to(self.device)
-        user_id_tensor = row[3].to(self.device)
-        item_id_tensor = row[4].to(self.device)[:, -1]
+        user_id_tensor = row[3].to(self.device).unsqueeze(1).unsqueeze(1)
+        item_id_tensor = row[4].to(self.device)[:, -1].unsqueeze(1).unsqueeze(1)
         item_rating_tensor = row[5].to(self.device)[:, -1]
         item_time_pad = row[6].to(self.device)[:, -1]
         seq_items_pad = row[4].to(self.device)[:, :-1]
@@ -106,3 +106,11 @@ class OneTransEmb(nn.Module):
 
         logging.info(f's_emb.shape: {s_emb.shape}')
         logging.info(f's_len: {s_len}')
+
+        uid_emb = self.uid_emb(user_id_tensor)
+        tgt_emb = self.exposure_emb(item_id_tensor)
+        ns_emb = torch.cat([uid_emb, tgt_emb], dim=1)
+        input_embeddings = torch.cat([s_emb, ns_emb], dim=1)
+        logging.info(f'ns_emb.shape: {ns_emb.shape}')
+
+        return input_embeddings, item_rating_tensor, s_len, 2
