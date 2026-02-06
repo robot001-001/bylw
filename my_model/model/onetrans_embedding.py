@@ -37,7 +37,18 @@ class OneTransEmb(nn.Module):
         self.device=device
 
     def _concat_left_padded_tensors(self, left, left_len, right, right_len):
-        return
+        B, S, D = left.shape
+        T = right.shape[1]
+        device = left.device
+        x_cat = torch.cat([left, right], dim=1)
+        mask1 = torch.arange(S, device=device).unsqueeze(0) >= (S - left_len.unsqueeze(1))
+        mask2 = torch.arange(T, device=device).unsqueeze(0) >= (T - right_len.unsqueeze(1))
+        mask_cat = torch.cat([mask1, mask2], dim=1)
+        _, indices = torch.sort(mask_cat.int(), dim=1, stable=True)
+        batch_idx = torch.arange(B, device=device).unsqueeze(1)
+        out = x_cat[batch_idx, indices]
+        cat_len = left_len+right_len
+        return out, cat_len
 
     def forward(self, row):
         high_items_pad = row[0].to(self.device)
@@ -87,3 +98,11 @@ class OneTransEmb(nn.Module):
         logging.info(f'seq_times_emb.shape: {seq_times_emb.shape}')
         logging.info(f'seq_ratings_emb.shape: {seq_ratings_emb.shape}')
         logging.info(f'exposure_emb.shape: {exposure_emb.shape}')
+
+        s_emb, s_len = self._concat_left_padded_tensors(
+            torch.cat([click_emb, sep_emb], dim=1), high_len+1,
+            exposure_emb, seq_len-1
+        )
+
+        logging.info(f's_emb.shape: {s_emb.shape}')
+        logging.info(f's_len: {s_len}')
