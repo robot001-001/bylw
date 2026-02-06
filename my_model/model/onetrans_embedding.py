@@ -29,7 +29,7 @@ class OneTransEmb(nn.Module):
         self.exposure_emb = nn.Embedding(max_itemid, d_model)
         self.click_emb = nn.Embedding(max_itemid, d_model)
         self.uid_emb = nn.Embedding(max_uid, d_model)
-        self.timestamp_emb = nn.Embedding(3000, d_model)
+        self.timestamp_fc = nn.Linear(1, d_model)
         self.device=device
 
     def forward(self, row):
@@ -55,5 +55,8 @@ class OneTransEmb(nn.Module):
         logging.info(f'seq_times_pad.shape: {seq_times_pad.shape}')
         logging.info(f'high_times_gap: {high_times_gap}')
         logging.info(f'seq_times_gap: {seq_times_gap}')
+
         high_items_emb = self.click_emb(high_items_pad)
-        
+        high_times_emb = self.timestamp_fc(torch.log(high_times_gap+1.0))
+        sep_emb = self.exposure_emb(torch.Tensor(0, device=self.device, dtype=torch.int32))
+        logging.info(f'sep_emb: {sep_emb.shape}, {sep_emb}')
