@@ -36,7 +36,7 @@ class OneTransEmb(nn.Module):
         self.rating_emb = nn.Embedding(num_ratings+1, d_model)
         self.device=device
 
-    def _concat_left_padded_tensors(self, left, left_len, right, right_len, final_len=512-2):
+    def _concat_left_padded_tensors(self, left, left_len, right, right_len, final_len=512):
         B, S, D = left.shape
         T = right.shape[1]
         device = left.device
