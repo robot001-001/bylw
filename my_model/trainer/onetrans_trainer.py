@@ -125,7 +125,7 @@ class ONETRANSTrainer:
                 if is_update_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                logging.info(f'successfully train one batch')
+                # logging.info(f'successfully train one batch')
                 # return
 
 
