@@ -101,3 +101,12 @@
         * paper读完
         * onetrans block完成80%，未调试
     * rankmixer复现
+
+# 2026-02-06
+* onetrans 复现
+    * data pipe实现
+        * 速度有点慢，且全在内存中，目前无优化思路
+    * 模型pipe实现
+        * 会莫名其妙kill，待排查
+* TODO
+    * 明天跑通
