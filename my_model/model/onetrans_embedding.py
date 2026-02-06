@@ -43,11 +43,17 @@ class OneTransEmb(nn.Module):
         seq_items_pad = row[4].to(self.device)[:, :-1]
         seq_ratings_pad = row[5].to(self.device)[:, :-1]
         seq_times_pad = row[6].to(self.device)[:, :-1]
+        
+        high_times_gap = item_time_pad.unsqueeze(1) - high_times_pad
+        seq_times_gap = item_time_pad.unsqueeze(1) - seq_times_pad
+
         seq_len = row[7].to(self.device)
         logging.info(f'high_items_pad.shape: {high_items_pad.shape}')
         logging.info(f'high_times_pad.shape: {high_times_pad.shape}')
         logging.info(f'seq_items_pad.shape: {seq_items_pad.shape}')
         logging.info(f'seq_ratings_pad.shape: {seq_ratings_pad.shape}')
         logging.info(f'seq_times_pad.shape: {seq_times_pad.shape}')
+        logging.info(f'high_times_gap: {high_times_gap}')
+        logging.info(f'seq_times_gap: {seq_times_gap}')
         high_items_emb = self.click_emb(high_items_pad)
         
