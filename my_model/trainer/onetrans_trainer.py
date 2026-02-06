@@ -126,7 +126,7 @@ class ONETRANSTrainer:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                 logging.info(f'successfully train one batch')
-                return
+                # return
 
 
     def get_loss(self):
