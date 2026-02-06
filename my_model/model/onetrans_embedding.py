@@ -49,6 +49,7 @@ class OneTransEmb(nn.Module):
         out = x_cat[batch_idx, indices]
         cat_len = left_len+right_len
         pad_size = final_len - S - T
+        logging.info(f'5')
         out = F.pad(out, (0, 0, pad_size, 0), value=0)
         return out, cat_len
 
