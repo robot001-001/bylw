@@ -110,7 +110,7 @@ class ONETRANSTrainer:
                 # train
                 logging.info(f'batch: {batch_id}')
                 logging.info(f'row: {row}')
-                input_embedding = self.embedding_module(row.to(self.device))
+                input_embedding = self.embedding_module(row)
                 return
 
 

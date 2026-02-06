@@ -28,24 +28,24 @@ class OneTransEmb(nn.Module):
         self.exposure_emb = nn.Embedding(max_itemid, d_model)
         self.click_emb = nn.Embedding(max_itemid, d_model)
         self.uid_emb = nn.Embedding(max_uid, d_model)
-        self.timestamp_y_emb = nn.Embedding(3000, d_model)
-        self.timestamp_m_emb = nn.Embedding(20, d_model)
-        self.timestamp_d_emb = nn.Embedding(50, d_model)
-        self.timestamp_hh_emb = nn.Embedding(30, d_model)
-        self.timestamp_mm_emb = nn.Embedding(100, d_model)
-        self.timestamp_ss_emb = nn.Embedding(100, d_model)
+        self.timestamp_emb = nn.Embedding(3000, d_model)
 
     def forward(self, row):
-        high_items_pad = row[0]
-        high_times_pad = row[1]
-        high_len = row[2]
-        user_id_tensor = row[3]
-        seq_items_pad = row[4]
-        seq_ratings_pad = row[5]
-        seq_times_pad = row[6]
-        seq_len = row[7]
+        high_items_pad = row[0].to(self.device)
+        high_times_pad = row[1].to(self.device)
+        high_len = row[2].to(self.device)
+        user_id_tensor = row[3].to(self.device)
+        item_id_tensor = row[4].to(self.device)[:, -1]
+        item_rating_tensor = row[5].to(self.device)[:, -1]
+        item_time_pad = row[6].to(self.device)[:, -1]
+        seq_items_pad = row[4].to(self.device)[:, :-1]
+        seq_ratings_pad = row[5].to(self.device)[:, :-1]
+        seq_times_pad = row[6].to(self.device)[:, :-1]
+        seq_len = row[7].to(self.device)
         logging.info(f'high_items_pad.shape: {high_items_pad.shape}')
         logging.info(f'high_times_pad.shape: {high_times_pad.shape}')
         logging.info(f'seq_items_pad.shape: {seq_items_pad.shape}')
         logging.info(f'seq_ratings_pad.shape: {seq_ratings_pad.shape}')
         logging.info(f'seq_times_pad.shape: {seq_times_pad.shape}')
+        high_items_emb = self.click_emb(high_items_pad)
+        
