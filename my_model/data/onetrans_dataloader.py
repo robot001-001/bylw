@@ -2,6 +2,7 @@ import torch
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 class MovieLensFullDataset(Dataset):
     def __init__(self, csv_path, max_len=50):
@@ -12,11 +13,11 @@ class MovieLensFullDataset(Dataset):
             if pd.isna(s) or s == "": return []
             return [int(float(i)) for i in str(s).split(',')]
         self.user_ids = df['user_id'].astype(int).values
-        self.high_item_ids = [str_to_list(x) for x in df['high_item_ids']]
-        self.high_timestamps = [str_to_list(x) for x in df['high_timestamps']]
-        self.seq_item_ids = [str_to_list(x) for x in df['sequence_item_ids']]
-        self.seq_ratings = [str_to_list(x) for x in df['sequence_ratings']]
-        self.seq_timestamps = [str_to_list(x) for x in df['sequence_timestamps']]
+        self.high_item_ids = [str_to_list(x) for x in tqdm(df['high_item_ids'], desc='high_item_ids')]
+        self.high_timestamps = [str_to_list(x) for x in tqdm(df['high_timestamps'], desc='high_timestamps')]
+        self.seq_item_ids = [str_to_list(x) for x in tqdm(df['sequence_item_ids'], desc='seq_item_ids')]
+        self.seq_ratings = [str_to_list(x) for x in tqdm(df['sequence_ratings'], desc='sequence_ratings')]
+        self.seq_timestamps = [str_to_list(x) for x in tqdm(df['sequence_timestamps'], desc='sequence_timestamps')]
 
         current_max = 0
         for seq in self.seq_item_ids:
