@@ -3,6 +3,7 @@ clear
 CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/hstu/ \
+    --logging_file train.log \
     --trainer_type HSTUBaseTrainer \
     --model HSTU_pretrain \
     --mode dev \
