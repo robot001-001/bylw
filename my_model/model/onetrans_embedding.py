@@ -107,8 +107,15 @@ class OneTransEmb(nn.Module):
         logging.info(f's_emb.shape: {s_emb.shape}')
         logging.info(f's_len: {s_len}')
 
+        logging.info(f'user_id_tensor: {user_id_tensor}')
+        logging.info(f'item_id_tensor: {item_id_tensor}')
+
         uid_emb = self.uid_emb(user_id_tensor)
         tgt_emb = self.exposure_emb(item_id_tensor)
+
+        logging.info(f'uid_emb.shape: {uid_emb.shape}')
+        logging.info(f'tgt_emb.shape: {tgt_emb.shape}')
+
         ns_emb = torch.cat([uid_emb, tgt_emb], dim=1)
         input_embeddings = torch.cat([s_emb, ns_emb], dim=1)
         logging.info(f'ns_emb.shape: {ns_emb.shape}')
