@@ -25,6 +25,7 @@ class MovieLensFullDataset(Dataset):
                 if local_max > current_max:
                     current_max = local_max
         self.max_item_id = current_max
+        self.max_user_id = int(self.user_ids.max())
 
     def __len__(self):
         return len(self.user_ids)

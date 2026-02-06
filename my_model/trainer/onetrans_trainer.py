@@ -17,6 +17,7 @@ import torch.optim as optim
 # from model.HSTU import HSTU
 from data.onetrans_dataloader import MovieLensFullDataset
 from data.data_loader import create_data_loader
+from model.onetrans_embedding import OneTransEmb
 
 
 class ONETRANSTrainer:
@@ -75,6 +76,11 @@ class ONETRANSTrainer:
         logging.info(f"Total Parameters: {total_params}")
         logging.info(f"Trainable Parameters: {trainable_params}")
 
+        self.embedding_module = OneTransEmb(
+            self.max_item_id, self.max_user_id, self.FLAGS.embedding_dim
+        )
+        self.embedding_module.to(self.device)
+
 
     def train(self):
         self.device = self.FLAGS.device
@@ -101,7 +107,9 @@ class ONETRANSTrainer:
 
 
     def get_loss(self):
-        pass
+        self.criterion = nn.CrossEntropyLoss()
+        model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
+        self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
 
 
     def get_dataset(self):
@@ -123,6 +131,8 @@ class ONETRANSTrainer:
                 f'tmp/ml-1m/sasrec_format_binary_onetrans_testset.csv',
                 max_len=self.FLAGS.max_seq_len
             )
+            self.max_item_id = self.test_dataset.max_item_id
+            self.max_user_id = self.test_dataset.max_user_id
             self.eval_data_sampler, self.eval_data_loader = create_data_loader(
                 self.test_dataset,
                 batch_size=self.FLAGS.eval_batch_size,
