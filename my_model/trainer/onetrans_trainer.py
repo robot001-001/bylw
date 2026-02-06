@@ -15,7 +15,7 @@ import torch.optim as optim
 
 
 # from model.HSTU import HSTU
-from data.onetrans_dataloader_v1 import MovieLensFullDataset
+from data.onetrans_dataloader_v2 import MovieLensFullDataset
 from data.data_loader import create_data_loader
 from model.onetrans_embedding import OneTransEmb
 
