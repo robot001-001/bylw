@@ -127,7 +127,7 @@ class ONETRANSTrainer:
                 # logging.info(f'ret: {ret.shape}, {ret}')
                 loss = self.criterion(ret, (tgt_ratings.long()-1).squeeze())
                 loss_to_display = loss.item()
-                logging.info(f'loss: {loss_to_display}')
+                # logging.info(f'loss: {loss_to_display}')
                 loss = loss / self.accum_steps
                 loss.backward()
                 is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
@@ -136,8 +136,8 @@ class ONETRANSTrainer:
                     torch.nn.utils.clip_grad_norm_(self.embedding_module.parameters(), max_norm=1.0)
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                if batch_id >=1:
-                    return
+                # if batch_id >=1:
+                #     return
                 # return
 
             logging.info(f'start testing!')
