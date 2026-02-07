@@ -196,7 +196,7 @@ class ONETRANS(nn.Module):
 
     def forward(self, x, in_seq_len):
         for i in range(self.num_layers):
-            print(f'running layer {i}')
+            # print(f'running layer {i}')
             x, in_seq_len = self.onetrans[i](x, in_seq_len)
             # logging.info(f'layer: {i}, x.shape: {x.shape}, in_seq_len: {in_seq_len.shape}, {in_seq_len}')
         output_embedding = x.reshape(x.size(0), -1)
