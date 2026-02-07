@@ -54,7 +54,7 @@ class ONETRANSTrainer:
     def run(self):
         logging.info(f'self.FLAGS.model: {self.FLAGS.model}')
         if self.FLAGS.model == 'ONETRANS':
-            from model.ONETRANS import ONETRANS
+            from model.ONETRANS_v1 import ONETRANS
             self.model_cls = ONETRANS
         if self.FLAGS.mode == 'train':
             logging.info(f'mode: {self.FLAGS.mode}')
