@@ -172,7 +172,7 @@ python main.py \
     --accum_steps 1 \
     --eval_batch_size 2048 \
     --device 'cuda:0' \
-    --learning_rate 1e-4 \
+    --learning_rate 3e-4 \
     --num_epochs 50 \
     --eval_interval 20 \
     --model_args '{"num_layers": 8, "max_seq_len": [512, 256, 128, 64, 32, 16, 8, 4], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
