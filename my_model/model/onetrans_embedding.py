@@ -78,7 +78,7 @@ class OneTransEmb(nn.Module):
         # logging.info(f'seq_times_gap: {seq_times_gap}')
 
         high_items_emb = self.click_emb(high_items_pad)
-        high_times_emb = self.timestamp_fc(torch.log(high_times_gap.unsqueeze(2)+1.0))
+        high_times_emb = self.timestamp_fc(torch.clamp(torch.log(high_times_gap.unsqueeze(2)+1.0), min=0))
         high_ratings_emb = self.rating_emb(torch.tensor(2, device=self.device)).view(1, 1, -1).expand(high_items_emb.size(0), high_items_emb.size(1), -1)
         click_emb = torch.cat([high_items_emb, high_times_emb, high_ratings_emb], dim=2)
         click_emb = self.click_fc(click_emb)
@@ -86,7 +86,7 @@ class OneTransEmb(nn.Module):
         sep_emb = self.exposure_emb(torch.tensor(0, device=self.device)).view(1, 1, -1).expand(click_emb.shape[0], 1, -1)
         # logging.info(f'sep_emb: {sep_emb.shape}')
         seq_items_emb = self.exposure_emb(seq_items_pad)
-        seq_times_emb = self.timestamp_fc(torch.log(seq_times_gap.unsqueeze(2)+1.0))
+        seq_times_emb = self.timestamp_fc(torch.clamp(torch.log(seq_times_gap.unsqueeze(2)+1.0), min=0))
         seq_ratings_emb = self.rating_emb(seq_ratings_pad)
         exposure_emb = torch.cat([seq_items_emb, seq_times_emb, seq_ratings_emb], dim=2)
         exposure_emb = self.exposure_fc(exposure_emb)

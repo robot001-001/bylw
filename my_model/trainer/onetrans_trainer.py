@@ -121,9 +121,9 @@ class ONETRANSTrainer:
                 # logging.info(f'input_embedding.shape: {input_embedding.shape}')
                 # logging.info(f'input_embedding.device: {input_embedding.device}')
                 # logging.info(f'tgt_ratings: {tgt_ratings.shape}, {tgt_ratings}')
-                logging.info(f's_len: {s_len.shape}, {s_len}')
+                # logging.info(f's_len: {s_len.shape}, {s_len}')
                 ret = self.model(input_embedding, s_len)
-                logging.info(f'ret: {ret.shape}, {ret}')
+                # logging.info(f'ret: {ret.shape}, {ret}')
                 loss = self.criterion(ret, (tgt_ratings.long()-1).squeeze())
                 loss_to_display = loss.item()
                 loss = loss / self.accum_steps
