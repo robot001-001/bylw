@@ -35,8 +35,9 @@ class MovieLensFullDataset(Dataset):
             seq_times_pad, _ = self._process_seq(row['sequence_timestamps'], self.max_len+1)
             
             user_id_tensor = torch.tensor(row['user_id'], dtype=torch.long)
-        except:
-            logging.info(f'err: {idx}, row: {row}')
+        except Exception as e:
+            logging.info(f'err: {idx}, row: {row}, e: {e}')
+            raise 'lets stop here'
 
         return (
             high_items_pad,    # 1. 高评分item序列
