@@ -133,7 +133,7 @@ class ONETRANSTrainer:
                 if is_update_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                if batch_id >1:
+                if batch_id >=1:
                     return
                 # return
 
