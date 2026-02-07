@@ -81,6 +81,11 @@ class ONETRANSTrainer:
             self.max_item_id, self.max_user_id, self.FLAGS.embedding_dim, self.FLAGS.num_ratings, self.device
         )
         self.embedding_module.to(self.device)
+        total_params = sum(p.numel() for p in self.embedding_module.parameters())
+        trainable_params = sum(p.numel() for p in self.embedding_module.parameters() if p.requires_grad)
+
+        logging.info(f"Emb Total Parameters: {total_params}")
+        logging.info(f"Emb Trainable Parameters: {trainable_params}")
 
 
     def train(self):
@@ -112,7 +117,7 @@ class ONETRANSTrainer:
                 logging.info(f'batch: {batch_id}')
                 # logging.info(f'row: {row}')
                 input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
-                # logging.info(f'input_embedding.shape: {input_embedding.shape}')
+                logging.info(f'input_embedding.shape: {input_embedding.shape}')
                 # logging.info(f'tgt_ratings: {tgt_ratings.shape}, {tgt_ratings}')
                 # logging.info(f's_len: {s_len.shape}, {s_len}')
                 ret = self.model(input_embedding, s_len)
