@@ -226,6 +226,7 @@ class ONETRANSTrainer:
             global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
         except ValueError:
             logging.info(f'all_binary_targets: {all_binary_targets}')
+            logging.info(f'all_pos_probs: {all_pos_probs}')
             logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
             global_auc = 0.5
 
