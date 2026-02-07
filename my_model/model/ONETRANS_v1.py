@@ -102,6 +102,7 @@ class OneTransBlock(nn.Module):
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(head_dim)
         scores = scores + mask
         # logging.info(f'scores: {scores[3, :, :2]}')
+        scores = torch.clamp(scores, min=-65504, max=65504)
         attn_probs = torch.softmax(scores, dim=-1)
         attn_probs = torch.nan_to_num(attn_probs, nan=0.0)
         # logging.info(f'attn_probs: {attn_probs[3, :, :2]}')
