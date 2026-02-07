@@ -25,8 +25,9 @@ class MovieLensFullDataset(Dataset):
             pad_len = max_len - len(seq_trimmed)
             padded_seq = [0] * pad_len + seq_trimmed
             return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
-        except:
+        except Exception as e:
             logging.info(f'err: seq_str: {seq_str}, idx: {idx}')
+            logging.info(f'e: {e}')
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
