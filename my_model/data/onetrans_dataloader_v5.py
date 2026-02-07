@@ -18,12 +18,15 @@ class MovieLensFullDataset(Dataset):
         return self.df.shape[0]
     
     def _process_seq(self, seq_str, max_len):
-        seq = [int(float(i)) for i in str(seq_str).split(',')]
-        actual_len = min(len(seq), self.max_len)
-        seq_trimmed = seq[-self.max_len:]
-        pad_len = self.max_len - len(seq_trimmed)
-        padded_seq = [0] * pad_len + seq_trimmed
-        return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
+        try:
+            seq = [int(float(i)) for i in str(seq_str).split(',')]
+            actual_len = min(len(seq), max_len)
+            seq_trimmed = seq[-max_len:]
+            pad_len = max_len - len(seq_trimmed)
+            padded_seq = [0] * pad_len + seq_trimmed
+            return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
+        except:
+            logging.info(f'err: seq_str: {seq_str}')
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
