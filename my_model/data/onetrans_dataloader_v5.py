@@ -17,7 +17,7 @@ class MovieLensFullDataset(Dataset):
     def __len__(self):
         return self.df.shape[0]
     
-    def _process_seq(self, seq_str, max_len):
+    def _process_seq(self, idx, seq_str, max_len):
         try:
             seq = [int(float(i)) for i in str(seq_str).split(',')]
             actual_len = min(len(seq), max_len)
@@ -26,15 +26,15 @@ class MovieLensFullDataset(Dataset):
             padded_seq = [0] * pad_len + seq_trimmed
             return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
         except:
-            logging.info(f'err: seq_str: {seq_str}')
+            logging.info(f'err: seq_str: {seq_str}, idx: {idx}')
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        high_items_pad, high_len = self._process_seq(row['high_item_ids'], self.max_len)
-        high_times_pad, _ = self._process_seq(row['high_timestamps'], self.max_len)
-        seq_items_pad, seq_len = self._process_seq(row['sequence_item_ids'], self.max_len+1)
-        seq_ratings_pad, _ = self._process_seq(row['sequence_ratings'], self.max_len+1)
-        seq_times_pad, _ = self._process_seq(row['sequence_timestamps'], self.max_len+1)
+        high_items_pad, high_len = self._process_seq(idx, row['high_item_ids'], self.max_len)
+        high_times_pad, _ = self._process_seq(idx, row['high_timestamps'], self.max_len)
+        seq_items_pad, seq_len = self._process_seq(idx, row['sequence_item_ids'], self.max_len+1)
+        seq_ratings_pad, _ = self._process_seq(idx, row['sequence_ratings'], self.max_len+1)
+        seq_times_pad, _ = self._process_seq(idx, row['sequence_timestamps'], self.max_len+1)
         
         user_id_tensor = torch.tensor(row['user_id'], dtype=torch.long)
 
