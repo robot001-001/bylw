@@ -130,7 +130,7 @@ class ONETRANSTrainer:
                 loss.backward()
                 is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
                 if is_update_step:
-                    self.optimizer.step()
+                    # self.optimizer.step()
                     self.optimizer.zero_grad()
                 # return
 
