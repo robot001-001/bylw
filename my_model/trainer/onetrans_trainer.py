@@ -117,7 +117,7 @@ class ONETRANSTrainer:
                 logging.info(f'batch: {batch_id}')
                 # logging.info(f'row: {row}')
                 input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
-                logging.info(f'input_embedding: {input_embedding.shape}, {input_embedding}')
+                logging.info(f'input_embedding: {input_embedding.shape}, {input_embedding[:, :, 0]}')
                 # logging.info(f'input_embedding.shape: {input_embedding.shape}')
                 # logging.info(f'input_embedding.device: {input_embedding.device}')
                 # logging.info(f'tgt_ratings: {tgt_ratings.shape}, {tgt_ratings}')
