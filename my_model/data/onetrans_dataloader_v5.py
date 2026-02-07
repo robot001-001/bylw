@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
 from tqdm import tqdm
+import logging
 
 class MovieLensFullDataset(Dataset):
     def __init__(self, csv_path, max_len=50):
@@ -25,6 +26,7 @@ class MovieLensFullDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df.loc[idx]
+        logging.info(f'row: {row}')
         high_items_pad, high_len = self._process_seq(row['high_item_ids'], self.max_len)
         high_times_pad, _ = self._process_seq(row['high_timestamps'], self.max_len)
         seq_items_pad, seq_len = self._process_seq(row['seq_item_ids'], self.max_len+1)
