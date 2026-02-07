@@ -13,6 +13,7 @@ import gc
 import torch
 from torch import nn
 import torch.optim as optim
+torch.autograd.set_detect_anomaly(True)
 
 
 # from model.HSTU import HSTU
@@ -125,8 +126,8 @@ class ONETRANSTrainer:
                 ret = self.model(input_embedding, s_len)
                 # logging.info(f'ret: {ret.shape}, {ret}')
                 loss = self.criterion(ret, (tgt_ratings.long()-1).squeeze())
-                logging.info(f'loss: {loss}')
                 loss_to_display = loss.item()
+                logging.info(f'loss: {loss_to_display}')
                 loss = loss / self.accum_steps
                 loss.backward()
                 is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
