@@ -132,7 +132,7 @@ class ONETRANSTrainer:
                 if is_update_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                return
+                # return
 
             logging.info(f'start testing!')
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()

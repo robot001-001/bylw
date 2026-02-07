@@ -98,10 +98,10 @@ class OneTransBlock(nn.Module):
         v = v.view(batch_size, -1, num_heads, head_dim).transpose(1, 2)
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(head_dim)
         scores = scores + mask
-        logging.info(f'scores: {scores[3, :, :2]}')
+        # logging.info(f'scores: {scores[3, :, :2]}')
         attn_probs = torch.softmax(scores, dim=-1)
         attn_probs = torch.nan_to_num(attn_probs, nan=0.0)
-        logging.info(f'attn_probs: {attn_probs[3, :, :2]}')
+        # logging.info(f'attn_probs: {attn_probs[3, :, :2]}')
         attn_out = torch.matmul(attn_probs, v)
         attn_out = attn_out.transpose(1, 2).contiguous().reshape(batch_size, -1, d_model)
         return attn_out
@@ -148,7 +148,7 @@ class OneTransBlock(nn.Module):
         q_out = q_rope.transpose(1, 2).flatten(2)
         k_out = k_rope.transpose(1, 2).flatten(2)
         attn_out = self._mha(mask, q_out, k_out, v, num_heads=self.num_heads)
-        logging.info(f'attn_out: {attn_out[3, :, :2]}')
+        # logging.info(f'attn_out: {attn_out[3, :, :2]}')
         current_valid_len = self.out_seq_len + self.ns_seq_len
         residual_1 = residual_1[:, -current_valid_len:, :]
         x = residual_1 + attn_out
@@ -192,7 +192,7 @@ class ONETRANS(nn.Module):
         for i in range(self.num_layers):
             # print(f'running layer {i}')
             x, in_seq_len = self.onetrans[i](x, in_seq_len)
-            logging.info(f'layer: {i}, x: {x.shape}, {x[3, :, :2]}')
+            # logging.info(f'layer: {i}, x: {x.shape}, {x[3, :, :2]}')
         output_embedding = x.reshape(x.size(0), -1)
         out = self.main_tower(output_embedding)
         return out
