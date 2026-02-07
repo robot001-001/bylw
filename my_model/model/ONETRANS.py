@@ -145,6 +145,7 @@ class OneTransBlock(nn.Module):
         q_out = q_rope.transpose(1, 2).flatten(2)
         k_out = k_rope.transpose(1, 2).flatten(2)
         attn_out = self._mha(mask, q_out, k_out, v, num_heads=self.num_heads)
+        logging.info(f'attn_out: {attn_out}')
         current_valid_len = self.out_seq_len + self.ns_seq_len
         residual_1 = residual_1[:, -current_valid_len:, :]
         x = residual_1 + attn_out
