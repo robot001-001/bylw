@@ -98,7 +98,9 @@ class OneTransBlock(nn.Module):
         v = v.view(batch_size, -1, num_heads, head_dim).transpose(1, 2)
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(head_dim)
         scores = scores + mask
+        logging.info(f'scores: {scores[3, :, :2]}')
         attn_probs = torch.softmax(scores, dim=-1)
+        logging.info(f'attn_probs: {attn_probs[3, :, :2]}')
         attn_out = torch.matmul(attn_probs, v)
         attn_out = attn_out.transpose(1, 2).contiguous().reshape(batch_size, -1, d_model)
         return attn_out
