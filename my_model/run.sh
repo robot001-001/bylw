@@ -170,7 +170,7 @@ python main.py \
     --embedding_dim 64 \
     --train_batch_size 2 \
     --accum_steps 1 \
-    --eval_batch_size 2048 \
+    --eval_batch_size 2 \
     --device 'cuda:0' \
     --learning_rate 3e-4 \
     --num_epochs 50 \

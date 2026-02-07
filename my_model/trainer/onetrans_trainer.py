@@ -131,7 +131,7 @@ class ONETRANSTrainer:
                 if is_update_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                return
+                break
 
             logging.info(f'start testing!')
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()
@@ -211,7 +211,9 @@ class ONETRANSTrainer:
                 batch_accs.append(acc)
 
                 probs = torch.softmax(outputs, dim=1)
+                logging.info(f'probs: {probs}')
                 pos_probs_batch = probs[:, 1]
+                logging.info(f'pos_probs_batch: {pos_probs_batch}')
                 binary_targets_batch = targets.float()
                 binary_preds = (pos_probs_batch >= 0.5).float()
                 binary_acc = (binary_preds == binary_targets_batch).float().mean().item()
