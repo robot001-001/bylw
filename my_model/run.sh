@@ -168,9 +168,9 @@ python main.py \
     --num_ratings 2 \
     --max_seq_len 200 \
     --embedding_dim 64 \
-    --train_batch_size 128 \
-    --accum_steps 4 \
-    --eval_batch_size 128 \
+    --train_batch_size 512 \
+    --accum_steps 1 \
+    --eval_batch_size 512 \
     --device 'cuda:0' \
     --learning_rate 3e-4 \
     --num_epochs 50 \
