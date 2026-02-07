@@ -27,9 +27,9 @@ class OneTransEmb(nn.Module):
         device='cpu'
     ):
         super().__init__()
-        self.exposure_emb = nn.Embedding(max_itemid, d_model)
-        self.click_emb = nn.Embedding(max_itemid, d_model)
-        self.uid_emb = nn.Embedding(max_uid, d_model)
+        self.exposure_emb = nn.Embedding(max_itemid+1, d_model)
+        self.click_emb = nn.Embedding(max_itemid+1, d_model)
+        self.uid_emb = nn.Embedding(max_uid+1, d_model)
         self.timestamp_fc = nn.Linear(1, d_model)
         self.exposure_fc = nn.Linear(3*d_model, d_model)
         self.click_fc = nn.Linear(3*d_model, d_model)
