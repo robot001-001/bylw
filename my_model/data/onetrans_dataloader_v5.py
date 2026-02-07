@@ -26,7 +26,6 @@ class MovieLensFullDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.df.loc[idx]
-        logging.info(f'row: {row}')
         high_items_pad, high_len = self._process_seq(row['high_item_ids'], self.max_len)
         high_times_pad, _ = self._process_seq(row['high_timestamps'], self.max_len)
         seq_items_pad, seq_len = self._process_seq(row['seq_item_ids'], self.max_len+1)
