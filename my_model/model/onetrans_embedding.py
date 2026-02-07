@@ -31,8 +31,8 @@ class OneTransEmb(nn.Module):
         self.click_emb = nn.Embedding(max_itemid+1, d_model)
         self.uid_emb = nn.Embedding(max_uid+1, d_model)
         self.timestamp_fc = nn.Linear(1, d_model)
-        self.exposure_fc = nn.Linear(2*d_model, d_model)
-        self.click_fc = nn.Linear(2*d_model, d_model)
+        self.exposure_fc = nn.Linear(3*d_model, d_model)
+        self.click_fc = nn.Linear(3*d_model, d_model)
         self.rating_emb = nn.Embedding(num_ratings+1, d_model)
         self.device=device
 
@@ -80,8 +80,8 @@ class OneTransEmb(nn.Module):
         high_items_emb = self.click_emb(high_items_pad)
         high_times_emb = self.timestamp_fc(torch.clamp(torch.log(high_times_gap.unsqueeze(2)+1.0), min=0))
         high_ratings_emb = self.rating_emb(torch.tensor(2, device=self.device)).view(1, 1, -1).expand(high_items_emb.size(0), high_items_emb.size(1), -1)
-        # click_emb = torch.cat([high_items_emb, high_times_emb, high_ratings_emb], dim=2)
-        click_emb = torch.cat([high_items_emb, high_ratings_emb], dim=2)
+        click_emb = torch.cat([high_items_emb, high_times_emb, high_ratings_emb], dim=2)
+        # click_emb = torch.cat([high_items_emb, high_ratings_emb], dim=2)
         click_emb = self.click_fc(click_emb)
 
         sep_emb = self.exposure_emb(torch.tensor(0, device=self.device)).view(1, 1, -1).expand(click_emb.shape[0], 1, -1)
@@ -89,8 +89,8 @@ class OneTransEmb(nn.Module):
         seq_items_emb = self.exposure_emb(seq_items_pad)
         seq_times_emb = self.timestamp_fc(torch.clamp(torch.log(seq_times_gap.unsqueeze(2)+1.0), min=0))
         seq_ratings_emb = self.rating_emb(seq_ratings_pad)
-        # exposure_emb = torch.cat([seq_items_emb, seq_times_emb, seq_ratings_emb], dim=2)
-        exposure_emb = torch.cat([seq_items_emb, seq_ratings_emb], dim=2)
+        exposure_emb = torch.cat([seq_items_emb, seq_times_emb, seq_ratings_emb], dim=2)
+        # exposure_emb = torch.cat([seq_items_emb, seq_ratings_emb], dim=2)
         exposure_emb = self.exposure_fc(exposure_emb)
 
 
