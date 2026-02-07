@@ -197,7 +197,7 @@ class ONETRANS(nn.Module):
         for i in range(self.num_layers):
             print(f'running layer {i}')
             x, in_seq_len = self.onetrans[i](x, in_seq_len)
-            logging.info(f'layer: {i}, x.shape: {x.shape}')
+            logging.info(f'layer: {i}, x.shape: {x.shape}, in_seq_len: {in_seq_len.shape}, {in_seq_len}')
         output_embedding = x.reshape(x.size(0), -1)
         out = self.main_tower(output_embedding)
         return out
