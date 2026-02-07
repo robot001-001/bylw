@@ -20,14 +20,13 @@ class MovieLensFullDataset(Dataset):
     def _process_seq(self, idx, seq_str, max_len):
         try:
             seq = [int(float(i)) for i in str(seq_str).split(',')]
-            actual_len = min(len(seq), max_len)
-            seq_trimmed = seq[-max_len:]
-            pad_len = max_len - len(seq_trimmed)
-            padded_seq = [0] * pad_len + seq_trimmed
-            return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
-        except Exception as e:
-            logging.info(f'err: seq_str: {seq_str}, idx: {idx}')
-            logging.info(f'e: {e}')
+        except:
+            seq = []
+        actual_len = min(len(seq), max_len)
+        seq_trimmed = seq[-max_len:]
+        pad_len = max_len - len(seq_trimmed)
+        padded_seq = [0] * pad_len + seq_trimmed
+        return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
