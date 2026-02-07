@@ -131,8 +131,7 @@ class ONETRANSTrainer:
                 if is_update_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                # logging.info(f'successfully train one batch')
-                # return
+                break
 
             logging.info(f'start testing!')
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()
