@@ -168,7 +168,7 @@ python main.py \
     --num_ratings 2 \
     --max_seq_len 200 \
     --embedding_dim 64 \
-    --train_batch_size 2 \
+    --train_batch_size 128 \
     --accum_steps 1 \
     --eval_batch_size 2 \
     --device 'cuda:0' \
