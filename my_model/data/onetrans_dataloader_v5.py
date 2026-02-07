@@ -9,6 +9,7 @@ class MovieLensFullDataset(Dataset):
     def __init__(self, csv_path, max_len=50):
         self.max_len = max_len
         self.df = pd.read_csv(csv_path)
+        self.df = self.df.reset_index(drop=True)
         
         self.max_item_id = 3952
         self.max_user_id = 6040
@@ -25,7 +26,7 @@ class MovieLensFullDataset(Dataset):
         return torch.tensor(padded_seq, dtype=torch.long), torch.tensor(actual_len, dtype=torch.long)
 
     def __getitem__(self, idx):
-        row = self.df.loc[idx]
+        row = self.df.iloc[idx]
         high_items_pad, high_len = self._process_seq(row['high_item_ids'], self.max_len)
         high_times_pad, _ = self._process_seq(row['high_timestamps'], self.max_len)
         seq_items_pad, seq_len = self._process_seq(row['seq_item_ids'], self.max_len+1)
