@@ -100,6 +100,7 @@ class OneTransBlock(nn.Module):
         scores = scores + mask
         logging.info(f'scores: {scores[3, :, :2]}')
         attn_probs = torch.softmax(scores, dim=-1)
+        attn_probs = torch.nan_to_num(attn_probs, nan=0.0)
         logging.info(f'attn_probs: {attn_probs[3, :, :2]}')
         attn_out = torch.matmul(attn_probs, v)
         attn_out = attn_out.transpose(1, 2).contiguous().reshape(batch_size, -1, d_model)
