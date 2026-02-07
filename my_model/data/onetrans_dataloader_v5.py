@@ -10,6 +10,7 @@ class MovieLensFullDataset(Dataset):
         self.df = pd.read_csv(csv_path)
         
         self.max_item_id = 3952
+        self.max_user_id = 6040
 
     def __len__(self):
         return self.df.shape[0]
