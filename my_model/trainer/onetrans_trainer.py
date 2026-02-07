@@ -162,6 +162,7 @@ class ONETRANSTrainer:
                 rank=0,
                 shuffle=True,
                 drop_last=False,
+                num_workers=1
             )
             logging.info(f'getting test set')
             self.test_dataset = MovieLensFullDataset(
@@ -177,6 +178,7 @@ class ONETRANSTrainer:
                 rank=0,
                 shuffle=True,  # needed for partial eval
                 drop_last=False,
+                num_workers=1
             )
             logging.info(f'train_dataloader_num: {len(self.train_data_loader)}')
             logging.info(f'eval_dataloader_num: {len(self.eval_data_loader)}')
