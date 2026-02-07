@@ -131,7 +131,7 @@ class ONETRANSTrainer:
                 if is_update_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                break
+                return
 
             logging.info(f'start testing!')
             avg_loss, avg_acc, avg_binary_acc, global_auc = self.test()
@@ -211,10 +211,10 @@ class ONETRANSTrainer:
                 batch_accs.append(acc)
 
                 probs = torch.softmax(outputs, dim=1)
-                logging.info(f'outputs: {outputs}')
-                logging.info(f'probs: {probs}')
+                # logging.info(f'outputs: {outputs}')
+                # logging.info(f'probs: {probs}')
                 pos_probs_batch = probs[:, 1]
-                logging.info(f'pos_probs_batch: {pos_probs_batch}')
+                # logging.info(f'pos_probs_batch: {pos_probs_batch}')
                 binary_targets_batch = targets.float()
                 binary_preds = (pos_probs_batch >= 0.5).float()
                 binary_acc = (binary_preds == binary_targets_batch).float().mean().item()
@@ -228,8 +228,8 @@ class ONETRANSTrainer:
         try:
             global_auc = roc_auc_score(all_binary_targets, all_pos_probs)
         except ValueError:
-            logging.info(f'all_binary_targets: {all_binary_targets}')
-            logging.info(f'all_pos_probs: {all_pos_probs}')
+            # logging.info(f'all_binary_targets: {all_binary_targets}')
+            # logging.info(f'all_pos_probs: {all_pos_probs}')
             logging.warning("AUC calc failed: valid set needs both pos and neg samples.")
             global_auc = 0.5
 
