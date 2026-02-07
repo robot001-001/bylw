@@ -1,4 +1,5 @@
 # 源代码梯度爆炸，在此尝试修复
+# 1. 添加mha中的linear映射
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -194,9 +195,9 @@ class ONETRANS(nn.Module):
 
     def forward(self, x, in_seq_len):
         for i in range(self.num_layers):
-            # print(f'running layer {i}')
+            print(f'running layer {i}')
             x, in_seq_len = self.onetrans[i](x, in_seq_len)
-            # logging.info(f'layer: {i}, x: {x.shape}, {x[3, :, :2]}')
+            logging.info(f'layer: {i}, x.shape: {x.shape}')
         output_embedding = x.reshape(x.size(0), -1)
         out = self.main_tower(output_embedding)
         return out
