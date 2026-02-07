@@ -131,6 +131,8 @@ class ONETRANSTrainer:
                 loss.backward()
                 is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
                 if is_update_step:
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+                    torch.nn.utils.clip_grad_norm_(self.embedding_module.parameters(), max_norm=1.0)
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                 if batch_id >=1:
