@@ -104,11 +104,11 @@ class RANKMIXER(nn.Module):
         itemid_emb,
         sim_out,
     ):
-        B, _ = uid_emb.shape
+        B, _, _ = uid_emb.shape
         device = uid_emb.device
         sim_out = sim_out.view(B, -1, self.d_model)
-        uid_emb = uid_emb.unsqueeze(1)
-        itemid_emb = itemid_emb.unsqueeze(1)
+        # uid_emb = uid_emb.unsqueeze(1)
+        # itemid_emb = itemid_emb.unsqueeze(1)
         input_embeddings = torch.cat([itemid_emb, uid_emb, sim_out], dim=1)
         for layer in self.rankmixer:
             input_embeddings = layer(input_embeddings)
