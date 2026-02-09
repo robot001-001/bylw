@@ -10,7 +10,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from model.GateModel import GateModel
-from speed_exp.triton.triton_hstu_bsa import triton_hstu_attention_with_bsa
+from speed_exp.triton_bsa.triton_hstu_bsa import triton_hstu_attention_with_bsa
 
 
 def test_triton_hstu_bsa():

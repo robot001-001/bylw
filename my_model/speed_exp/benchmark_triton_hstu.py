@@ -25,7 +25,7 @@ except ImportError:
     BASELINE_AVAILABLE = False
 
 from model.GateModel import GateModel
-from speed_exp.triton.triton_hstu_bsa import triton_hstu_attention_with_bsa
+from speed_exp.triton_bsa.triton_hstu_bsa import triton_hstu_attention_with_bsa
 
 
 class BenchmarkResult:
