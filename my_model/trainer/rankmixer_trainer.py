@@ -211,8 +211,9 @@ class RANKMIXERTrainer:
 
         with torch.no_grad():
             for row in iter(self.eval_data_loader):
-                input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
-                outputs = self.model(input_embedding, s_len)
+                uid_emb, tgt_emb, click_emb, click_len, exposure_emb, exposure_len, tgt_ratings = self.embedding_module(row)
+                sim_out = self.input_preprocess_module(tgt_emb, click_emb, click_len, exposure_emb, exposure_len)
+                outputs = self.model(uid_emb, tgt_emb, sim_out)
                 targets = (tgt_ratings - 1).view(-1)
                 loss = self.criterion(outputs, targets)
                 batch_losses.append(loss.item())
