@@ -5,6 +5,7 @@ import logging
 
 from trainer.hstu_base_trainer import HSTUBaseTrainer
 from trainer.onetrans_trainer import ONETRANSTrainer
+from trainer.rankmixer_trainer import RANKMIXERTrainer
 import torch
 torch.set_printoptions(profile="full")
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -42,6 +43,7 @@ def get_trainer(trainer_type):
     trainer_dic = {
         'HSTUBaseTrainer': HSTUBaseTrainer,
         'ONETRANSTrainer': ONETRANSTrainer,
+        'RANKMIXERTrainer': RANKMIXERTrainer,
     }
     return trainer_dic[trainer_type]
 

@@ -82,6 +82,7 @@ class RANKMIXER(nn.Module):
         main_tower_units,
         num_experts=4,
         expert_dim=None,
+        **kwargs
     ):
         super().__init__()
         self.num_blocks = num_blocks

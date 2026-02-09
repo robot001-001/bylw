@@ -20,12 +20,13 @@ class SIM(nn.Module):
         topk: int,
         max_seq_len: int,
         d_model: int,
-        main_tower_units: Tuple[int]
+        sim_main_tower_units: Tuple[int],
+        **kwargs
     ):
         super().__init__()
         self.topk = topk
         self.max_seq_len = max_seq_len
-        self.mlp = MLP(2*d_model, main_tower_units)
+        self.mlp = MLP(2*d_model, sim_main_tower_units)
 
 
     def _generate_left_padding_mask(self, seq_len, max_len, device):
