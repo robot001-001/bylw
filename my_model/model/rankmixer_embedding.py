@@ -26,6 +26,8 @@ class RankMixerEmb(nn.Module):
         self.exposure_fc = nn.Linear(2*d_model, d_model)
         self.click_fc = nn.Linear(2*d_model, d_model)
 
+        self.device = device
+
 
     def forward(self, row):
         high_items_pad = row[0].to(self.device)
