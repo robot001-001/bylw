@@ -178,7 +178,7 @@ clear
 #     --model_args '{"num_layers": 8, "max_seq_len": [512, 256, 128, 64, 32, 16, 8, 4], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
 
 
-CUDA_LAUNCH_BLOCKING=1 \
+# CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/rankmixer/ \
     --logging_file train.log \
