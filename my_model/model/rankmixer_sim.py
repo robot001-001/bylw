@@ -45,7 +45,7 @@ class SIM(nn.Module):
         # 其中，seq是左padding成完整形状的矩阵，其真实长度由seq_len给出
         B, L, D = seq.shape
         K = self.topk
-        query = tgt_emb.unsqueeze(1)
+        query = tgt_emb#.unsqueeze(1)
         logging.info(f'query: {query.shape}')
         logging.info(f'seq.transpose(1, 2): {seq.transpose(1, 2).shape}')
         scores = torch.bmm(query, seq.transpose(1, 2)).squeeze(1)
