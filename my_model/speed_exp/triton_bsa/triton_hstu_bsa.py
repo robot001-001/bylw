@@ -33,7 +33,8 @@ def _silu(x):
         triton.Config({"BLOCK_M": 128, "BLOCK_N": 64}, num_warps=4, num_stages=2),
         triton.Config({"BLOCK_M": 64, "BLOCK_N": 128}, num_warps=4, num_stages=2),
     ],
-    key=["M", "K", "N"],
+    # key=["M", "K", "N"],
+    key=["M", "N"],
 )
 @triton.jit
 def _layer_norm_kernel(
