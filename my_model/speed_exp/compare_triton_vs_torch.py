@@ -15,8 +15,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from model.nsa.nsa_bsa_interleave import block_sparse_attn
 from model.HSTU_bsa_pretrain_interleave import _hstu_attention_with_bsa
 from model.GateModel import GateModel
-from speed_exp.triton.triton_bsa_attention import triton_block_sparse_attn
-from speed_exp.triton.triton_hstu_bsa import triton_hstu_attention_with_bsa
+from speed_exp.triton_bsa.triton_bsa_attention import triton_block_sparse_attn
+from speed_exp.triton_bsa.triton_hstu_bsa import triton_hstu_attention_with_bsa
 
 
 def set_seed(seed=42):
