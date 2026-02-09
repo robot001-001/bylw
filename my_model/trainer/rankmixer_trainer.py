@@ -131,7 +131,7 @@ class RANKMIXERTrainer:
                 ret = self.model(uid_emb, tgt_emb, sim_out)
                 loss = self.criterion(ret, (tgt_ratings.long()-1).squeeze())
                 loss_to_display = loss.item()
-                logging.info(f'loss: {loss_to_display}')
+                # logging.info(f'loss: {loss_to_display}')
                 loss = loss / self.accum_steps
                 loss.backward()
                 is_update_step = ((batch_id + 1) % self.accum_steps == 0) or ((batch_id + 1) == num_batches)
