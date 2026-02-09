@@ -46,6 +46,8 @@ class SIM(nn.Module):
         B, L, D = seq.shape
         K = self.topk
         query = tgt_emb.unsqueeze(1)
+        logging.info(f'query: {query.shape}')
+        logging.info(f'seq.transpose(1, 2): {seq.transpose(1, 2).shape}')
         scores = torch.bmm(query, seq.transpose(1, 2)).squeeze(1)
         mask = self._generate_left_padding_mask(seq_len, L, seq.device)
         scores = scores.masked_fill(~mask, -1e9)
