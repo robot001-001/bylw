@@ -8,7 +8,7 @@ def _hstu_silu_activation(x):
     return x * tl.sigmoid(x)
 
 # -----------------------------------------------------------------------------
-# [Fix] TopK Kernel (Variable Name Fixed)
+# [Fix] TopK Kernel (Pure Tensor Arithmetic - Most Robust)
 # -----------------------------------------------------------------------------
 @triton.jit
 def hstu_bsa_topk_kernel(
@@ -45,13 +45,10 @@ def hstu_bsa_topk_kernel(
     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0) 
 
     # -----------------------------------------------------------
-    # 初始化 Top S Tensor List
+    # 初始化 Top S Tensor (Single Tensor, No List)
     # -----------------------------------------------------------
-    top_vals_list = []
-    top_idxs_list = []
-    for _ in range(S):
-        top_vals_list.append(tl.full([BLOCK_M], float('-inf'), dtype=tl.float32))
-        top_idxs_list.append(tl.full([BLOCK_M], -1, dtype=tl.int32))
+    top_vals = tl.full([BLOCK_M, S], float('-inf'), dtype=tl.float32)
+    top_idxs = tl.full([BLOCK_M, S], -1, dtype=tl.int32)
 
     cmp_start = tl.load(offsets_cmp + pid_z)
     cmp_end = tl.load(offsets_cmp + pid_z + 1)
@@ -67,7 +64,7 @@ def hstu_bsa_topk_kernel(
         
         k_ptrs = K + (cmp_start + offs_n_pad[None, :]) * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[:, None]
         
-        # [Fix] 变量名 k -> k_tensor，避免与循环变量冲突
+        # [Fix] 变量名不使用 k，改用 k_tensor
         k_tensor = tl.load(k_ptrs, mask=mask_n_valid[None, :], other=0.0)
         
         # 2. Compute Score
@@ -79,39 +76,59 @@ def hstu_bsa_topk_kernel(
         scores = tl.where(mask_final, scores, float('-inf'))
 
         # -------------------------------------------------------
-        # Bubble Insertion Strategy
+        # Bubble Insertion (Pure Tensor Ops)
         # -------------------------------------------------------
+        # 使用 constexpr loop 展开
         for col in range(S):
-            # A. Extract Value/Index
+            # A. Extract Value/Index (Arithmetic Gather)
+            # col_mask: [BLOCK_N_PAD]
             col_mask = (tl.arange(0, BLOCK_N_PAD) == col) 
+            
+            # [BLOCK_M, BLOCK_N_PAD] * [BLOCK_N_PAD] -> Sum -> [BLOCK_M]
+            # 提取 scores 的第 col 列
             val = tl.sum(scores * col_mask[None, :], axis=1)
             
             current_idx_scalar = start_n + col
             idx = tl.full([BLOCK_M], current_idx_scalar, dtype=tl.int32)
             
-            # B. Insert into Top Tensor List
-            # [Fix] 循环变量 k -> rank_idx
+            # B. Insert into Top Tensor
+            # [Fix] 循环变量不使用 k，改用 rank_idx
             for rank_idx in range(S):
-                old_val = top_vals_list[rank_idx]
-                old_idx = top_idxs_list[rank_idx]
+                # Arithmetic Gather: Extract column rank_idx from top_vals
+                rank_mask = (tl.arange(0, S) == rank_idx) # [S]
                 
-                # Compare & Swap
+                # top_vals: [BLOCK_M, S] * rank_mask[None, :] -> 此时只有第 rank_idx 列非零
+                # sum(axis=1) -> 提取出第 rank_idx 列的值 [BLOCK_M]
+                old_val = tl.sum(top_vals * rank_mask[None, :], axis=1)
+                old_idx = tl.sum(top_idxs * rank_mask[None, :], axis=1)
+                
+                # Compare
                 swap = val > old_val
                 
-                top_vals_list[rank_idx] = tl.where(swap, val, old_val)
-                top_idxs_list[rank_idx] = tl.where(swap, idx, old_idx)
+                # Prepare values to write
+                new_col_val = tl.where(swap, val, old_val)
+                new_col_idx = tl.where(swap, idx, old_idx)
                 
-                # Push out
+                # Arithmetic Scatter: Update column rank_idx in top_vals
+                # 如果是这一列(rank_mask=True)，写入 new_col_val；否则保持 top_vals 原值
+                # new_col_val[:, None] -> [BLOCK_M, 1]
+                top_vals = tl.where(rank_mask[None, :], new_col_val[:, None], top_vals)
+                top_idxs = tl.where(rank_mask[None, :], new_col_idx[:, None], top_idxs)
+                
+                # Update val/idx to carry over (Push out)
                 val = tl.where(swap, old_val, val)
                 idx = tl.where(swap, old_idx, idx)
 
     # -----------------------------------------------------------
     # Store Indices
     # -----------------------------------------------------------
-    # [Fix] 循环变量 k -> rank_idx
     for rank_idx in range(S):
+        # Arithmetic Gather to store
+        rank_mask = (tl.arange(0, S) == rank_idx)
+        final_idx = tl.sum(top_idxs * rank_mask[None, :], axis=1)
+        
         idx_ptrs = Out_Indices + (seq_start + offs_m) * Stride_idx_t + pid_h * Stride_idx_h + rank_idx * Stride_idx_s
-        tl.store(idx_ptrs, top_idxs_list[rank_idx], mask=mask_m)
+        tl.store(idx_ptrs, final_idx, mask=mask_m)
 
 # -----------------------------------------------------------------------------
 # CMP / SLC Kernels (保持不变)
