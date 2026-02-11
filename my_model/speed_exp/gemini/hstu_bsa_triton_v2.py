@@ -8,7 +8,7 @@ def _hstu_silu_activation(x):
     return x * tl.sigmoid(x)
 
 # -----------------------------------------------------------------------------
-# [Fix] TopK Kernel (Rewritten)
+# [Fix] TopK Kernel (Use Explicit Indexing)
 # -----------------------------------------------------------------------------
 @triton.jit
 def hstu_bsa_topk_kernel(
@@ -20,8 +20,8 @@ def hstu_bsa_topk_kernel(
     offsets,      
     offsets_cmp,  
     scale,
-    S: tl.constexpr,          # 逻辑 TopK 数量
-    BLOCK_N_PAD: tl.constexpr,# 计算用 Padding 维度 (>=16)
+    S: tl.constexpr,          # 逻辑 TopK 数量 (e.g. 2, 4)
+    BLOCK_N_PAD: tl.constexpr,# 物理计算维度 (e.g. 16, 32)
     BLOCK_SIZE: tl.constexpr, 
     HEAD_DIM: tl.constexpr,
     BLOCK_M: tl.constexpr,    
@@ -44,7 +44,7 @@ def hstu_bsa_topk_kernel(
     q_ptrs = Q + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh + tl.arange(0, HEAD_DIM)[None, :]
     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0) 
 
-    # 寄存器 TopK 列表 (大小为 S, 降序)
+    # 寄存器 TopK 列表 (大小为 S)
     top_vals = tl.full([BLOCK_M, S], float('-inf'), dtype=tl.float32)
     top_idxs = tl.full([BLOCK_M, S], -1, dtype=tl.int32)
 
@@ -54,8 +54,12 @@ def hstu_bsa_topk_kernel(
 
     # 循环步长使用 S
     for start_n in range(0, cmp_len, S):
-        # 1. Load K [BLOCK_N_PAD, D] (Safe Load)
+        # 1. Load K [BLOCK_N_PAD, D]
+        # 即使 S=2, BLOCK_N_PAD=16，我们一次算 16 个，但只取前 2 个有效
         offs_n_pad = start_n + tl.arange(0, BLOCK_N_PAD)
+        
+        # Mask: 必须在 cmp_len 范围内，且必须在当前 batch 的 S 范围内
+        # 例如 start_n=0, S=2, BLOCK_N_PAD=16. 只有 0,1 是有效的，2~15 都是无效的
         mask_n_valid = (offs_n_pad < cmp_len) & (offs_n_pad < (start_n + S))
         
         k_ptrs = K + (cmp_start + offs_n_pad[None, :]) * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[:, None]
@@ -66,34 +70,46 @@ def hstu_bsa_topk_kernel(
         scores *= scale
         
         # 3. Masking
+        # 将无效位置 (Pad出来的，或 Causal 遮蔽的) 设为 -inf
         mask_causal = (offs_m[:, None] // BLOCK_SIZE) >= offs_n_pad[None, :]
         mask_final = mask_causal & mask_n_valid[None, :] & mask_m[:, None]
         scores = tl.where(mask_final, scores, float('-inf'))
-        
-        # 4. [Fix] Gather Top S candidates (使用标准 Python 切片)
-        # scores 形状是 [BLOCK_M, BLOCK_N_PAD]，我们只取前 S 列
-        new_vals = scores[:, 0:S]
-        
-        # Generate indices for these candidates
-        # new_idxs: [BLOCK_M, S]
-        base_idxs = (start_n + tl.arange(0, S))[None, :]
-        new_idxs = tl.broadcast_to(base_idxs.to(tl.int32), [BLOCK_M, S])
 
-        # 5. [Fix] Merge Logic (Standard Bitonic Principle using tl.sort)
-        # 目标：合并 top_vals (降序) 和 new_vals (无序)，取 Top S。
-        # 技巧：Bitonic Merge 的核心是 Compare(Descending, Ascending)。
+        # 生成对应的索引 [BLOCK_M, BLOCK_N_PAD]
+        curr_idxs = (start_n + tl.arange(0, BLOCK_N_PAD))[None, :]
+        curr_idxs = tl.broadcast_to(curr_idxs.to(tl.int32), [BLOCK_M, BLOCK_N_PAD])
         
-        # A. 将新候选者排序为【升序】(Ascending)
+        # 4. [Fix] Sort & Gather Strategy
+        # 为了避免切片错误，我们先对宽矩阵 (16) 进行排序，把最大的推到左边
+        scores, curr_idxs = tl.sort([scores, curr_idxs], dim=1, descending=True)
+        
+        # 然后使用显式 2D 索引提取前 S 列
+        # 构造 gather 索引
+        idx_s = tl.arange(0, S)       # [S]
+        idx_m = tl.arange(0, BLOCK_M) # [BLOCK_M]
+        
+        # Gather: [BLOCK_M, S]
+        # 语法: tensor[row_idx[:, None], col_idx[None, :]]
+        new_vals = scores[idx_m[:, None], idx_s[None, :]]
+        new_idxs = curr_idxs[idx_m[:, None], idx_s[None, :]]
+
+        # 5. Merge with Current Top (Standard Logic)
+        # 联合排序 top_vals 和 new_vals
+        # 这里的策略是：把两组 Top S 拼在一起比较。
+        # 简单方法：合并两个有序序列取 Top S。
+        
+        # 方案：先将 new_vals 倒序(升序)，与 top_vals(降序) 比较，交换
+        # (Batcher's Swap)
+        
+        # A. Sort new candidates Ascending (为 Bitonic Swap 做准备)
         new_vals, new_idxs = tl.sort([new_vals, new_idxs], dim=1, descending=False)
         
-        # B. 此时 top_vals 是【降序】，new_vals 是【升序】。
-        #    element-wise max(top_vals, new_vals) 恰好能保留两个序列并集中的 Top S。
-        #    (这是 Bitonic Sort 的数学性质)
+        # B. Swap (Bitonic Merge Step 1)
         swap = new_vals > top_vals
         top_vals = tl.where(swap, new_vals, top_vals)
         top_idxs = tl.where(swap, new_idxs, top_idxs)
         
-        # C. 重新将结果排序为【降序】，以便下一次迭代
+        # C. Re-sort Top Descending (Bitonic Merge Step 2)
         top_vals, top_idxs = tl.sort([top_vals, top_idxs], dim=1, descending=True)
 
     # Store Indices
@@ -164,6 +180,7 @@ class HSTU_BSA_Triton(torch.nn.Module):
         super().__init__()
         self.block_size = block_size
         self.block_counts = block_counts
+        
         # S 必须是 2 的幂次 (tl.sort 要求)
         self.s_pow2 = 1
         while self.s_pow2 < self.block_counts:
