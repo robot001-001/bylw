@@ -4,7 +4,7 @@ import math
 import triton
 
 # 假设你已经定义了 HSTU_BSA_Triton 类和 Kernel
-from hstu_bsa_triton_v1 import HSTU_BSA_Triton, hstu_bsa_cmp_fwd_kernel, hstu_bsa_slc_fwd_kernel
+from hstu_bsa_triton_v2 import HSTU_BSA_Triton, hstu_bsa_cmp_fwd_kernel, hstu_bsa_slc_fwd_kernel
 # 如果都在一个文件里，就不用 import
 
 # -----------------------------------------------------------------------------
