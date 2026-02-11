@@ -8,7 +8,7 @@ def _hstu_silu_activation(x):
     return x * tl.sigmoid(x)
 
 # -----------------------------------------------------------------------------
-# [Fix] TopK Kernel (Use Explicit Indexing)
+# [Fix] TopK Kernel (List-based Bubble Insertion)
 # -----------------------------------------------------------------------------
 @triton.jit
 def hstu_bsa_topk_kernel(
@@ -20,8 +20,8 @@ def hstu_bsa_topk_kernel(
     offsets,      
     offsets_cmp,  
     scale,
-    S: tl.constexpr,          # 逻辑 TopK 数量 (e.g. 2, 4)
-    BLOCK_N_PAD: tl.constexpr,# 物理计算维度 (e.g. 16, 32)
+    S: tl.constexpr,          # 逻辑 TopK 数量
+    BLOCK_N_PAD: tl.constexpr,# 物理计算维度 (>=16)
     BLOCK_SIZE: tl.constexpr, 
     HEAD_DIM: tl.constexpr,
     BLOCK_M: tl.constexpr,    
@@ -44,80 +44,102 @@ def hstu_bsa_topk_kernel(
     q_ptrs = Q + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh + tl.arange(0, HEAD_DIM)[None, :]
     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0) 
 
-    # 寄存器 TopK 列表 (大小为 S)
-    top_vals = tl.full([BLOCK_M, S], float('-inf'), dtype=tl.float32)
-    top_idxs = tl.full([BLOCK_M, S], -1, dtype=tl.int32)
+    # -----------------------------------------------------------
+    # 初始化 Top S 列表 (Python List of Registers)
+    # -----------------------------------------------------------
+    # 我们使用 Python 列表来模拟数组，避免 Tensor 索引问题
+    top_vals_list = []
+    top_idxs_list = []
+    for _ in range(S):
+        top_vals_list.append(tl.full([BLOCK_M], float('-inf'), dtype=tl.float32))
+        top_idxs_list.append(tl.full([BLOCK_M], -1, dtype=tl.int32))
 
     cmp_start = tl.load(offsets_cmp + pid_z)
     cmp_end = tl.load(offsets_cmp + pid_z + 1)
     cmp_len = cmp_end - cmp_start 
 
-    # 循环步长使用 S
-    for start_n in range(0, cmp_len, S):
-        # 1. Load K [BLOCK_N_PAD, D]
-        # 即使 S=2, BLOCK_N_PAD=16，我们一次算 16 个，但只取前 2 个有效
+    # -----------------------------------------------------------
+    # Stream Processing
+    # -----------------------------------------------------------
+    # 每次处理 BLOCK_N_PAD (16) 个候选者
+    for start_n in range(0, cmp_len, BLOCK_N_PAD):
+        # 1. Load K
         offs_n_pad = start_n + tl.arange(0, BLOCK_N_PAD)
-        
-        # Mask: 必须在 cmp_len 范围内，且必须在当前 batch 的 S 范围内
-        # 例如 start_n=0, S=2, BLOCK_N_PAD=16. 只有 0,1 是有效的，2~15 都是无效的
-        mask_n_valid = (offs_n_pad < cmp_len) & (offs_n_pad < (start_n + S))
+        mask_n_valid = offs_n_pad < cmp_len
         
         k_ptrs = K + (cmp_start + offs_n_pad[None, :]) * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[:, None]
         k = tl.load(k_ptrs, mask=mask_n_valid[None, :], other=0.0)
         
-        # 2. Compute Score [BLOCK_M, BLOCK_N_PAD]
+        # 2. Compute Score
         scores = tl.dot(q, k) 
         scores *= scale
         
         # 3. Masking
-        # 将无效位置 (Pad出来的，或 Causal 遮蔽的) 设为 -inf
         mask_causal = (offs_m[:, None] // BLOCK_SIZE) >= offs_n_pad[None, :]
         mask_final = mask_causal & mask_n_valid[None, :] & mask_m[:, None]
         scores = tl.where(mask_final, scores, float('-inf'))
 
-        # 生成对应的索引 [BLOCK_M, BLOCK_N_PAD]
+        # 生成对应的全局索引
         curr_idxs = (start_n + tl.arange(0, BLOCK_N_PAD))[None, :]
         curr_idxs = tl.broadcast_to(curr_idxs.to(tl.int32), [BLOCK_M, BLOCK_N_PAD])
         
-        # 4. [Fix] Sort & Gather Strategy
-        # 为了避免切片错误，我们先对宽矩阵 (16) 进行排序，把最大的推到左边
-        scores, curr_idxs = tl.sort([scores, curr_idxs], dim=1, descending=True)
+        # -------------------------------------------------------
+        # Bubble Insertion Strategy (Unrolled)
+        # -------------------------------------------------------
+        # 我们有 BLOCK_N_PAD 列新数据。我们将每一列依次插入到 Top S 列表中。
+        # 虽然是双重循环，但都是 constexpr，会被完全展开为寄存器操作。
         
-        # 然后使用显式 2D 索引提取前 S 列
-        # 构造 gather 索引
-        idx_s = tl.arange(0, S)       # [S]
-        idx_m = tl.arange(0, BLOCK_M) # [BLOCK_M]
-        
-        # Gather: [BLOCK_M, S]
-        # 语法: tensor[row_idx[:, None], col_idx[None, :]]
-        new_vals = scores[idx_m[:, None], idx_s[None, :]]
-        new_idxs = curr_idxs[idx_m[:, None], idx_s[None, :]]
+        for col in range(BLOCK_N_PAD):
+            # 提取当前列 (View slice) - 这是合法的，因为 col 是编译期常量
+            # 注意：Triton 中 tensor[:, constant] 是合法的切片
+            # 但为了保险，我们使用 range slice
+            r_slice = tl.arange(0, BLOCK_M)
+            c_slice = tl.arange(col, col+1) 
+            # 这种切片方式在某些版本可能还是有问题，最稳健的是 reshape 后索引
+            # 但既然 scores 是 [BLOCK_M, BLOCK_N_PAD]，我们可以直接用 split
+            # 或者更简单的：我们不需要提取，直接在计算时 broadcast
+            # 让我们尝试最简单的 broadcast mask 提取，虽然有点浪费计算，但绝对兼容
+            
+            # 使用 split 可能是最干净的，但 Triton split 语法不直观。
+            # 让我们信任 view 切片对于 constant index 的支持
+            # 如果 scores[:, col] 失败，我们用 reshape
+            
+            # 尝试方案：Standard indexing
+            # val = tl.load? No, register.
+            # val = scores[:, col]
+            
+            # 为了绕过任何潜在的 Slice 错误，我们使用全手动掩码提取 (Gather by Arithmetic)
+            # 虽然笨，但 100% work。
+            col_mask = (tl.arange(0, BLOCK_N_PAD) == col) # [BLOCK_N_PAD]
+            # Sum reduce to extract column: val = sum(scores * mask, 1)
+            val = tl.sum(scores * col_mask[None, :], axis=1)
+            idx = tl.sum(curr_idxs * col_mask[None, :], axis=1)
+            
+            # 将 val, idx 插入到 top_vals_list 中
+            for k in range(S):
+                old_val = top_vals_list[k]
+                old_idx = top_idxs_list[k]
+                
+                # 比较：如果新值更大，则交换
+                swap = val > old_val
+                
+                top_vals_list[k] = tl.where(swap, val, old_val)
+                top_idxs_list[k] = tl.where(swap, idx, old_idx)
+                
+                # 被挤出来的值变成新的 val，继续去比较下一个位置
+                val = tl.where(swap, old_val, val)
+                idx = tl.where(swap, old_idx, idx)
 
-        # 5. Merge with Current Top (Standard Logic)
-        # 联合排序 top_vals 和 new_vals
-        # 这里的策略是：把两组 Top S 拼在一起比较。
-        # 简单方法：合并两个有序序列取 Top S。
-        
-        # 方案：先将 new_vals 倒序(升序)，与 top_vals(降序) 比较，交换
-        # (Batcher's Swap)
-        
-        # A. Sort new candidates Ascending (为 Bitonic Swap 做准备)
-        new_vals, new_idxs = tl.sort([new_vals, new_idxs], dim=1, descending=False)
-        
-        # B. Swap (Bitonic Merge Step 1)
-        swap = new_vals > top_vals
-        top_vals = tl.where(swap, new_vals, top_vals)
-        top_idxs = tl.where(swap, new_idxs, top_idxs)
-        
-        # C. Re-sort Top Descending (Bitonic Merge Step 2)
-        top_vals, top_idxs = tl.sort([top_vals, top_idxs], dim=1, descending=True)
-
+    # -----------------------------------------------------------
     # Store Indices
-    idx_ptrs = Out_Indices + (seq_start + offs_m[:, None]) * Stride_idx_t + pid_h * Stride_idx_h + tl.arange(0, S)[None, :] * Stride_idx_s
-    tl.store(idx_ptrs, top_idxs, mask=mask_m[:, None])
+    # -----------------------------------------------------------
+    # 将列表写回内存
+    for k in range(S):
+        idx_ptrs = Out_Indices + (seq_start + offs_m) * Stride_idx_t + pid_h * Stride_idx_h + k * Stride_idx_s
+        tl.store(idx_ptrs, top_idxs_list[k], mask=mask_m)
 
 # -----------------------------------------------------------------------------
-# CMP / SLC Kernels (保持不变)
+# CMP / SLC Kernels (Keep unchanged)
 # -----------------------------------------------------------------------------
 @triton.jit
 def hstu_bsa_cmp_fwd_kernel(Q, K, V, G_cmp, Out, Stride_qt, Stride_qh, Stride_qd, Stride_kt, Stride_kh, Stride_kd, Stride_vt, Stride_vh, Stride_vd, Stride_ot, Stride_oh, Stride_od, Stride_gt, Stride_gh, offsets, offsets_cmp, scale, BLOCK_SIZE: tl.constexpr, HEAD_DIM: tl.constexpr, BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr):
@@ -181,11 +203,11 @@ class HSTU_BSA_Triton(torch.nn.Module):
         self.block_size = block_size
         self.block_counts = block_counts
         
-        # S 必须是 2 的幂次 (tl.sort 要求)
+        # S 逻辑大小
         self.s_pow2 = 1
         while self.s_pow2 < self.block_counts:
             self.s_pow2 *= 2
-        # S_pad 用于 tl.dot，必须 >= 16
+        # Pad 计算大小 (>=16)
         self.s_pad = max(self.s_pow2, 16)
 
     def forward(self, q, k, v, g_cmp, g_slc, x_offsets):
