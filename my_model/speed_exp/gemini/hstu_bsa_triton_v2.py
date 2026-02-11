@@ -8,7 +8,7 @@ def _hstu_silu_activation(x):
     return x * tl.sigmoid(x)
 
 # -----------------------------------------------------------------------------
-# [Fix] TopK Kernel (List-based Bubble Insertion)
+# [Fix] TopK Kernel (Pure Arithmetic Implementation)
 # -----------------------------------------------------------------------------
 @triton.jit
 def hstu_bsa_topk_kernel(
@@ -20,7 +20,7 @@ def hstu_bsa_topk_kernel(
     offsets,      
     offsets_cmp,  
     scale,
-    S: tl.constexpr,          # 逻辑 TopK 数量
+    S: tl.constexpr,          # 逻辑 TopK 数量 (e.g. 2, 4)
     BLOCK_N_PAD: tl.constexpr,# 物理计算维度 (>=16)
     BLOCK_SIZE: tl.constexpr, 
     HEAD_DIM: tl.constexpr,
@@ -47,7 +47,7 @@ def hstu_bsa_topk_kernel(
     # -----------------------------------------------------------
     # 初始化 Top S 列表 (Python List of Registers)
     # -----------------------------------------------------------
-    # 我们使用 Python 列表来模拟数组，避免 Tensor 索引问题
+    # 使用列表展开代替 Tensor 维度，绕过编译器限制
     top_vals_list = []
     top_idxs_list = []
     for _ in range(S):
@@ -61,16 +61,17 @@ def hstu_bsa_topk_kernel(
     # -----------------------------------------------------------
     # Stream Processing
     # -----------------------------------------------------------
-    # 每次处理 BLOCK_N_PAD (16) 个候选者
-    for start_n in range(0, cmp_len, BLOCK_N_PAD):
-        # 1. Load K
+    # 循环步长使用 S
+    for start_n in range(0, cmp_len, S):
+        # 1. Load K (Pad to BLOCK_N_PAD >= 16 for Dot)
         offs_n_pad = start_n + tl.arange(0, BLOCK_N_PAD)
-        mask_n_valid = offs_n_pad < cmp_len
+        # Mask: 1. 物理越界保护; 2. 逻辑 S 截断
+        mask_n_valid = (offs_n_pad < cmp_len) & (offs_n_pad < (start_n + S))
         
         k_ptrs = K + (cmp_start + offs_n_pad[None, :]) * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[:, None]
         k = tl.load(k_ptrs, mask=mask_n_valid[None, :], other=0.0)
         
-        # 2. Compute Score
+        # 2. Compute Score [BLOCK_M, BLOCK_N_PAD]
         scores = tl.dot(q, k) 
         scores *= scale
         
@@ -79,67 +80,47 @@ def hstu_bsa_topk_kernel(
         mask_final = mask_causal & mask_n_valid[None, :] & mask_m[:, None]
         scores = tl.where(mask_final, scores, float('-inf'))
 
-        # 生成对应的全局索引
-        curr_idxs = (start_n + tl.arange(0, BLOCK_N_PAD))[None, :]
-        curr_idxs = tl.broadcast_to(curr_idxs.to(tl.int32), [BLOCK_M, BLOCK_N_PAD])
-        
         # -------------------------------------------------------
-        # Bubble Insertion Strategy (Unrolled)
+        # Bubble Insertion (Pure Arithmetic Gather)
         # -------------------------------------------------------
-        # 我们有 BLOCK_N_PAD 列新数据。我们将每一列依次插入到 Top S 列表中。
-        # 虽然是双重循环，但都是 constexpr，会被完全展开为寄存器操作。
-        
-        for col in range(BLOCK_N_PAD):
-            # 提取当前列 (View slice) - 这是合法的，因为 col 是编译期常量
-            # 注意：Triton 中 tensor[:, constant] 是合法的切片
-            # 但为了保险，我们使用 range slice
-            r_slice = tl.arange(0, BLOCK_M)
-            c_slice = tl.arange(col, col+1) 
-            # 这种切片方式在某些版本可能还是有问题，最稳健的是 reshape 后索引
-            # 但既然 scores 是 [BLOCK_M, BLOCK_N_PAD]，我们可以直接用 split
-            # 或者更简单的：我们不需要提取，直接在计算时 broadcast
-            # 让我们尝试最简单的 broadcast mask 提取，虽然有点浪费计算，但绝对兼容
-            
-            # 使用 split 可能是最干净的，但 Triton split 语法不直观。
-            # 让我们信任 view 切片对于 constant index 的支持
-            # 如果 scores[:, col] 失败，我们用 reshape
-            
-            # 尝试方案：Standard indexing
-            # val = tl.load? No, register.
-            # val = scores[:, col]
-            
-            # 为了绕过任何潜在的 Slice 错误，我们使用全手动掩码提取 (Gather by Arithmetic)
-            # 虽然笨，但 100% work。
+        # 尽管我们计算了 BLOCK_N_PAD (16) 列，但只有前 S (e.g. 2) 列是有效的
+        # 后面的列都被 mask 成了 -inf，我们可以安全地忽略它们
+        for col in range(S):
+            # A. Extract Value: 使用掩码求和提取第 col 列，避免切片错误
             col_mask = (tl.arange(0, BLOCK_N_PAD) == col) # [BLOCK_N_PAD]
-            # Sum reduce to extract column: val = sum(scores * mask, 1)
+            # [BLOCK_M, BLOCK_N_PAD] * [BLOCK_N_PAD] -> Sum -> [BLOCK_M]
             val = tl.sum(scores * col_mask[None, :], axis=1)
-            idx = tl.sum(curr_idxs * col_mask[None, :], axis=1)
             
-            # 将 val, idx 插入到 top_vals_list 中
+            # B. Generate Index: 直接计算标量，无需大 Tensor
+            current_idx_scalar = start_n + col
+            idx = tl.full([BLOCK_M], current_idx_scalar, dtype=tl.int32)
+            
+            # C. Bubble Insert into Top List
+            # 将 val/idx 插入到有序列表 top_vals_list 中
             for k in range(S):
                 old_val = top_vals_list[k]
                 old_idx = top_idxs_list[k]
                 
-                # 比较：如果新值更大，则交换
+                # 比较交换：保持列表降序
                 swap = val > old_val
                 
                 top_vals_list[k] = tl.where(swap, val, old_val)
                 top_idxs_list[k] = tl.where(swap, idx, old_idx)
                 
-                # 被挤出来的值变成新的 val，继续去比较下一个位置
+                # 如果发生了交换，被挤出来的值(old_val)变成新的val，去尝试下一层
                 val = tl.where(swap, old_val, val)
                 idx = tl.where(swap, old_idx, idx)
 
     # -----------------------------------------------------------
     # Store Indices
     # -----------------------------------------------------------
-    # 将列表写回内存
     for k in range(S):
+        # 逐个 Store，避免 Tensor 合并
         idx_ptrs = Out_Indices + (seq_start + offs_m) * Stride_idx_t + pid_h * Stride_idx_h + k * Stride_idx_s
         tl.store(idx_ptrs, top_idxs_list[k], mask=mask_m)
 
 # -----------------------------------------------------------------------------
-# CMP / SLC Kernels (Keep unchanged)
+# CMP / SLC Kernels (保持不变)
 # -----------------------------------------------------------------------------
 @triton.jit
 def hstu_bsa_cmp_fwd_kernel(Q, K, V, G_cmp, Out, Stride_qt, Stride_qh, Stride_qd, Stride_kt, Stride_kh, Stride_kd, Stride_vt, Stride_vh, Stride_vd, Stride_ot, Stride_oh, Stride_od, Stride_gt, Stride_gh, offsets, offsets_cmp, scale, BLOCK_SIZE: tl.constexpr, HEAD_DIM: tl.constexpr, BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr):
@@ -203,12 +184,13 @@ class HSTU_BSA_Triton(torch.nn.Module):
         self.block_size = block_size
         self.block_counts = block_counts
         
-        # S 逻辑大小
-        self.s_pow2 = 1
-        while self.s_pow2 < self.block_counts:
-            self.s_pow2 *= 2
-        # Pad 计算大小 (>=16)
-        self.s_pad = max(self.s_pow2, 16)
+        # S: 逻辑 TopK 数量 (e.g. 2, 4, 16)
+        # 这种实现不强制要求 S 是 2 的幂次，但保持幂次是好习惯
+        self.s_logic = block_counts
+        
+        # S_pad: 用于 tl.dot 的计算维度，必须 >= 16
+        # 我们取 max(s_logic, 16)
+        self.s_pad = max(self.s_logic, 16)
 
     def forward(self, q, k, v, g_cmp, g_slc, x_offsets):
         if g_cmp.dim() == 2: g_cmp = g_cmp.unsqueeze(-1)
@@ -248,7 +230,8 @@ class HSTU_BSA_Triton(torch.nn.Module):
         grid_triton = lambda meta: (triton.cdiv(max_n, meta['BLOCK_M']), num_heads, B)
 
         # 3. Launch TopK Kernel
-        topk_indices = torch.full((total_tokens, num_heads, self.s_pow2), -1, dtype=torch.int32, device=device)
+        # Buffer 大小只需要 self.s_logic
+        topk_indices = torch.full((total_tokens, num_heads, self.s_logic), -1, dtype=torch.int32, device=device)
         
         hstu_bsa_topk_kernel[grid_triton](
             Q=q, K=k_cmp, 
@@ -259,8 +242,8 @@ class HSTU_BSA_Triton(torch.nn.Module):
             offsets=x_offsets, 
             offsets_cmp=offsets_cmp, 
             scale=scale,
-            S=self.s_pow2, 
-            BLOCK_N_PAD=self.s_pad,
+            S=self.s_logic,           # Logic S
+            BLOCK_N_PAD=self.s_pad,   # Physical Pad
             BLOCK_SIZE=self.block_size, HEAD_DIM=dim,
             BLOCK_M=32
         )
