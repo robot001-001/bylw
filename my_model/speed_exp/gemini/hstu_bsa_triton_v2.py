@@ -10,7 +10,7 @@ def _hstu_silu_activation(x):
 # -----------------------------------------------------------------------------
 # [Fix] TopK Kernel (Pure Tensor Arithmetic - Most Robust)
 # -----------------------------------------------------------------------------
-@triton.jit
+# @triton.jit
 # def hstu_bsa_topk_kernel(
 #     Q, K, 
 #     Out_Indices, 
