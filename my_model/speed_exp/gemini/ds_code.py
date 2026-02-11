@@ -372,6 +372,7 @@ def run_comparison():
 
     print("\n=== Results ===")
     diff = (out_ref - out_triton).abs()
+    print(diff)
     print(f"Max Diff: {diff.max().item():.6f}")
     if diff.max().item() < 1e-3: print("✅ PASSED")
     else: print("❌ FAILED")
