@@ -351,8 +351,18 @@ class HSTU_BSA_Layer(nn.Module):
         )
 
         # 6. Epilogue
-        o_cmp = F.layer_norm(o_cmp, [self.num_heads * self.head_dim]).view(total_tokens, self.num_heads, self.head_dim) * u
-        o_slc = F.layer_norm(o_slc, [self.num_heads * self.head_dim]).view(total_tokens, self.num_heads, self.head_dim) * u
+        # 修复点: 先 view 成 [TotalTokens, H*D] 再做 LayerNorm
+        hidden_size = self.num_heads * self.head_dim
+        
+        # 处理 o_cmp
+        o_cmp_flat = o_cmp.view(total_tokens, hidden_size)
+        o_cmp = F.layer_norm(o_cmp_flat, [hidden_size])
+        o_cmp = o_cmp.view(total_tokens, self.num_heads, self.head_dim) * u
+
+        # 处理 o_slc
+        o_slc_flat = o_slc.view(total_tokens, hidden_size)
+        o_slc = F.layer_norm(o_slc_flat, [hidden_size])
+        o_slc = o_slc.view(total_tokens, self.num_heads, self.head_dim) * u
 
         return o_cmp + o_slc
 
