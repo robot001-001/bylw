@@ -4,12 +4,7 @@ import time
 from typing import Tuple
 
 import torch
-try:
-    import fbgemm_gpu
-    # 这一步很关键：有些版本需要手动加载动态库
-    torch.ops.load_library("fbgemm_gpu_py.so") 
-except ImportError:
-    print("fbgemm_gpu 未安装")
+
 
 
 def generate_random_jagged_qkv(
