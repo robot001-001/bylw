@@ -265,69 +265,67 @@ class HSTU_BSA_Layer(nn.Module):
         """
         B = x_offsets.size(0) - 1
         total_tokens = q.shape[0]
-        # 计算最大序列长度 (用于 Padding)
+        # 计算最大序列长度
         seq_lengths = x_offsets[1:] - x_offsets[:-1]
         max_seq_len = seq_lengths.max().item()
         
         scale = self.head_dim ** -0.5
 
-        # 1. 转换 Jagged -> Padded (为了 Gate Model 和 Mean Pooling)
-        # 使用自定义的 FBGEMM 替代
+        # 1. 转换 Jagged -> Padded
         padded_q = FBGEMM_Ops.jagged_to_padded_dense(q, [x_offsets], [max_seq_len]) # [B, N, H, D]
         padded_k = FBGEMM_Ops.jagged_to_padded_dense(k, [x_offsets], [max_seq_len])
         padded_v = FBGEMM_Ops.jagged_to_padded_dense(v, [x_offsets], [max_seq_len])
 
         # 2. 运行 Gate Model
-        g_cmp, g_slc, g_swa = gate_model(padded_q) # [B, N, H]
+        g_cmp, g_slc, g_swa = gate_model(padded_q) 
 
         # 将 Gate 转回 Jagged (用于 Triton Kernel)
-        g_cmp_jag = FBGEMM_Ops.dense_to_jagged(g_cmp.unsqueeze(-1), [x_offsets])[0].squeeze(-1) # [Total, H]
+        g_cmp_jag = FBGEMM_Ops.dense_to_jagged(g_cmp.unsqueeze(-1), [x_offsets])[0].squeeze(-1) 
         g_slc_jag = FBGEMM_Ops.dense_to_jagged(g_slc.unsqueeze(-1), [x_offsets])[0].squeeze(-1)
 
         # 3. Compression (Mean Pooling)
         # Pad sequence to multiple of block_size
         num_blocks = math.ceil(max_seq_len / self.block_size)
         pad_len = num_blocks * self.block_size - max_seq_len
+        
+        # --- 修正点开始 ---
         if pad_len > 0:
-            padded_k_p = F.pad(padded_k, (0, 0, 0, 0, 0, 0, 0, pad_len))
-            padded_v_p = F.pad(padded_v, (0, 0, 0, 0, 0, 0, 0, pad_len))
+            # 修正 F.pad 参数：从后往前数，只需要填充 3 个维度 (D, H, N)
+            # (D_left, D_right, H_left, H_right, N_left, N_right)
+            pad_params = (0, 0, 0, 0, 0, pad_len)
+            padded_k_p = F.pad(padded_k, pad_params)
+            padded_v_p = F.pad(padded_v, pad_params)
         else:
             padded_k_p = padded_k
             padded_v_p = padded_v
+        # --- 修正点结束 ---
         
-        # [B, N_blk, BS, H, D] -> mean -> [B, N_blk, H, D]
+        # 现在 View 操作应该可以正常运行了
+        # [B, N_padded, H, D] -> [B, N_blk, BS, H, D] -> mean -> [B, N_blk, H, D]
         k_cmp = padded_k_p.view(B, num_blocks, self.block_size, self.num_heads, self.head_dim).mean(dim=2)
         v_cmp = padded_v_p.view(B, num_blocks, self.block_size, self.num_heads, self.head_dim).mean(dim=2)
 
-        # 4. TopK Selection (PyTorch Implementation for stability)
-        # 计算 Coarse Attention Scores: Q_padded @ K_cmp.T
-        # [B, N, H, D] @ [B, N_blk, H, D] -> [B, N, H, N_blk]
+        # 4. TopK Selection
         attn_scores = torch.einsum('bnhd,bmhd->bnhm', padded_q, k_cmp) * scale
         
-        # Masking: Q_blk_idx >= K_blk_idx
         q_idx = torch.arange(max_seq_len, device=q.device)[:, None] // self.block_size
         k_idx = torch.arange(num_blocks, device=q.device)[None, :]
-        causal_mask = q_idx >= k_idx # [N, N_blk]
+        causal_mask = q_idx >= k_idx 
         attn_scores.masked_fill_(~causal_mask.unsqueeze(0).unsqueeze(2), float('-inf'))
 
-        # Select TopK
         S = min(self.block_counts, num_blocks)
-        _, topk_indices = attn_scores.topk(S, dim=-1) # [B, N, H, S]
+        _, topk_indices = attn_scores.topk(S, dim=-1)
         
-        # 转换 TopK indices 为 Jagged [Total, H, S]
         topk_indices_jag = FBGEMM_Ops.dense_to_jagged(
-            topk_indices.view(B, max_seq_len, -1), # [B, N, H*S]
+            topk_indices.view(B, max_seq_len, -1), 
             [x_offsets]
         )[0].view(-1, self.num_heads, S).contiguous()
 
         # 5. Launch Triton Kernels
-        
-        # Output Buffers
         o_cmp = torch.empty_like(q)
         o_slc = torch.empty_like(q)
 
         # 5.1 Compression Kernel
-        # Grid: (M, H, B)
         grid_cmp = (triton.cdiv(max_seq_len, 32), self.num_heads, B)
         hstu_bsa_cmp_kernel[grid_cmp](
             Q=q, K_desc=k_cmp, V_desc=v_cmp,
@@ -352,8 +350,7 @@ class HSTU_BSA_Layer(nn.Module):
             S=S, BLOCK_SIZE=self.block_size, HEAD_DIM=self.head_dim, BLOCK_M=32
         )
 
-        # 6. Epilogue (LayerNorm + Residual)
-        # Flatten for LN
+        # 6. Epilogue
         o_cmp = F.layer_norm(o_cmp, [self.num_heads * self.head_dim]).view(total_tokens, self.num_heads, self.head_dim) * u
         o_slc = F.layer_norm(o_slc, [self.num_heads * self.head_dim]).view(total_tokens, self.num_heads, self.head_dim) * u
 
