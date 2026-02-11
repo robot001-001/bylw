@@ -11,6 +11,127 @@ def _hstu_silu_activation(x):
 # [Fix] TopK Kernel (Pure Tensor Arithmetic - Most Robust)
 # -----------------------------------------------------------------------------
 @triton.jit
+# def hstu_bsa_topk_kernel(
+#     Q, K, 
+#     Out_Indices, 
+#     Stride_qt, Stride_qh, Stride_qd,
+#     Stride_kt, Stride_kh, Stride_kd,
+#     Stride_idx_t, Stride_idx_h, Stride_idx_s,
+#     offsets,      
+#     offsets_cmp,  
+#     scale,
+#     S: tl.constexpr,          # 逻辑 TopK 数量
+#     BLOCK_N_PAD: tl.constexpr,# 物理计算维度 (>=16)
+#     BLOCK_SIZE: tl.constexpr, 
+#     HEAD_DIM: tl.constexpr,
+#     BLOCK_M: tl.constexpr,    
+# ):
+#     pid_m = tl.program_id(0) 
+#     pid_h = tl.program_id(1) 
+#     pid_z = tl.program_id(2) 
+
+#     seq_start = tl.load(offsets + pid_z)
+#     seq_end = tl.load(offsets + pid_z + 1)
+#     seq_len = seq_end - seq_start
+    
+#     start_m = pid_m * BLOCK_M
+#     if start_m >= seq_len:
+#         return
+
+#     offs_m = start_m + tl.arange(0, BLOCK_M)
+#     mask_m = offs_m < seq_len
+    
+#     q_ptrs = Q + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh + tl.arange(0, HEAD_DIM)[None, :]
+#     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0) 
+
+#     # -----------------------------------------------------------
+#     # 初始化 Top S Tensor (Single Tensor, No List)
+#     # -----------------------------------------------------------
+#     top_vals = tl.full([BLOCK_M, S], float('-inf'), dtype=tl.float32)
+#     top_idxs = tl.full([BLOCK_M, S], -1, dtype=tl.int32)
+
+#     cmp_start = tl.load(offsets_cmp + pid_z)
+#     cmp_end = tl.load(offsets_cmp + pid_z + 1)
+#     cmp_len = cmp_end - cmp_start 
+
+#     # -----------------------------------------------------------
+#     # Stream Processing
+#     # -----------------------------------------------------------
+#     for start_n in range(0, cmp_len, S):
+#         # 1. Load K (Pad to BLOCK_N_PAD >= 16)
+#         offs_n_pad = start_n + tl.arange(0, BLOCK_N_PAD)
+#         mask_n_valid = (offs_n_pad < cmp_len) & (offs_n_pad < (start_n + S))
+        
+#         k_ptrs = K + (cmp_start + offs_n_pad[None, :]) * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[:, None]
+        
+#         # [Fix] 变量名不使用 k，改用 k_tensor
+#         k_tensor = tl.load(k_ptrs, mask=mask_n_valid[None, :], other=0.0)
+        
+#         # 2. Compute Score
+#         scores = tl.dot(q, k_tensor) * scale
+        
+#         # 3. Masking
+#         mask_causal = (offs_m[:, None] // BLOCK_SIZE) >= offs_n_pad[None, :]
+#         mask_final = mask_causal & mask_n_valid[None, :] & mask_m[:, None]
+#         scores = tl.where(mask_final, scores, float('-inf'))
+
+#         # -------------------------------------------------------
+#         # Bubble Insertion (Pure Tensor Ops)
+#         # -------------------------------------------------------
+#         # 使用 constexpr loop 展开
+#         for col in range(S):
+#             # A. Extract Value/Index (Arithmetic Gather)
+#             # col_mask: [BLOCK_N_PAD]
+#             col_mask = (tl.arange(0, BLOCK_N_PAD) == col) 
+            
+#             # [BLOCK_M, BLOCK_N_PAD] * [BLOCK_N_PAD] -> Sum -> [BLOCK_M]
+#             # 提取 scores 的第 col 列
+#             val = tl.sum(scores * col_mask[None, :], axis=1)
+            
+#             current_idx_scalar = start_n + col
+#             idx = tl.full([BLOCK_M], current_idx_scalar, dtype=tl.int32)
+            
+#             # B. Insert into Top Tensor
+#             # [Fix] 循环变量不使用 k，改用 rank_idx
+#             for rank_idx in range(S):
+#                 # Arithmetic Gather: Extract column rank_idx from top_vals
+#                 rank_mask = (tl.arange(0, S) == rank_idx) # [S]
+                
+#                 # top_vals: [BLOCK_M, S] * rank_mask[None, :] -> 此时只有第 rank_idx 列非零
+#                 # sum(axis=1) -> 提取出第 rank_idx 列的值 [BLOCK_M]
+#                 old_val = tl.sum(top_vals * rank_mask[None, :], axis=1)
+#                 old_idx = tl.sum(top_idxs * rank_mask[None, :], axis=1)
+                
+#                 # Compare
+#                 swap = val > old_val
+                
+#                 # Prepare values to write
+#                 new_col_val = tl.where(swap, val, old_val)
+#                 new_col_idx = tl.where(swap, idx, old_idx)
+                
+#                 # Arithmetic Scatter: Update column rank_idx in top_vals
+#                 # 如果是这一列(rank_mask=True)，写入 new_col_val；否则保持 top_vals 原值
+#                 # new_col_val[:, None] -> [BLOCK_M, 1]
+#                 top_vals = tl.where(rank_mask[None, :], new_col_val[:, None], top_vals)
+#                 top_idxs = tl.where(rank_mask[None, :], new_col_idx[:, None], top_idxs)
+                
+#                 # Update val/idx to carry over (Push out)
+#                 val = tl.where(swap, old_val, val)
+#                 idx = tl.where(swap, old_idx, idx)
+
+#     # -----------------------------------------------------------
+#     # Store Indices
+#     # -----------------------------------------------------------
+#     for rank_idx in range(S):
+#         # Arithmetic Gather to store
+#         rank_mask = (tl.arange(0, S) == rank_idx)
+#         final_idx = tl.sum(top_idxs * rank_mask[None, :], axis=1)
+        
+#         idx_ptrs = Out_Indices + (seq_start + offs_m) * Stride_idx_t + pid_h * Stride_idx_h + rank_idx * Stride_idx_s
+#         tl.store(idx_ptrs, final_idx, mask=mask_m)
+
+
+@triton.jit
 def hstu_bsa_topk_kernel(
     Q, K, 
     Out_Indices, 
@@ -20,8 +141,8 @@ def hstu_bsa_topk_kernel(
     offsets,      
     offsets_cmp,  
     scale,
-    S: tl.constexpr,          # 逻辑 TopK 数量
-    BLOCK_N_PAD: tl.constexpr,# 物理计算维度 (>=16)
+    S: tl.constexpr,          
+    BLOCK_N_PAD: tl.constexpr,
     BLOCK_SIZE: tl.constexpr, 
     HEAD_DIM: tl.constexpr,
     BLOCK_M: tl.constexpr,    
@@ -45,7 +166,7 @@ def hstu_bsa_topk_kernel(
     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0) 
 
     # -----------------------------------------------------------
-    # 初始化 Top S Tensor (Single Tensor, No List)
+    # 初始化 Top S Tensor
     # -----------------------------------------------------------
     top_vals = tl.full([BLOCK_M, S], float('-inf'), dtype=tl.float32)
     top_idxs = tl.full([BLOCK_M, S], -1, dtype=tl.int32)
@@ -58,64 +179,54 @@ def hstu_bsa_topk_kernel(
     # Stream Processing
     # -----------------------------------------------------------
     for start_n in range(0, cmp_len, S):
-        # 1. Load K (Pad to BLOCK_N_PAD >= 16)
         offs_n_pad = start_n + tl.arange(0, BLOCK_N_PAD)
         mask_n_valid = (offs_n_pad < cmp_len) & (offs_n_pad < (start_n + S))
         
         k_ptrs = K + (cmp_start + offs_n_pad[None, :]) * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[:, None]
-        
-        # [Fix] 变量名不使用 k，改用 k_tensor
         k_tensor = tl.load(k_ptrs, mask=mask_n_valid[None, :], other=0.0)
         
-        # 2. Compute Score
         scores = tl.dot(q, k_tensor) * scale
         
-        # 3. Masking
         mask_causal = (offs_m[:, None] // BLOCK_SIZE) >= offs_n_pad[None, :]
         mask_final = mask_causal & mask_n_valid[None, :] & mask_m[:, None]
         scores = tl.where(mask_final, scores, float('-inf'))
 
         # -------------------------------------------------------
-        # Bubble Insertion (Pure Tensor Ops)
+        # Bubble Insertion (NaN-Safe)
         # -------------------------------------------------------
-        # 使用 constexpr loop 展开
         for col in range(S):
-            # A. Extract Value/Index (Arithmetic Gather)
-            # col_mask: [BLOCK_N_PAD]
+            # [Fix 1] 使用 where 避免 inf * 0 = NaN
             col_mask = (tl.arange(0, BLOCK_N_PAD) == col) 
-            
-            # [BLOCK_M, BLOCK_N_PAD] * [BLOCK_N_PAD] -> Sum -> [BLOCK_M]
-            # 提取 scores 的第 col 列
-            val = tl.sum(scores * col_mask[None, :], axis=1)
+            # 如果 mask 是 0，强制值为 0.0 (避免引入 NaN)
+            # 如果 mask 是 1，保留原值 (可能是 -inf)
+            safe_scores = tl.where(col_mask[None, :], scores, 0.0)
+            val = tl.sum(safe_scores, axis=1)
             
             current_idx_scalar = start_n + col
             idx = tl.full([BLOCK_M], current_idx_scalar, dtype=tl.int32)
             
-            # B. Insert into Top Tensor
-            # [Fix] 循环变量不使用 k，改用 rank_idx
             for rank_idx in range(S):
-                # Arithmetic Gather: Extract column rank_idx from top_vals
                 rank_mask = (tl.arange(0, S) == rank_idx) # [S]
                 
-                # top_vals: [BLOCK_M, S] * rank_mask[None, :] -> 此时只有第 rank_idx 列非零
-                # sum(axis=1) -> 提取出第 rank_idx 列的值 [BLOCK_M]
-                old_val = tl.sum(top_vals * rank_mask[None, :], axis=1)
-                old_idx = tl.sum(top_idxs * rank_mask[None, :], axis=1)
+                # [Fix 2] 同样对 top_vals 使用 where
+                safe_top_vals = tl.where(rank_mask[None, :], top_vals, 0.0)
+                old_val = tl.sum(safe_top_vals, axis=1)
                 
-                # Compare
+                # int32 没有 NaN 问题，乘法是安全的，但为了统一也用 where
+                safe_top_idxs = tl.where(rank_mask[None, :], top_idxs, 0)
+                old_idx = tl.sum(safe_top_idxs, axis=1)
+                
+                # Compare & Swap
                 swap = val > old_val
                 
-                # Prepare values to write
                 new_col_val = tl.where(swap, val, old_val)
                 new_col_idx = tl.where(swap, idx, old_idx)
                 
-                # Arithmetic Scatter: Update column rank_idx in top_vals
-                # 如果是这一列(rank_mask=True)，写入 new_col_val；否则保持 top_vals 原值
-                # new_col_val[:, None] -> [BLOCK_M, 1]
+                # Update State
                 top_vals = tl.where(rank_mask[None, :], new_col_val[:, None], top_vals)
                 top_idxs = tl.where(rank_mask[None, :], new_col_idx[:, None], top_idxs)
                 
-                # Update val/idx to carry over (Push out)
+                # Push out
                 val = tl.where(swap, old_val, val)
                 idx = tl.where(swap, old_idx, idx)
 
@@ -123,13 +234,13 @@ def hstu_bsa_topk_kernel(
     # Store Indices
     # -----------------------------------------------------------
     for rank_idx in range(S):
-        # Arithmetic Gather to store
         rank_mask = (tl.arange(0, S) == rank_idx)
-        final_idx = tl.sum(top_idxs * rank_mask[None, :], axis=1)
+        # [Fix 3] Store Gather
+        safe_top_idxs = tl.where(rank_mask[None, :], top_idxs, 0)
+        final_idx = tl.sum(safe_top_idxs, axis=1)
         
         idx_ptrs = Out_Indices + (seq_start + offs_m) * Stride_idx_t + pid_h * Stride_idx_h + rank_idx * Stride_idx_s
         tl.store(idx_ptrs, final_idx, mask=mask_m)
-
 # -----------------------------------------------------------------------------
 # CMP / SLC Kernels (保持不变)
 # -----------------------------------------------------------------------------
