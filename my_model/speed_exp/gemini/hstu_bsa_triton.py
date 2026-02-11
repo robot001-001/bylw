@@ -190,149 +190,118 @@ class HSTU_BSA_Triton(torch.nn.Module):
 
     def forward(self, 
                 q, k, v, 
-                g_cmp, g_slc, # 直接传入门控分数 [TotalTokens, H, 1] 或 [TotalTokens, H]
+                g_cmp, g_slc, 
                 x_offsets):
         """
         Args:
             q, k, v: Jagged [TotalTokens, H, D]
-            g_cmp, g_slc: Jagged [TotalTokens, H] (or H, 1)
+            g_cmp, g_slc: Jagged [TotalTokens, H, 1]
             x_offsets: [B+1]
         """
-        # 确保 g_cmp/g_slc 是 [TotalTokens, H, 1] 以便广播，或者与 kernel 匹配
+        # 维度检查与调整
         if g_cmp.dim() == 2: g_cmp = g_cmp.unsqueeze(-1)
         if g_slc.dim() == 2: g_slc = g_slc.unsqueeze(-1)
         
-        # 1. 准备 Jagged Pooling 所需的索引
-        # 我们需要生成一个 segment_ids，用于将 K/V 聚合到压缩后的形状
+        # 获取基本信息
+        B = x_offsets.size(0) - 1
+        seq_lens = x_offsets[1:] - x_offsets[:-1]
+        total_tokens = q.shape[0]
+        device = q.device
+        
+        # --- 1. 准备 Jagged Pooling 索引 (纯 PyTorch 实现) ---
         with torch.no_grad():
-            seq_lens = x_offsets[1:] - x_offsets[:-1]
-            # 计算每个序列压缩后的 block 数量
-            # seq_len=33, bs=32 -> 2 blocks
+            # 计算压缩后的长度信息
             cmp_seq_lens = (seq_lens + self.block_size - 1) // self.block_size
-            
-            # 生成 offsets_cmp [B+1]
             offsets_cmp = torch.zeros_like(x_offsets)
             offsets_cmp[1:] = torch.cumsum(cmp_seq_lens, dim=0)
             total_cmp_tokens = offsets_cmp[-1].item()
             
-            # 生成 Pooling 用的 segment indices
-            # 方法：构造一个与 TotalTokens 等长的 tensor，标记它属于哪个 compressed token
-            # 这里利用 repeat_interleave 快速生成
-            # 这是一个相对耗时的操作，在生产环境中可以用专门的 C++/Triton kernel 生成
-            # 为了纯 Python 演示，这里使用一种高效的向量化方法：
+            # 生成 Batch ID 和 Local Token ID
+            # batch_ids: [0, 0, ..., 1, 1, ...] 标记每个 token 属于哪个 batch
+            batch_ids = torch.repeat_interleave(torch.arange(B, device=device), seq_lens)
             
-            # 创建 block_ids_per_seq: [0, 0.. (32), 1, 1..]
-            max_len = seq_lens.max().item()
-            range_tensor = torch.arange(max_len, device=q.device)
-            block_ids_raw = range_tensor // self.block_size
+            # local_ids: [0, 1, 2, ..., 0, 1, ...] 标记每个 token 在其序列中的位置
+            # 技巧: 全局索引 - 该 batch 的起始 offset
+            local_ids = torch.arange(total_tokens, device=device) - x_offsets[:-1][batch_ids]
             
-            # 需要将其平铺并加上 batch 的偏移
-            # 为简化，这里先用一种简单的 list comprehension 构造 (生产环境请用 fbgemm 或 custom kernel)
-            # 或者复用 x_offsets 逻辑
-            # 下面是一个利用 offsets 快速生成 global_compressed_idx 的方法
+            # 计算对应的 Block ID
+            local_block_ids = local_ids // self.block_size
             
-            # 构建一个全 1 向量，做 cumsum 得到 idx，然后除以 block_size? 不行，batch 间断了
-            # 简单实现：
-            batch_indices = torch.ops.fbgemm.jagged_to_padded_dense(
-                 values=torch.arange(x_offsets[-1], device=q.device).unsqueeze(-1),
-                 offsets=[x_offsets],
-                 max_lengths=[max_len],
-                 padding_value=-1
-            ).squeeze(-1) # [B, MaxLen]
-            
-            # 这里的 mask 和 ids
-            valid_mask = batch_indices != -1
-            local_block_ids = torch.arange(max_len, device=q.device)[None, :] // self.block_size
-            
-            # 计算每个 batch 的 compressed start
-            global_cmp_start = offsets_cmp[:-1].unsqueeze(1) # [B, 1]
-            
-            global_cmp_ids_padded = (local_block_ids + global_cmp_start)
-            # Flatten back to jagged using mask
-            segment_ids = torch.masked_select(global_cmp_ids_padded, valid_mask)
+            # 计算 Pooling 用的 segment_ids (将 token 映射到压缩后的全局索引)
+            segment_ids = offsets_cmp[:-1][batch_ids] + local_block_ids
 
-        # 2. Jagged Pooling (Mean)
+        # --- 2. Jagged Pooling (Mean) ---
         # K, V: [TotalTokens, H, D] -> [TotalCmpTokens, H, D]
-        # 使用 scatter_reduce (PyTorch 1.12+) 或 index_add
-        # Mean = Sum / Count. 这里 Count 对每个 block 都是 32，除了最后一个。
-        # 为精确起见，先算 Sum，再除以 Count
-        
-        # 初始化压缩后的 K, V
+        # 使用 index_add_ 实现求和
         k_cmp = torch.zeros((total_cmp_tokens, k.shape[1], k.shape[2]), 
-                            dtype=k.dtype, device=k.device)
+                            dtype=k.dtype, device=device)
         v_cmp = torch.zeros((total_cmp_tokens, v.shape[1], v.shape[2]), 
-                            dtype=v.dtype, device=v.device)
+                            dtype=v.dtype, device=device)
         
-        k_cmp = k_cmp.index_add_(0, segment_ids, k)
-        v_cmp = v_cmp.index_add_(0, segment_ids, v)
+        k_cmp.index_add_(0, segment_ids, k)
+        v_cmp.index_add_(0, segment_ids, v)
         
-        # 计算 Count (处理 padding 部分)
-        # 简单处理：除以 block_size，边缘的 block 会偏小一点 (但 HSTU 论文通常直接除 block_size)
-        # 或者精确计算：
-        ones = torch.ones(k.shape[0], 1, 1, device=k.device, dtype=k.dtype)
-        counts = torch.zeros((total_cmp_tokens, 1, 1), device=k.device, dtype=k.dtype)
-        counts = counts.index_add_(0, segment_ids, ones)
+        # 计算每个 compressed block 包含多少个 token (处理 padding/边缘)
+        ones = torch.ones(total_tokens, 1, 1, device=device, dtype=k.dtype)
+        counts = torch.zeros((total_cmp_tokens, 1, 1), device=device, dtype=k.dtype)
+        counts.index_add_(0, segment_ids, ones)
         
+        # 求平均
         k_cmp = k_cmp / counts.clamp(min=1.0)
         v_cmp = v_cmp / counts.clamp(min=1.0)
 
-        # 3. Coarse Attention & TopK (Jagged/Block-wise)
-        # 为了计算 TopK，我们需要 Q @ K_cmp.T
-        # 此时 Q 是 jagged, K_cmp 是 jagged。
-        # 直接做全量 matmul 会产生 [TotalQ, TotalK_cmp] 太大了且跨 batch。
-        # 实用方案：为了 TopK 这一步，临时转 padded 是最快的，因为 K_cmp 已经很短了 (L/32)。
-        # 如果非要保持 Jagged，需要由 Triton 实现 Jagged MatMul + TopK。
-        # 这里为了代码可运行且高效，我们只在 TopK 算分阶段做 padded view。
+        # --- 3. Coarse Attention & TopK ---
+        # 为了计算 TopK 分数，我们需要 [B, N, NumBlocks] 的形式。
+        # 这里临时转为 Padded View 是最高效的。
         
-        B = x_offsets.size(0) - 1
+        max_n = seq_lens.max().item()
+        max_blocks = cmp_seq_lens.max().item()
         num_heads = q.shape[1]
         dim = q.shape[2]
-        max_n = (x_offsets[1:] - x_offsets[:-1]).max().item()
-        max_blocks = cmp_seq_lens.max().item()
         
-        # Padded Views for Score Calculation
-        padded_q = torch.ops.fbgemm.jagged_to_padded_dense(
-             values=q, offsets=[x_offsets], max_lengths=[max_n], padding_value=0.0
-        ).view(B, max_n, num_heads, dim)
+        # [Helper] Jagged -> Padded (替换 fbgemm.jagged_to_padded_dense)
+        # 利用上面计算好的 batch_ids 和 local_ids 直接赋值
+        padded_q = torch.zeros(B, max_n, num_heads, dim, device=device, dtype=q.dtype)
+        padded_q[batch_ids, local_ids] = q
         
-        padded_k_cmp = torch.ops.fbgemm.jagged_to_padded_dense(
-             values=k_cmp, offsets=[offsets_cmp], max_lengths=[max_blocks], padding_value=0.0
-        ).view(B, max_blocks, num_heads, dim)
+        padded_k_cmp = torch.zeros(B, max_blocks, num_heads, dim, device=device, dtype=k_cmp.dtype)
+        # 为 k_cmp 生成索引
+        batch_ids_cmp = torch.repeat_interleave(torch.arange(B, device=device), cmp_seq_lens)
+        local_ids_cmp = torch.arange(total_cmp_tokens, device=device) - offsets_cmp[:-1][batch_ids_cmp]
+        padded_k_cmp[batch_ids_cmp, local_ids_cmp] = k_cmp
         
         scale = dim ** -0.5
-        # [B, H, N, S] - 计算量很小，因为 K_cmp 很短
+        # 计算分数: [B, H, N, S_blocks]
         attn_cmp_scores = torch.einsum('bqhd,bkhd->bhqk', padded_q, padded_k_cmp) * scale
         
         # Causal Masking
-        indices_q = torch.arange(max_n, device=q.device)[:, None] // self.block_size
-        indices_k = torch.arange(max_blocks, device=q.device)[None, :]
+        indices_q = torch.arange(max_n, device=device)[:, None] // self.block_size
+        indices_k = torch.arange(max_blocks, device=device)[None, :]
         causal_mask = indices_q >= indices_k
         attn_cmp_scores.masked_fill_(~causal_mask.unsqueeze(0).unsqueeze(0), float('-inf'))
         
-        # TopK
+        # TopK Selection
         S = min(self.block_counts, max_blocks)
         _, topk_indices = attn_cmp_scores.topk(S, dim=-1) # [B, H, N, S]
         
-        # Flatten TopK indices to Jagged [TotalTokens, H, S] for Triton
-        topk_indices_jag = torch.ops.fbgemm.dense_to_jagged(
-            topk_indices.permute(0, 2, 1, 3).flatten(2, 3), # [B, N, H*S]
-            [x_offsets]
-        )[0].view(-1, num_heads, S).int()
+        # [Helper] Padded -> Jagged (替换 fbgemm.dense_to_jagged)
+        # 只有在有效 mask 内的索引才是需要的
+        # 构造有效 mask [B, N]
+        valid_mask = torch.arange(max_n, device=device)[None, :] < seq_lens[:, None]
+        # 使用 boolean masking 展平: [B, H, N, S] -> select -> [TotalTokens, H, S]
+        # permute 把 N 放到前面方便 mask
+        topk_indices = topk_indices.permute(0, 2, 1, 3) # [B, N, H, S]
+        topk_indices_jag = topk_indices[valid_mask].contiguous().view(-1, num_heads, S).int()
 
-        # 4. Triton Kernel Launches
+        # --- 4. Triton Kernel Launches ---
         
         # Output buffers
-        o_cmp = torch.empty_like(v) # Jagged
-        o_slc = torch.empty_like(v) # Jagged
+        o_cmp = torch.empty_like(v)
+        o_slc = torch.empty_like(v)
         
-        grid = lambda meta: (triton.cdiv(q.shape[0], meta['BLOCK_M']), num_heads, 1)
-        # 注意：这里 grid 策略改为基于 TotalTokens 的 1D 展开，
-        # 但 Kernel 内部我们需要基于 batch 区分。
-        # 原 Kernel 是基于 pid_m 和 pid_z (Batch) 的 2D 循环。
-        # 为了兼容上面的 Kernel (使用 pid_z)，我们还是维持 (M, H, B) 的 grid
+        # Grid: (NumBlocks_Q, Heads, Batch)
         grid_triton = lambda meta: (triton.cdiv(max_n, meta['BLOCK_M']), num_heads, B)
 
-        # Launch Cmp
         hstu_bsa_cmp_fwd_kernel[grid_triton](
             Q=q, K=k_cmp, V=v_cmp, 
             G_cmp=g_cmp.squeeze(-1), 
@@ -342,13 +311,12 @@ class HSTU_BSA_Triton(torch.nn.Module):
             Stride_vt=v_cmp.stride(0), Stride_vh=v_cmp.stride(1), Stride_vd=v_cmp.stride(2),
             Stride_ot=o_cmp.stride(0), Stride_oh=o_cmp.stride(1), Stride_od=o_cmp.stride(2),
             offsets=x_offsets, 
-            offsets_cmp=offsets_cmp, # 传入压缩后的 offsets
+            offsets_cmp=offsets_cmp, 
             scale=scale,
             BLOCK_SIZE=self.block_size, HEAD_DIM=dim,
             BLOCK_M=32, BLOCK_N=32
         )
 
-        # Launch Slc
         hstu_bsa_slc_fwd_kernel[grid_triton](
             Q=q, K=k, V=v, 
             G_slc=g_slc.squeeze(-1), 
@@ -363,4 +331,4 @@ class HSTU_BSA_Triton(torch.nn.Module):
             S=S, BLOCK_SIZE=self.block_size, HEAD_DIM=dim, BLOCK_M=32
         )
         
-        return o_cmp, o_slc # 返回 Jagged 结果，后续由外部做 LayerNorm 等
+        return o_cmp, o_slc
