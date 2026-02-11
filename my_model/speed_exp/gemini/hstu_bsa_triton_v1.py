@@ -16,6 +16,7 @@ def hstu_bsa_cmp_fwd_kernel(
     Stride_kt, Stride_kh, Stride_kd,
     Stride_vt, Stride_vh, Stride_vd,
     Stride_ot, Stride_oh, Stride_od,
+    Stride_gt, Stride_gh, # [Fix] 新增 Gate 的 Stride
     offsets,      
     offsets_cmp,  
     scale,
@@ -39,10 +40,12 @@ def hstu_bsa_cmp_fwd_kernel(
     offs_m = start_m + tl.arange(0, BLOCK_M)
     mask_m = offs_m < seq_len
     
+    # Load Q
     q_ptrs = Q + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh + tl.arange(0, HEAD_DIM)[None, :]
     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0)
     
-    g_ptrs = G_cmp + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh 
+    # Load G_cmp [Fix] 使用 Stride_gt
+    g_ptrs = G_cmp + (seq_start + offs_m[:, None]) * Stride_gt + pid_h * Stride_gh 
     g = tl.load(g_ptrs, mask=mask_m[:, None], other=0.0)
 
     cmp_start = tl.load(offsets_cmp + pid_z)
@@ -70,7 +73,6 @@ def hstu_bsa_cmp_fwd_kernel(
         v_ptrs = V + (cmp_start + offs_n[:, None]) * Stride_vt + pid_h * Stride_vh + tl.arange(0, HEAD_DIM)[None, :]
         v = tl.load(v_ptrs, mask=mask_n[:, None], other=0.0)
         
-        # [Fix] 移除 .to(tl.float16)，保持输入精度 (FP32)
         acc += tl.dot(p, v)
 
     acc = acc * g
@@ -89,6 +91,7 @@ def hstu_bsa_slc_fwd_kernel(
     Stride_kt, Stride_kh, Stride_kd,
     Stride_vt, Stride_vh, Stride_vd,
     Stride_ot, Stride_oh, Stride_od,
+    Stride_gt, Stride_gh, # [Fix] 新增 Gate Stride
     offsets,
     scale,
     S: tl.constexpr,          
@@ -114,12 +117,12 @@ def hstu_bsa_slc_fwd_kernel(
     q_ptrs = Q + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh + tl.arange(0, HEAD_DIM)[None, :]
     q = tl.load(q_ptrs, mask=mask_m[:, None], other=0.0)
 
-    g_ptrs = G_slc + (seq_start + offs_m[:, None]) * Stride_qt + pid_h * Stride_qh
+    # Load G_slc [Fix] 使用 Stride_gt
+    g_ptrs = G_slc + (seq_start + offs_m[:, None]) * Stride_gt + pid_h * Stride_gh
     g = tl.load(g_ptrs, mask=mask_m[:, None], other=0.0)
 
     acc = tl.zeros([BLOCK_M, HEAD_DIM], dtype=tl.float32)
 
-    # 遍历 S 个 Block
     for s_idx in range(S):
         b_idxs_ptr = BlockIndices + (seq_start + offs_m) * (S * tl.num_programs(1)) + pid_h * S + s_idx
         b_idx = tl.load(b_idxs_ptr, mask=mask_m, other=-1) 
@@ -128,13 +131,10 @@ def hstu_bsa_slc_fwd_kernel(
             valid_blk = b_idx >= 0
             target_k_idx = seq_start + b_idx * BLOCK_SIZE + blk_offset
             
-            # [Fix 1] 增加边界检查：确保没有读到下一个 Sequence 的数据
+            # Boundary Checks
             is_within_bounds = target_k_idx < seq_end
-            
-            # [Fix 2] Causal check
             is_causal = target_k_idx <= (seq_start + offs_m)
             
-            # 组合 mask
             mask_load = valid_blk[:, None] & mask_m[:, None] & is_within_bounds[:, None]
             
             k_ptrs_col = K + target_k_idx[:, None] * Stride_kt + pid_h * Stride_kh + tl.arange(0, HEAD_DIM)[None, :]
@@ -144,8 +144,6 @@ def hstu_bsa_slc_fwd_kernel(
             score *= scale
             
             p = _hstu_silu_activation(score)
-            
-            # 在累加时也要应用 mask
             p = tl.where(valid_blk & is_causal & is_within_bounds, p, 0.0)
             
             v_ptrs_col = V + target_k_idx[:, None] * Stride_vt + pid_h * Stride_vh + tl.arange(0, HEAD_DIM)[None, :]
@@ -158,10 +156,6 @@ def hstu_bsa_slc_fwd_kernel(
     tl.store(o_ptrs, acc.to(Out.dtype.element_ty), mask=mask_m[:, None])
 
 
-
-
-
-
 class HSTU_BSA_Triton(torch.nn.Module):
     def __init__(self, block_size=32, block_counts=4):
         super().__init__()
@@ -169,6 +163,7 @@ class HSTU_BSA_Triton(torch.nn.Module):
         self.block_counts = block_counts
 
     def forward(self, q, k, v, g_cmp, g_slc, x_offsets):
+        # 确保 Gate 是 3D 的 [Tokens, H, 1]
         if g_cmp.dim() == 2: g_cmp = g_cmp.unsqueeze(-1)
         if g_slc.dim() == 2: g_slc = g_slc.unsqueeze(-1)
         
@@ -240,6 +235,7 @@ class HSTU_BSA_Triton(torch.nn.Module):
             Stride_kt=k_cmp.stride(0), Stride_kh=k_cmp.stride(1), Stride_kd=k_cmp.stride(2),
             Stride_vt=v_cmp.stride(0), Stride_vh=v_cmp.stride(1), Stride_vd=v_cmp.stride(2),
             Stride_ot=o_cmp.stride(0), Stride_oh=o_cmp.stride(1), Stride_od=o_cmp.stride(2),
+            Stride_gt=g_cmp.stride(0), Stride_gh=g_cmp.stride(1), # [Fix] Pass Gate Strides
             offsets=x_offsets, 
             offsets_cmp=offsets_cmp, 
             scale=scale,
@@ -256,11 +252,10 @@ class HSTU_BSA_Triton(torch.nn.Module):
             Stride_kt=k.stride(0), Stride_kh=k.stride(1), Stride_kd=k.stride(2),
             Stride_vt=v.stride(0), Stride_vh=v.stride(1), Stride_vd=v.stride(2),
             Stride_ot=o_slc.stride(0), Stride_oh=o_slc.stride(1), Stride_od=o_slc.stride(2),
+            Stride_gt=g_slc.stride(0), Stride_gh=g_slc.stride(1), # [Fix] Pass Gate Strides
             offsets=x_offsets, 
             scale=scale,
             S=S, BLOCK_SIZE=self.block_size, HEAD_DIM=dim, BLOCK_M=32
         )
         
         return o_cmp, o_slc
-    
-
