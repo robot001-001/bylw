@@ -77,7 +77,20 @@ def _host_descriptor_pre_hook(nargs):
     nargs["K"].block_shape = [BLOCK_N, BLOCK_D_Q]
 
 
-def _get_fw_configs() -> List[triton.Config]:  # noqa: C901
+def _get_fw_configs() -> List[triton.Config]:
+    # --- 极速调试版 ---
+    # 强制只返回一个通用配置，跳过漫长的自动搜索
+    return [
+        triton.Config(
+            {"BLOCK_M": 64, "BLOCK_N": 64},
+            num_stages=2,
+            num_warps=4,
+            pre_hook=_host_descriptor_pre_hook,
+        )
+    ]
+
+
+def __get_fw_configs() -> List[triton.Config]:  # noqa: C901
     configs = []
     if torch.version.hip:
         for BLOCK_M in [32, 64, 128]:
