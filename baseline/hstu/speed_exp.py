@@ -31,7 +31,7 @@ def speed_exp(
     Bsize, max_seq_len, num_heads, emb_dim
 ):
     ALPHA = 1.0 / (emb_dim ** 0.5)
-    q, k, v, seq_offsets, max_seq_len = generate_random_jagged_qkv(Bsize, max_seq_len, num_heads, emb_dim, 'gpu:0')
+    q, k, v, seq_offsets, max_seq_len = generate_random_jagged_qkv(Bsize, max_seq_len, num_heads, emb_dim, 'cuda:0')
     now = time.time()
     ret = triton_hstu_mha(N=max_seq_len, alpha=ALPHA, q=q, k=k, v=v, seq_offsets=seq_offsets)
     time_cost = time.time()-now
