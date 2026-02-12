@@ -43,7 +43,7 @@ def speed_exp(Bsize, max_seq_len, num_heads, emb_dim):
         print("❌ 未检测到 GPU")
         return
 
-    model = HSTU_BSA_Triton(block_size=32, block_counts=4).to(device)
+    model = HSTU_BSA_Triton(block_size=64, block_counts=4).to(device)
 
     q, k, v, g_cmp, g_slc, x_offsets = generate_hstu_bsa_inputs(
         Bsize, max_seq_len, num_heads, emb_dim, device
