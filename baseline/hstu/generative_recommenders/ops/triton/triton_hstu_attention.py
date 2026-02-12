@@ -82,8 +82,8 @@ def _get_fw_configs() -> List[triton.Config]:
     return [
         triton.Config(
             {
-                "BLOCK_M": 32, 
-                "BLOCK_N": 32,
+                "BLOCK_M": 16, 
+                "BLOCK_N": 64,
                 # === 必须补上这 4 个参数，否则会报 TypeError ===
                 "USE_TLX": False,
                 "NUM_BUFFERS": 1,
