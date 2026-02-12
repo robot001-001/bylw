@@ -1,0 +1,384 @@
+seq_len: 128
+Time: 1.008 ms
+Base Memory (Inputs): 67.94 MB
+Peak Memory (Total):  84.92 MB
+Kernel Overhead:      16.98 MB
+------------------------------
+seq_len: 256
+Time: 2.158 ms
+Base Memory (Inputs): 129.25 MB
+Peak Memory (Total):  161.56 MB
+Kernel Overhead:      32.31 MB
+------------------------------
+seq_len: 384
+Time: 4.064 ms
+Base Memory (Inputs): 208.00 MB
+Peak Memory (Total):  260.00 MB
+Kernel Overhead:      52.00 MB
+------------------------------
+seq_len: 512
+Time: 4.765 ms
+Base Memory (Inputs): 224.00 MB
+Peak Memory (Total):  280.00 MB
+Kernel Overhead:      56.00 MB
+------------------------------
+seq_len: 640
+Time: 7.462 ms
+Base Memory (Inputs): 304.00 MB
+Peak Memory (Total):  380.00 MB
+Kernel Overhead:      76.00 MB
+------------------------------
+seq_len: 768
+Time: 13.108 ms
+Base Memory (Inputs): 409.69 MB
+Peak Memory (Total):  512.11 MB
+Kernel Overhead:      102.42 MB
+------------------------------
+seq_len: 896
+Time: 13.198 ms
+Base Memory (Inputs): 399.78 MB
+Peak Memory (Total):  499.73 MB
+Kernel Overhead:      99.95 MB
+------------------------------
+seq_len: 1024
+Time: 19.453 ms
+Base Memory (Inputs): 504.00 MB
+Peak Memory (Total):  630.00 MB
+Kernel Overhead:      126.00 MB
+------------------------------
+seq_len: 1152
+Time: 18.536 ms
+Base Memory (Inputs): 513.69 MB
+Peak Memory (Total):  642.11 MB
+Kernel Overhead:      128.42 MB
+------------------------------
+seq_len: 1280
+Time: 27.844 ms
+Base Memory (Inputs): 682.88 MB
+Peak Memory (Total):  853.59 MB
+Kernel Overhead:      170.72 MB
+------------------------------
+seq_len: 1408
+Time: 36.023 ms
+Base Memory (Inputs): 768.00 MB
+Peak Memory (Total):  960.00 MB
+Kernel Overhead:      192.00 MB
+------------------------------
+seq_len: 1536
+Time: 43.267 ms
+Base Memory (Inputs): 859.03 MB
+Peak Memory (Total):  1073.79 MB
+Kernel Overhead:      214.76 MB
+------------------------------
+seq_len: 1664
+Time: 37.493 ms
+Base Memory (Inputs): 733.69 MB
+Peak Memory (Total):  917.11 MB
+Kernel Overhead:      183.42 MB
+------------------------------
+seq_len: 1792
+Time: 46.110 ms
+Base Memory (Inputs): 842.16 MB
+Peak Memory (Total):  1052.70 MB
+Kernel Overhead:      210.54 MB
+------------------------------
+seq_len: 1920
+Time: 45.684 ms
+Base Memory (Inputs): 812.28 MB
+Peak Memory (Total):  1015.35 MB
+Kernel Overhead:      203.07 MB
+------------------------------
+seq_len: 2048
+Time: 72.490 ms
+Base Memory (Inputs): 1104.00 MB
+Peak Memory (Total):  1380.00 MB
+Kernel Overhead:      276.00 MB
+------------------------------
+seq_len: 2176
+Time: 73.159 ms
+Base Memory (Inputs): 1128.00 MB
+Peak Memory (Total):  1410.00 MB
+Kernel Overhead:      282.00 MB
+------------------------------
+seq_len: 2304
+Time: 71.135 ms
+Base Memory (Inputs): 1001.25 MB
+Peak Memory (Total):  1251.56 MB
+Kernel Overhead:      250.31 MB
+------------------------------
+seq_len: 2432
+Time: 88.728 ms
+Base Memory (Inputs): 1200.06 MB
+Peak Memory (Total):  1500.08 MB
+Kernel Overhead:      300.02 MB
+------------------------------
+seq_len: 2560
+Time: 65.473 ms
+Base Memory (Inputs): 990.28 MB
+Peak Memory (Total):  1237.85 MB
+Kernel Overhead:      247.57 MB
+------------------------------
+seq_len: 2688
+Time: 127.527 ms
+Base Memory (Inputs): 1496.00 MB
+Peak Memory (Total):  1870.00 MB
+Kernel Overhead:      374.00 MB
+------------------------------
+seq_len: 2816
+Time: 126.841 ms
+Base Memory (Inputs): 1430.91 MB
+Peak Memory (Total):  1788.63 MB
+Kernel Overhead:      357.73 MB
+------------------------------
+seq_len: 2944
+Time: 143.495 ms
+Base Memory (Inputs): 1584.00 MB
+Peak Memory (Total):  1980.00 MB
+Kernel Overhead:      396.00 MB
+------------------------------
+seq_len: 3072
+Time: 126.474 ms
+Base Memory (Inputs): 1410.47 MB
+Peak Memory (Total):  1763.09 MB
+Kernel Overhead:      352.62 MB
+------------------------------
+seq_len: 3200
+Time: 128.868 ms
+Base Memory (Inputs): 1458.22 MB
+Peak Memory (Total):  1822.77 MB
+Kernel Overhead:      364.55 MB
+------------------------------
+seq_len: 3328
+Time: 196.248 ms
+Base Memory (Inputs): 1875.44 MB
+Peak Memory (Total):  2344.30 MB
+Kernel Overhead:      468.86 MB
+------------------------------
+seq_len: 3456
+Time: 167.966 ms
+Base Memory (Inputs): 1652.81 MB
+Peak Memory (Total):  2066.02 MB
+Kernel Overhead:      413.20 MB
+------------------------------
+seq_len: 3584
+Time: 202.461 ms
+Base Memory (Inputs): 1899.84 MB
+Peak Memory (Total):  2374.81 MB
+Kernel Overhead:      474.96 MB
+------------------------------
+seq_len: 3712
+Time: 233.036 ms
+Base Memory (Inputs): 2064.00 MB
+Peak Memory (Total):  2580.00 MB
+Kernel Overhead:      516.00 MB
+------------------------------
+seq_len: 3840
+Time: 180.359 ms
+Base Memory (Inputs): 1742.75 MB
+Peak Memory (Total):  2178.44 MB
+Kernel Overhead:      435.69 MB
+------------------------------
+seq_len: 3968
+Time: 230.936 ms
+Base Memory (Inputs): 1993.91 MB
+Peak Memory (Total):  2492.38 MB
+Kernel Overhead:      498.48 MB
+------------------------------
+seq_len: 4096
+Time: 271.906 ms
+Base Memory (Inputs): 2235.03 MB
+Peak Memory (Total):  2793.79 MB
+Kernel Overhead:      558.76 MB
+------------------------------
+seq_len: 4224
+Time: 225.917 ms
+Base Memory (Inputs): 1904.00 MB
+Peak Memory (Total):  2380.00 MB
+Kernel Overhead:      476.00 MB
+------------------------------
+seq_len: 4352
+Time: 332.741 ms
+Base Memory (Inputs): 2418.00 MB
+Peak Memory (Total):  3022.50 MB
+Kernel Overhead:      604.50 MB
+------------------------------
+seq_len: 4480
+Time: 255.951 ms
+Base Memory (Inputs): 2017.69 MB
+Peak Memory (Total):  2522.11 MB
+Kernel Overhead:      504.42 MB
+------------------------------
+seq_len: 4608
+Time: 280.182 ms
+Base Memory (Inputs): 2219.16 MB
+Peak Memory (Total):  2773.95 MB
+Kernel Overhead:      554.79 MB
+------------------------------
+seq_len: 4736
+Time: 359.132 ms
+Base Memory (Inputs): 2611.16 MB
+Peak Memory (Total):  3263.95 MB
+Kernel Overhead:      652.79 MB
+------------------------------
+seq_len: 4864
+Time: 446.247 ms
+Base Memory (Inputs): 2930.28 MB
+Peak Memory (Total):  3662.85 MB
+Kernel Overhead:      732.57 MB
+------------------------------
+seq_len: 4992
+Time: 443.550 ms
+Base Memory (Inputs): 2831.06 MB
+Peak Memory (Total):  3538.83 MB
+Kernel Overhead:      707.77 MB
+------------------------------
+seq_len: 5120
+Time: 406.686 ms
+Base Memory (Inputs): 2604.94 MB
+Peak Memory (Total):  3256.17 MB
+Kernel Overhead:      651.23 MB
+------------------------------
+seq_len: 5248
+Time: 427.649 ms
+Base Memory (Inputs): 2759.31 MB
+Peak Memory (Total):  3449.14 MB
+Kernel Overhead:      689.83 MB
+------------------------------
+seq_len: 5376
+Time: 581.774 ms
+Base Memory (Inputs): 3384.00 MB
+Peak Memory (Total):  4230.00 MB
+Kernel Overhead:      846.00 MB
+------------------------------
+seq_len: 5504
+Time: 395.574 ms
+Base Memory (Inputs): 2596.56 MB
+Peak Memory (Total):  3245.70 MB
+Kernel Overhead:      649.14 MB
+------------------------------
+seq_len: 5632
+Time: 387.164 ms
+Base Memory (Inputs): 2425.06 MB
+Peak Memory (Total):  3031.33 MB
+Kernel Overhead:      606.27 MB
+------------------------------
+seq_len: 5760
+Time: 500.068 ms
+Base Memory (Inputs): 2800.28 MB
+Peak Memory (Total):  3500.35 MB
+Kernel Overhead:      700.07 MB
+------------------------------
+seq_len: 5888
+Time: 518.148 ms
+Base Memory (Inputs): 3065.28 MB
+Peak Memory (Total):  3831.60 MB
+Kernel Overhead:      766.32 MB
+------------------------------
+seq_len: 6016
+Time: 450.054 ms
+Base Memory (Inputs): 2678.56 MB
+Peak Memory (Total):  3348.20 MB
+Kernel Overhead:      669.64 MB
+------------------------------
+seq_len: 6144
+Time: 620.189 ms
+Base Memory (Inputs): 3262.31 MB
+Peak Memory (Total):  4077.89 MB
+Kernel Overhead:      815.58 MB
+------------------------------
+seq_len: 6272
+Time: 539.133 ms
+Base Memory (Inputs): 2944.03 MB
+Peak Memory (Total):  3680.04 MB
+Kernel Overhead:      736.01 MB
+------------------------------
+seq_len: 6400
+Time: 560.049 ms
+Base Memory (Inputs): 3029.94 MB
+Peak Memory (Total):  3787.42 MB
+Kernel Overhead:      757.48 MB
+------------------------------
+seq_len: 6528
+Time: 671.532 ms
+Base Memory (Inputs): 3336.44 MB
+Peak Memory (Total):  4170.55 MB
+Kernel Overhead:      834.11 MB
+------------------------------
+seq_len: 6656
+Time: 765.580 ms
+Base Memory (Inputs): 3592.00 MB
+Peak Memory (Total):  4490.00 MB
+Kernel Overhead:      898.00 MB
+------------------------------
+seq_len: 6784
+Time: 633.132 ms
+Base Memory (Inputs): 3146.97 MB
+Peak Memory (Total):  3933.71 MB
+Kernel Overhead:      786.74 MB
+------------------------------
+seq_len: 6912
+Time: 716.801 ms
+Base Memory (Inputs): 3552.28 MB
+Peak Memory (Total):  4440.35 MB
+Kernel Overhead:      888.07 MB
+------------------------------
+seq_len: 7040
+Time: 678.020 ms
+Base Memory (Inputs): 3448.00 MB
+Peak Memory (Total):  4310.00 MB
+Kernel Overhead:      862.00 MB
+------------------------------
+seq_len: 7168
+Time: 761.066 ms
+Base Memory (Inputs): 3592.00 MB
+Peak Memory (Total):  4490.00 MB
+Kernel Overhead:      898.00 MB
+------------------------------
+seq_len: 7296
+Time: 922.368 ms
+Base Memory (Inputs): 4162.06 MB
+Peak Memory (Total):  5202.58 MB
+Kernel Overhead:      1040.52 MB
+------------------------------
+seq_len: 7424
+Time: 983.047 ms
+Base Memory (Inputs): 4111.63 MB
+Peak Memory (Total):  5139.53 MB
+Kernel Overhead:      1027.91 MB
+------------------------------
+seq_len: 7552
+Time: 1081.987 ms
+Base Memory (Inputs): 4592.00 MB
+Peak Memory (Total):  5740.00 MB
+Kernel Overhead:      1148.00 MB
+------------------------------
+seq_len: 7680
+Time: 906.974 ms
+Base Memory (Inputs): 3881.34 MB
+Peak Memory (Total):  4851.68 MB
+Kernel Overhead:      970.34 MB
+------------------------------
+seq_len: 7808
+Time: 780.193 ms
+Base Memory (Inputs): 3510.38 MB
+Peak Memory (Total):  4387.97 MB
+Kernel Overhead:      877.59 MB
+------------------------------
+seq_len: 7936
+Time: 859.939 ms
+Base Memory (Inputs): 3882.44 MB
+Peak Memory (Total):  4853.05 MB
+Kernel Overhead:      970.61 MB
+------------------------------
+seq_len: 8064
+Time: 1257.317 ms
+Base Memory (Inputs): 4704.13 MB
+Peak Memory (Total):  5880.16 MB
+Kernel Overhead:      1176.03 MB
+------------------------------
+seq_len: 8192
+Time: 1008.030 ms
+Base Memory (Inputs): 4168.66 MB
+Peak Memory (Total):  5210.82 MB
+Kernel Overhead:      1042.16 MB
+------------------------------
