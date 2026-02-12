@@ -61,6 +61,7 @@ def speed_exp(Bsize, max_seq_len, num_heads, emb_dim):
     
     time_cost_ms = start_event.elapsed_time(end_event) # CUDA Event 返回的是毫秒
     
+    print(f'seq_len: {max_seq_len}')
     print(f"Time: {time_cost_ms:.3f} ms")
     print(f"Base Memory (Inputs): {base_memory / 1024**2:.2f} MB")
     print(f"Peak Memory (Total):  {peak_memory / 1024**2:.2f} MB")
@@ -71,5 +72,5 @@ def speed_exp(Bsize, max_seq_len, num_heads, emb_dim):
 
 
 if __name__ == "__main__":
-    while 1:
-        time_cost = speed_exp(32, 256, 8, 512)
+    for seq_len in range(128, 1024*8, 128):
+        time_cost = speed_exp(32, seq_len, 8, 512)
