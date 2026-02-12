@@ -72,4 +72,4 @@ def speed_exp(Bsize, max_seq_len, num_heads, emb_dim):
 
 if __name__ == "__main__":
     while 1:
-        time_cost = speed_exp(32, 256, 8, 256)
+        time_cost = speed_exp(32, 256, 8, 512)
