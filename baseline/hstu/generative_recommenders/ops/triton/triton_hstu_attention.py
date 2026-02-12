@@ -2615,7 +2615,7 @@ def triton_hstu_attention_fwd(
         return torch.empty(size, dtype=torch.int8, device="cuda")
 
     # pyre-ignore [6]
-    triton.set_allocator(alloc_fn)
+    # triton.set_allocator(alloc_fn)
     grid = lambda meta: (  # noqa E731
         triton.cdiv(N, meta["BLOCK_M"]),
         Z * H,
@@ -2710,7 +2710,7 @@ def triton_hstu_attention_bwd(
         return torch.empty(size, dtype=torch.int8, device="cuda")
 
     # pyre-ignore [6]
-    triton.set_allocator(alloc_fn)
+    # triton.set_allocator(alloc_fn)
 
     # Enable BufferOps on AMD
     ENABLE_BUFFER_OPS_ASSUMES = torch.version.hip is not None
@@ -2961,7 +2961,7 @@ def triton_cached_hstu_mha(
         return torch.empty(size, dtype=torch.int8, device="cuda")
 
     # pyre-ignore [6]
-    triton.set_allocator(alloc_fn)
+    # triton.set_allocator(alloc_fn)
     grid = lambda meta: (  # noqa E731
         triton.cdiv(DeltaSize, meta["BLOCK_M"]),
         Z * H,
