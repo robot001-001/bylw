@@ -78,11 +78,18 @@ def _host_descriptor_pre_hook(nargs):
 
 
 def _get_fw_configs() -> List[triton.Config]:
-    # --- 极速调试版 ---
-    # 强制只返回一个通用配置，跳过漫长的自动搜索
+    # --- 修正版：极速调试配置 ---
     return [
         triton.Config(
-            {"BLOCK_M": 64, "BLOCK_N": 64},
+            {
+                "BLOCK_M": 64, 
+                "BLOCK_N": 64,
+                # === 必须补上这 4 个参数，否则会报 TypeError ===
+                "USE_TLX": False,
+                "NUM_BUFFERS": 1,
+                "NUM_MMA_WARPS_PER_GROUP": 1,
+                "NUM_MMA_GROUPS": 1,
+            },
             num_stages=2,
             num_warps=4,
             pre_hook=_host_descriptor_pre_hook,
