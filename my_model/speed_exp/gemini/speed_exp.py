@@ -48,69 +48,40 @@ def speed_exp(Bsize, max_seq_len, num_heads, emb_dim):
         print("❌ 未检测到 GPU")
         return
 
-    print(f"\n📊 测试配置: [B={Bsize}, L={max_seq_len}, H={num_heads}, D={emb_dim}]")
+    model = HSTU_BSA_Triton(block_size=32, block_counts=4).to(device)
 
-    # 1. 实例化模型 (根据你的 __init__)
-    try:
-        # 这里你可以调整 block_size 和 block_counts
-        model = HSTU_BSA_Triton(block_size=32, block_counts=4).to(device)
-    except Exception as e:
-        print(f"❌ 模型初始化失败: {e}")
-        return
+    q, k, v, g_cmp, g_slc, x_offsets = generate_hstu_bsa_inputs(
+        Bsize, max_seq_len, num_heads, emb_dim, device
+    )
 
-    # 2. 准备数据
-    try:
-        q, k, v, g_cmp, g_slc, x_offsets = generate_hstu_bsa_inputs(
-            Bsize, max_seq_len, num_heads, emb_dim, device
-        )
-    except RuntimeError as e:
-        print(f"❌ 显存不足 (OOM) 无法生成数据: {e}")
-        return
+    for _ in range(5):
+        _ = model(q, k, v, g_cmp, g_slc, x_offsets)
+    torch.cuda.synchronize()
 
-    # 3. 预热 (Warmup)
-    print("   🔥 正在预热...")
-    try:
-        for _ in range(5):
-            # [关键修改] 使用新的参数列表调用 forward
-            _ = model(q, k, v, g_cmp, g_slc, x_offsets)
-        torch.cuda.synchronize()
-    except RuntimeError as e:
-        print(f"❌ 预热失败 (可能参数不对或 OOM): {e}")
-        return
-
-    # 4. 性能测试
     torch.cuda.reset_peak_memory_stats()
-    base_mem = torch.cuda.memory_allocated()
+    base_memory = torch.cuda.memory_allocated()
     
-    start_evt = torch.cuda.Event(enable_timing=True)
-    end_evt = torch.cuda.Event(enable_timing=True)
+    start_event = torch.cuda.Event(enable_timing=True)
+    end_event = torch.cuda.Event(enable_timing=True)
     
-    try:
-        start_evt.record()
-        # === 核心调用 ===
-        ret = model(q, k, v, g_cmp, g_slc, x_offsets)
-        # ===============
-        end_evt.record()
+    start_event.record()
+    ret = model(q, k, v, g_cmp, g_slc, x_offsets)
+    end_event.record()
+    
+    torch.cuda.synchronize()
+    
+    peak_memory = torch.cuda.max_memory_allocated()
+    kernel_memory_cost = peak_memory - base_memory
+    time_cost_ms = start_event.elapsed_time(end_event)
+    
+    print(f'seq_len: {max_seq_len}')
+    print(f"Time: {time_cost_ms:.3f} ms")
+    print(f"Base Memory (Inputs): {base_memory / 1024**2:.2f} MB")
+    print(f"Peak Memory (Total):  {peak_memory / 1024**2:.2f} MB")
+    print(f"Kernel Overhead:      {kernel_memory_cost / 1024**2:.2f} MB")
+    print("-" * 30)
         
-        torch.cuda.synchronize()
-        
-        elapsed_ms = start_evt.elapsed_time(end_evt)
-        peak_mem = torch.cuda.max_memory_allocated()
-        kernel_overhead = (peak_mem - base_mem) / 1024**2
-        
-        print(f"   ✅ 完成!")
-        print(f"      - 耗时: {elapsed_ms:.3f} ms")
-        print(f"      - 显存开销 (Overhead): {kernel_overhead:.2f} MB")
-        
-    except Exception as e:
-        print(f"❌ 运行崩溃: {e}")
 
 if __name__ == "__main__":
-    configs = [
-        (32, 256, 8, 128),
-        (32, 256, 8, 256),
-        (32, 256, 8, 512), # 大 Dim 测试
-    ]
-
-    for (B, L, H, D) in configs:
-        speed_exp(B, L, H, D)
+    for seq_len in range(128, 1024*8+1, 128):
+        time_cost = speed_exp(32, seq_len, 8, 512)
