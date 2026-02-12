@@ -73,4 +73,4 @@ def speed_exp(Bsize, max_seq_len, num_heads, emb_dim):
 
 if __name__ == "__main__":
     for seq_len in range(128, 1024*8+1, 128):
-        time_cost = speed_exp(32, seq_len, 8, 512)
+        time_cost = speed_exp(32, seq_len, 8, 256)
