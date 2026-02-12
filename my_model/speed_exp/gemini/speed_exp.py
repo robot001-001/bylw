@@ -29,7 +29,7 @@ def generate_hstu_bsa_inputs(
     total_L = x_offsets[-1].item()
     
     # 2. 构造 Q, K, V (Float16)
-    dtype = torch.float16
+    dtype = torch.float32
     q = torch.randn(total_L, num_heads, dim, device=device, dtype=dtype)
     k = torch.randn(total_L, num_heads, dim, device=device, dtype=dtype)
     v = torch.randn(total_L, num_heads, dim, device=device, dtype=dtype)
