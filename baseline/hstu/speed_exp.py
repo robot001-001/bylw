@@ -19,7 +19,7 @@ def generate_random_jagged_qkv(
     device
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, int]:
     lengths = torch.randint(1, max_seq_len + 1, (batch_size,), device=device)
-    seq_offsets = torch.cat([torch.tensor([0]), torch.cumsum(lengths, dim=0).to(device)]).to(torch.int32)
+    seq_offsets = torch.cat([torch.tensor([0]).to(device), torch.cumsum(lengths, dim=0).to(device)]).to(torch.int32)
     total_L = seq_offsets[-1].item()
     q = torch.randn(total_L, num_heads, dim).to(device)
     k = torch.randn(total_L, num_heads, dim).to(device)
