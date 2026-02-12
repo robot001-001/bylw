@@ -376,7 +376,7 @@ class HSTU_BSA_Triton(torch.nn.Module):
             Stride_ot=o_cmp.stride(0), Stride_oh=o_cmp.stride(1), Stride_od=o_cmp.stride(2),
             Stride_gt=g_cmp.stride(0), Stride_gh=g_cmp.stride(1),
             offsets=x_offsets, offsets_cmp=offsets_cmp, scale=scale,
-            BLOCK_SIZE=self.block_size, HEAD_DIM=dim, BLOCK_M=16, BLOCK_N=32
+            BLOCK_SIZE=self.block_size, HEAD_DIM=dim, BLOCK_M=8, BLOCK_N=32
         )
 
         hstu_bsa_slc_fwd_kernel[grid_triton](
@@ -390,7 +390,7 @@ class HSTU_BSA_Triton(torch.nn.Module):
             Stride_gt=g_slc.stride(0), Stride_gh=g_slc.stride(1),
             offsets=x_offsets, scale=scale,
             S=self.block_counts, 
-            BLOCK_SIZE=self.block_size, HEAD_DIM=dim, BLOCK_M=16
+            BLOCK_SIZE=self.block_size, HEAD_DIM=dim, BLOCK_M=8
         )
         
         return o_cmp, o_slc
