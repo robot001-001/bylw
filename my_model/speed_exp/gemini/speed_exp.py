@@ -5,12 +5,7 @@ from typing import Tuple
 # ==========================================
 # 1. 导入你的模块
 # ==========================================
-try:
-    # 假设你的文件名叫 hstu_bsa_triton_v2.py
-    from hstu_bsa_triton_v2 import HSTU_BSA_Triton
-except ImportError:
-    print("❌ 错误: 找不到 hstu_bsa_triton_v2.py，请检查文件名！")
-    exit(1)
+from hstu_bsa_triton_v2 import HSTU_BSA_Triton
 
 def generate_hstu_bsa_inputs(
     batch_size: int, 
