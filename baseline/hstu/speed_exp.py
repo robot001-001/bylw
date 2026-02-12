@@ -39,5 +39,6 @@ def speed_exp(
 
 
 if __name__ == "__main__":
-    time_cost = speed_exp(32, 256, 8, 128)
-    print(time_cost)
+    while 1:
+        time_cost = speed_exp(32, 256, 8, 128)
+        print(time_cost)
