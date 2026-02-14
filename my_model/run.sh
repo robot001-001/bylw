@@ -1,6 +1,6 @@
 git pull
 clear
-CUDA_LAUNCH_BLOCKING=1 \
+# CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/hstu/ \
     --logging_file baseline_hstu_ml.log \
