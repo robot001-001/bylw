@@ -7,7 +7,7 @@ python main.py \
     --trainer_type HSTUBaseTrainer \
     --model HSTU_pretrain \
     --mode dev \
-    --dataset_name 'ml-1m' \
+    --dataset_name 'amzn-books' \
     --use_binary_ratings True \
     --num_ratings 2 \
     --max_seq_len 200 \
