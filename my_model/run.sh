@@ -3,7 +3,7 @@ clear
 # CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
     --logging_dir log/baseline/ \
-    --logging_file baseline_hstu.log \
+    --logging_file baseline_hstu_ml.log \
     --trainer_type HSTUBaseTrainer \
     --model HSTU_pretrain \
     --mode dev \
