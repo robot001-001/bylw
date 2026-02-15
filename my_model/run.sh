@@ -162,8 +162,8 @@ clear
 
 # CUDA_LAUNCH_BLOCKING=1 \
 python main.py \
-    --logging_dir log/onetrans/ \
-    --logging_file train.log \
+    --logging_dir log/exp_log/baseline/ \
+    --logging_file baseline_onetrans_ml.log \
     --trainer_type ONETRANSTrainer \
     --model ONETRANS \
     --mode train \
@@ -172,20 +172,20 @@ python main.py \
     --num_ratings 2 \
     --max_seq_len 200 \
     --embedding_dim 64 \
-    --train_batch_size 2048 \
+    --train_batch_size 512 \
     --accum_steps 1 \
-    --eval_batch_size 2048 \
+    --eval_batch_size 512 \
     --device 'cuda:0' \
     --learning_rate 3e-4 \
-    --num_epochs 50 \
+    --num_epochs 100 \
     --eval_interval 20 \
     --model_args '{"num_layers": 8, "max_seq_len": [512, 256, 128, 64, 32, 16, 8, 4], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
 
 
 # CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
-#     --logging_dir log/rankmixer/ \
-#     --logging_file train.log \
+#     --logging_dir log/exp_log/baseline/ \
+#     --logging_file baseline_rankmixer_ml.log \
 #     --trainer_type RANKMIXERTrainer \
 #     --model RANKMIXER \
 #     --mode train \
@@ -194,9 +194,9 @@ python main.py \
 #     --num_ratings 2 \
 #     --max_seq_len 200 \
 #     --embedding_dim 64 \
-#     --train_batch_size 2048 \
+#     --train_batch_size 512 \
 #     --accum_steps 1 \
-#     --eval_batch_size 2048 \
+#     --eval_batch_size 512 \
 #     --device 'cuda:0' \
 #     --learning_rate 3e-4 \
 #     --num_epochs 50 \
