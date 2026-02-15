@@ -199,7 +199,7 @@ python main.py \
 #     --eval_batch_size 512 \
 #     --device 'cuda:0' \
 #     --learning_rate 3e-4 \
-#     --num_epochs 50 \
+#     --num_epochs 100 \
 #     --eval_interval 20 \
 #     --model_args '{"topk": 20, "max_seq_len": 200, "d_model": 64, "sim_main_tower_units": [512, 384], "num_blocks": 2, "num_heads": 8, "main_tower_units": [128, 2]}'
 
