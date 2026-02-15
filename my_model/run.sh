@@ -161,25 +161,25 @@ clear
 
 
 # CUDA_LAUNCH_BLOCKING=1 \
-# python main.py \
-#     --logging_dir log/onetrans/ \
-#     --logging_file train.log \
-#     --trainer_type ONETRANSTrainer \
-#     --model ONETRANS \
-#     --mode train \
-#     --dataset_name 'ml-1m' \
-#     --use_binary_ratings True \
-#     --num_ratings 2 \
-#     --max_seq_len 200 \
-#     --embedding_dim 64 \
-#     --train_batch_size 2048 \
-#     --accum_steps 1 \
-#     --eval_batch_size 2048 \
-#     --device 'cuda:0' \
-#     --learning_rate 3e-4 \
-#     --num_epochs 50 \
-#     --eval_interval 20 \
-#     --model_args '{"num_layers": 8, "max_seq_len": [512, 256, 128, 64, 32, 16, 8, 4], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
+python main.py \
+    --logging_dir log/onetrans/ \
+    --logging_file train.log \
+    --trainer_type ONETRANSTrainer \
+    --model ONETRANS \
+    --mode train \
+    --dataset_name 'ml-1m' \
+    --use_binary_ratings True \
+    --num_ratings 2 \
+    --max_seq_len 200 \
+    --embedding_dim 64 \
+    --train_batch_size 2048 \
+    --accum_steps 1 \
+    --eval_batch_size 2048 \
+    --device 'cuda:0' \
+    --learning_rate 3e-4 \
+    --num_epochs 50 \
+    --eval_interval 20 \
+    --model_args '{"num_layers": 8, "max_seq_len": [512, 256, 128, 64, 32, 16, 8, 4], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
 
 
 # CUDA_LAUNCH_BLOCKING=1 \
