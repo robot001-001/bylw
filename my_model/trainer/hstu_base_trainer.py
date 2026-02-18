@@ -220,7 +220,11 @@ class HSTUBaseTrainer:
 
 
     def get_loss(self):
-        self.criterion = nn.CrossEntropyLoss()
+        if self.FLAGS.dataset_name=='amzn-books':
+            weights = torch.tensor([4.0, 1.0], dtype=torch.float)
+            self.criterion = nn.CrossEntropyLoss(weight=weights)
+        else:
+            self.criterion = nn.CrossEntropyLoss()
         model_params = list(self.model.parameters()) + list(self.embedding_module.parameters())
         self.optimizer = optim.Adam(model_params, lr=self.FLAGS.learning_rate)
 
