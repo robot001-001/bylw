@@ -27,5 +27,8 @@
     * binarify: python data/data_cleaning_amazon.py
     * (Optional)仅筛选长序列数据: python data/data_selection_amazon.py
         * 如果筛选，后面全部启用(_v1)脚本
+        * 同步修改`data/reco_dataset.py` 100/107行文件名
+        * 同步修改`trainer/onetrans_trainer.py` 160/175行文件名
+        * 同步修改`trainer/rankmixer_trainer.py` 164/180行文件名
     * 一个序列扩展成多个: python data/data_augment_amazon(_v1).py
-    * 增加onetrans格式数据: python data/data_cleaning_for_onetrans_v1.py
+    * 增加onetrans格式数据: python data/data_cleaning_for_onetrans(_v1).py

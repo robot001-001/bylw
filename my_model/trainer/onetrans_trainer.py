@@ -157,7 +157,8 @@ class ONETRANSTrainer:
         if self.FLAGS.dataset_name == 'ml-1m':
             logging.info(f'getting train set')
             self.dataset = MovieLensFullDataset(
-                f'tmp/ml-1m/sasrec_format_binary_augment_onetrans.csv',
+                f'tmp/ml-1m/sasrec_format_binary_augment_onetrans_v1.csv',
+                # f'tmp/ml-1m/sasrec_format_binary_augment_onetrans.csv',
                 max_len=self.FLAGS.max_seq_len
             )
             logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
@@ -172,7 +173,8 @@ class ONETRANSTrainer:
             )
             logging.info(f'getting test set')
             self.test_dataset = MovieLensFullDataset(
-                f'tmp/ml-1m/sasrec_format_binary_onetrans_testset.csv',
+                f'tmp/ml-1m/sasrec_format_binary_onetrans_testset_v1.csv',
+                # f'tmp/ml-1m/sasrec_format_binary_onetrans_testset.csv',
                 max_len=self.FLAGS.max_seq_len
             )
             self.max_item_id = self.test_dataset.max_item_id
