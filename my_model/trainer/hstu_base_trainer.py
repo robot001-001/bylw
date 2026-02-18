@@ -221,7 +221,7 @@ class HSTUBaseTrainer:
 
     def get_loss(self):
         if self.FLAGS.dataset_name=='amzn-books':
-            weights = torch.tensor([4.0, 1.0], dtype=torch.float)
+            weights = torch.tensor([4.0, 1.0], dtype=torch.float, device=self.device)
             self.criterion = nn.CrossEntropyLoss(weight=weights)
         else:
             self.criterion = nn.CrossEntropyLoss()
