@@ -24,4 +24,5 @@ result = data.groupby('user_id').agg({
     'time_ms': lambda x: ','.join(map(str, x))
 }).reset_index()
 result.columns = ['user_id', 'sequence_item_ids', 'sequence_ratings', 'sequence_timestamps']
+result['sequence_ratings'] = result['sequence_ratings'].apply(lambda x: x.replace('1', '2').replace('0', '1'))
 result.to_csv(os.path.join(data_home, 'sasrec_format_binary.csv'), index=False)
