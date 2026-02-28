@@ -45,6 +45,7 @@ def get_reco_dataset(
     num_ratings: int,
     positional_sampling_ratio: float = 1.0,
 ) -> RecoDataset:
+    max_item_id = None
     if dataset_name == "ml-1m":
         dp = get_common_preprocessors()[dataset_name]
         train_dataset = DatasetV3(
@@ -114,7 +115,7 @@ def get_reco_dataset(
     elif dataset_name == "kuai":
         # dp = get_common_preprocessors()[dataset_name]
         train_dataset = DatasetV3(
-            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else dp.output_format_csv(),
+            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else None,
             # ratings_file=dp.output_format_csv().replace('.csv', '_binary.csv') if use_binary_ratings else dp.output_format_csv(),
             padding_length=max_sequence_length + 1,  # target
             ignore_last_n=1,
@@ -122,12 +123,13 @@ def get_reco_dataset(
             chronological=chronological,
         )
         eval_dataset = DatasetV3(
-            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else dp.output_format_csv(),
+            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else None,
             padding_length=max_sequence_length + 1,  # target
             ignore_last_n=0,
             shift_id_by=1,  # [0..n-1] -> [1..n]
             chronological=chronological,
         )
+        max_item_id = 4371899
     else:
         raise ValueError(f"Unknown dataset {dataset_name}")
 
@@ -189,7 +191,7 @@ def get_reco_dataset(
     else:
         # expected_max_item_id and item_features are not set for Amazon datasets.
         item_features = None
-        max_item_id = dp.expected_num_unique_items()
+        max_item_id = dp.expected_num_unique_items() if max_item_id is not None else max_item_id
         all_item_ids = [x + 1 for x in range(max_item_id)]  # pyre-ignore [6]
 
     return RecoDataset(

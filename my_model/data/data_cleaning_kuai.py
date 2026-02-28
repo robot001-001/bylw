@@ -15,6 +15,7 @@ data = pd.concat(data)
 print(data.shape)
 print(data.groupby('is_click').size())
 print(len(data.user_id.unique()))
+print(data.video_id.max())
 
 data = data.sort_values(by=['user_id', 'time_ms'])
 result = data.groupby('user_id').agg({
