@@ -111,6 +111,23 @@ def get_reco_dataset(
             shift_id_by=1,  # [0..n-1] -> [1..n]
             chronological=chronological,
         )
+    elif dataset_name == "kuai":
+        # dp = get_common_preprocessors()[dataset_name]
+        train_dataset = DatasetV3(
+            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else dp.output_format_csv(),
+            # ratings_file=dp.output_format_csv().replace('.csv', '_binary.csv') if use_binary_ratings else dp.output_format_csv(),
+            padding_length=max_sequence_length + 1,  # target
+            ignore_last_n=1,
+            shift_id_by=1,  # [0..n-1] -> [1..n]
+            chronological=chronological,
+        )
+        eval_dataset = DatasetV3(
+            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else dp.output_format_csv(),
+            padding_length=max_sequence_length + 1,  # target
+            ignore_last_n=0,
+            shift_id_by=1,  # [0..n-1] -> [1..n]
+            chronological=chronological,
+        )
     else:
         raise ValueError(f"Unknown dataset {dataset_name}")
 
