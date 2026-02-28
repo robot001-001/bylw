@@ -191,7 +191,7 @@ def get_reco_dataset(
     else:
         # expected_max_item_id and item_features are not set for Amazon datasets.
         item_features = None
-        max_item_id = dp.expected_num_unique_items() if max_item_id is not None else max_item_id
+        max_item_id = max_item_id if max_item_id is not None else  dp.expected_num_unique_items()
         all_item_ids = [x + 1 for x in range(max_item_id)]  # pyre-ignore [6]
 
     return RecoDataset(
