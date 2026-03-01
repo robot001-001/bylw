@@ -1,33 +1,11 @@
 git pull
 clear
 # CUDA_LAUNCH_BLOCKING=1 \
-python main.py \
-    --logging_dir log/exp_log/baseline/ \
-    --logging_file baseline_hstu_ml_v1.log \
-    --trainer_type HSTUBaseTrainer \
-    --model HSTU_pretrain \
-    --mode dev \
-    --dataset_name 'ml-1m' \
-    --use_binary_ratings True \
-    --num_ratings 2 \
-    --max_seq_len 200 \
-    --embedding_dim 64 \
-    --positional_sampling_ratio 1.0 \
-    --train_batch_size 512 \
-    --accum_steps 1 \
-    --eval_batch_size 512 \
-    --device 'cuda:0' \
-    --learning_rate 3e-4 \
-    --num_epochs 100 \
-    --eval_interval 20 \
-    --model_args '{"max_seq_len": 200, "embedding_dim": 64, "dropout_rate": 0.2, "num_ratings": 2, "linear_dim": 32, "attention_dim": 32, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 8, "num_heads": 2, "linear_dropout_rate": 0.2, "attn_dropout_rate": 0.0, "main_tower_units": [128, 2], "concat_ua": false, "enable_relative_attention_bias": true}'
-
-# CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
-#     --logging_dir log/exp_log/ablation/ \
-#     --logging_file ablation_nsa_ml_v1.log \
+#     --logging_dir log/exp_log/baseline/ \
+#     --logging_file baseline_hstu_ml_v1.log \
 #     --trainer_type HSTUBaseTrainer \
-#     --model HSTU_nsa_pretrain \
+#     --model HSTU_pretrain \
 #     --mode dev \
 #     --dataset_name 'ml-1m' \
 #     --use_binary_ratings True \
@@ -35,14 +13,36 @@ python main.py \
 #     --max_seq_len 200 \
 #     --embedding_dim 64 \
 #     --positional_sampling_ratio 1.0 \
-#     --train_batch_size 64 \
-#     --accum_steps 8 \
-#     --eval_batch_size 64 \
+#     --train_batch_size 512 \
+#     --accum_steps 1 \
+#     --eval_batch_size 512 \
 #     --device 'cuda:0' \
-#     --learning_rate 1e-4 \
+#     --learning_rate 3e-4 \
 #     --num_epochs 100 \
 #     --eval_interval 20 \
 #     --model_args '{"max_seq_len": 200, "embedding_dim": 64, "dropout_rate": 0.2, "num_ratings": 2, "linear_dim": 32, "attention_dim": 32, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 8, "num_heads": 2, "linear_dropout_rate": 0.2, "attn_dropout_rate": 0.0, "main_tower_units": [128, 2], "concat_ua": false, "enable_relative_attention_bias": true}'
+
+# CUDA_LAUNCH_BLOCKING=1 \
+python main.py \
+    --logging_dir log/exp_log/ablation/ \
+    --logging_file ablation_nsa_ml_v1.log \
+    --trainer_type HSTUBaseTrainer \
+    --model HSTU_nsa_pretrain \
+    --mode dev \
+    --dataset_name 'ml-1m' \
+    --use_binary_ratings True \
+    --num_ratings 2 \
+    --max_seq_len 200 \
+    --embedding_dim 64 \
+    --positional_sampling_ratio 1.0 \
+    --train_batch_size 64 \
+    --accum_steps 8 \
+    --eval_batch_size 64 \
+    --device 'cuda:0' \
+    --learning_rate 1e-4 \
+    --num_epochs 100 \
+    --eval_interval 20 \
+    --model_args '{"max_seq_len": 200, "embedding_dim": 64, "dropout_rate": 0.2, "num_ratings": 2, "linear_dim": 32, "attention_dim": 32, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 8, "num_heads": 2, "linear_dropout_rate": 0.2, "attn_dropout_rate": 0.0, "main_tower_units": [128, 2], "concat_ua": false, "enable_relative_attention_bias": true}'
 
 
 # CUDA_LAUNCH_BLOCKING=1 \
