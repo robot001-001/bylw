@@ -8,7 +8,7 @@ INPUT_FILE = 'tmp/ml-1m/sasrec_format_binary.csv'
 OUTPUT_FILE = 'tmp/ml-1m/sasrec_format_binary_augment.csv'
 MIN_SEQ_LEN = 5     # 只有长度 >= 5 的序列才会被保存
 CHUNK_SIZE = 1000   # 每次读取 1000 个用户进行处理，可根据内存大小调整
-MAX_SEQ_LEN = 400   # 新增：序列最大长度，只保留最后400个元素
+MAX_SEQ_LEN = 200   # 新增：序列最大长度，只保留最后200个元素
 WRITE_BATCH_SIZE = 5000  # 每次写入的批次大小
 # =======================================
 
