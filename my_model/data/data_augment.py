@@ -1,73 +1,138 @@
-# 前置：data_cleaning.py
 import pandas as pd
+import os
+import gc  # 引入垃圾回收模块
 from tqdm import tqdm
 
 # ================= 配置 =================
 INPUT_FILE = 'tmp/ml-1m/sasrec_format_binary.csv'
 OUTPUT_FILE = 'tmp/ml-1m/sasrec_format_binary_augment.csv'
-MIN_SEQ_LEN = 5     # 只有长度 >= 5 的序列才会被保存（防止冷启动数据噪音）
+MIN_SEQ_LEN = 5     # 只有长度 >= 5 的序列才会被保存
+CHUNK_SIZE = 1000   # 每次读取 1000 个用户进行处理，可根据内存大小调整
+MAX_SEQ_LEN = 400   # 新增：序列最大长度，只保留最后400个元素
+WRITE_BATCH_SIZE = 5000  # 每次写入的批次大小
 # =======================================
 
-print(f"正在读取数据: {INPUT_FILE} ...")
-data = pd.read_csv(INPUT_FILE)
+# 如果输出文件已存在，先删除
+if os.path.exists(OUTPUT_FILE):
+    os.remove(OUTPUT_FILE)
 
-# 获取列名，确保输出列名完全一致
-columns = data.columns.tolist()
-new_rows = []
+print(f"正在开始分块处理数据: {INPUT_FILE} ...")
+print(f"序列处理规则：先截取最后{MAX_SEQ_LEN}个元素，再进行滑动窗口扩增")
 
-print("正在进行数据增强 (Sliding Window)...")
+# 1. 初始化读取器和统计变量
+reader = pd.read_csv(
+    INPUT_FILE, 
+    chunksize=CHUNK_SIZE,
+    # 显式指定列类型，减少Pandas自动推断的内存占用
+    dtype={
+        'sequence_item_ids': str,
+        'sequence_ratings': str,
+        'sequence_timestamps': str
+    }
+)
+first_write = True
+total_original_users = 0
+total_augmented_rows = 0
+total_truncated_seqs = 0  # 新增：统计被截断的序列数量
 
-for _, row in tqdm(data.iterrows(), total=data.shape[0]):
-    # 1. 解析基础数据
-    try:
-        # 转成列表
-        full_items = [x for x in str(row['sequence_item_ids']).split(',')]
-        full_ratings = [x for x in str(row['sequence_ratings']).split(',')]
-        full_timestamps = [x for x in str(row['sequence_timestamps']).split(',')]
-    except Exception as e:
-        print(f"解析错误 UserID {row.get('user_id')}: {e}")
-        continue
-
-    seq_len = len(full_items)
+# 2. 分块处理核心逻辑
+for chunk in tqdm(reader, desc="Processing Chunks"):
+    # 临时存储待写入的行，达到批次大小就写入
+    batch_rows = []
+    total_original_users += len(chunk)
     
-    # 2. 滑动窗口切分
-    # 从 MIN_SEQ_LEN 开始，逐步增加长度，直到完整长度
-    # range(5, 100) -> 切片长度为 5, 6, 7 ... 99
-    # 你的Dataset逻辑是：取最后一个做Target，前面做History
-    # 所以切片长度为 N 时，Input长度为 N-1
+    for _, row in chunk.iterrows():
+        try:
+            # 解析数据（提前过滤空值）
+            item_str = str(row['sequence_item_ids']).strip()
+            rating_str = str(row['sequence_ratings']).strip()
+            ts_str = str(row['sequence_timestamps']).strip()
+            
+            # 跳过空序列
+            if not item_str or item_str == 'nan':
+                continue
+                
+            full_items = item_str.split(',')
+            full_ratings = rating_str.split(',')
+            full_timestamps = ts_str.split(',')
+            
+            # 校验三个序列长度一致（避免数据异常）
+            if len(full_items) != len(full_ratings) or len(full_items) != len(full_timestamps):
+                continue
+                
+            # ========== 新增核心逻辑：截取最后400个元素 ==========
+            original_seq_len = len(full_items)
+            # 如果序列长度超过MAX_SEQ_LEN，只保留最后MAX_SEQ_LEN个元素
+            if original_seq_len > MAX_SEQ_LEN:
+                full_items = full_items[-MAX_SEQ_LEN:]
+                full_ratings = full_ratings[-MAX_SEQ_LEN:]
+                full_timestamps = full_timestamps[-MAX_SEQ_LEN:]
+                total_truncated_seqs += 1  # 统计截断的序列数
+            
+            # 更新截断后的序列长度
+            seq_len = len(full_items)
+            if seq_len < MIN_SEQ_LEN:
+                continue
+                
+            # 3. 滑动窗口扩增（边扩增边加入批次）
+            base_dict = row.to_dict()
+            for length in range(MIN_SEQ_LEN, seq_len + 1):
+                new_row = base_dict.copy()
+                new_row['sequence_item_ids'] = ",".join(full_items[:length])
+                new_row['sequence_ratings'] = ",".join(full_ratings[:length])
+                new_row['sequence_timestamps'] = ",".join(full_timestamps[:length])
+                
+                batch_rows.append(new_row)
+                
+                # 达到批次大小，立即写入并清空
+                if len(batch_rows) >= WRITE_BATCH_SIZE:
+                    # 转为DataFrame并写入
+                    batch_df = pd.DataFrame(batch_rows)
+                    batch_df.to_csv(
+                        OUTPUT_FILE,
+                        mode='a',
+                        index=False,
+                        header=first_write,
+                        quotechar='"',
+                        # 优化写入性能
+                        chunksize=1000
+                    )
+                    # 更新标记和统计
+                    total_augmented_rows += len(batch_df)
+                    first_write = False
+                    # 清空批次并释放内存
+                    batch_rows.clear()
+                    del batch_df
+                    gc.collect()  # 强制触发垃圾回收
+                    
+        except Exception as e:
+            # 打印异常但不终止程序
+            print(f"处理行数据时出错: {e}")
+            continue
     
-    for length in range(MIN_SEQ_LEN, seq_len):
-        
-        # 构造这一行的新数据
-        # 使用 .copy() 保持元数据 (sex, age, zip_code 等) 不变
-        new_row = row.copy()
-        
-        # 截取对应长度的序列
-        sub_items = full_items[:length]
-        sub_ratings = full_ratings[:length]
-        sub_timestamps = full_timestamps[:length]
-        
-        # 覆盖原来的序列列，保持格式依然是逗号分隔的字符串
-        new_row['sequence_item_ids'] = ",".join(sub_items)
-        new_row['sequence_ratings'] = ",".join(sub_ratings)
-        new_row['sequence_timestamps'] = ",".join(sub_timestamps)
-        
-        # index 列如果不重要可以重置，或者保持原样（会有重复index）
-        # 建议不管 index 列，pandas 保存时会处理
-        
-        new_rows.append(new_row)
+    # 处理当前chunk剩余的批次数据
+    if batch_rows:
+        batch_df = pd.DataFrame(batch_rows)
+        batch_df.to_csv(
+            OUTPUT_FILE,
+            mode='a',
+            index=False,
+            header=first_write,
+            quotechar='"',
+            chunksize=1000
+        )
+        total_augmented_rows += len(batch_df)
+        first_write = False
+        del batch_df
+        batch_rows.clear()
+    
+    # 强制释放当前chunk的内存
+    del chunk
+    gc.collect()
 
-# 3. 生成新的 DataFrame
-aug_data = pd.DataFrame(new_rows, columns=columns)
-
-print(f"原始用户数: {len(data)}")
-print(f"增强后样本数: {len(aug_data)}")
-
-# 4. 保存 (保持原格式)
-# quotechar='"' 确保列表字符串被正确包裹，避免解析错误
-aug_data.to_csv(OUTPUT_FILE, index=False, quotechar='"')
+# ================= 最终统计 =================
+print(f"\n处理完成！")
+print(f"原始用户总数: {total_original_users}")
+print(f"被截断的序列数量: {total_truncated_seqs}")
+print(f"增强后总样本数: {total_augmented_rows}")
 print(f"文件已保存至: {OUTPUT_FILE}")
-
-# 5. 验证一下结构
-print("\n数据样例 (前3行):")
-print(aug_data[['user_id', 'sequence_item_ids']].head(3))
