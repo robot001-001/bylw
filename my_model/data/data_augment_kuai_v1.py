@@ -8,8 +8,8 @@ INPUT_FILE = 'tmp/kuai/data/sasrec_format_binary.csv'
 OUTPUT_FILE = 'tmp/kuai/data/sasrec_format_binary_augment.csv'
 MIN_SEQ_LEN = 5     # 只有长度 >= 5 的序列才会被保存
 CHUNK_SIZE = 1000   # 每次读取 1000 个用户进行处理，可根据内存大小调整
-# 新增：每次写入的批次大小（避免频繁IO，又不累积太多数据）
-WRITE_BATCH_SIZE = 5000  
+MAX_SEQ_LEN = 400   # 新增：序列最大长度，只保留最后400个元素
+WRITE_BATCH_SIZE = 5000  # 每次写入的批次大小
 # =======================================
 
 # 如果输出文件已存在，先删除
@@ -17,6 +17,7 @@ if os.path.exists(OUTPUT_FILE):
     os.remove(OUTPUT_FILE)
 
 print(f"正在开始分块处理数据: {INPUT_FILE} ...")
+print(f"序列处理规则：先截取最后{MAX_SEQ_LEN}个元素，再进行滑动窗口扩增")
 
 # 1. 初始化读取器和统计变量
 reader = pd.read_csv(
@@ -32,6 +33,7 @@ reader = pd.read_csv(
 first_write = True
 total_original_users = 0
 total_augmented_rows = 0
+total_truncated_seqs = 0  # 新增：统计被截断的序列数量
 
 # 2. 分块处理核心逻辑
 for chunk in tqdm(reader, desc="Processing Chunks"):
@@ -58,6 +60,16 @@ for chunk in tqdm(reader, desc="Processing Chunks"):
             if len(full_items) != len(full_ratings) or len(full_items) != len(full_timestamps):
                 continue
                 
+            # ========== 新增核心逻辑：截取最后400个元素 ==========
+            original_seq_len = len(full_items)
+            # 如果序列长度超过MAX_SEQ_LEN，只保留最后MAX_SEQ_LEN个元素
+            if original_seq_len > MAX_SEQ_LEN:
+                full_items = full_items[-MAX_SEQ_LEN:]
+                full_ratings = full_ratings[-MAX_SEQ_LEN:]
+                full_timestamps = full_timestamps[-MAX_SEQ_LEN:]
+                total_truncated_seqs += 1  # 统计截断的序列数
+            
+            # 更新截断后的序列长度
             seq_len = len(full_items)
             if seq_len < MIN_SEQ_LEN:
                 continue
@@ -121,5 +133,6 @@ for chunk in tqdm(reader, desc="Processing Chunks"):
 # ================= 最终统计 =================
 print(f"\n处理完成！")
 print(f"原始用户总数: {total_original_users}")
+print(f"被截断的序列数量: {total_truncated_seqs}")
 print(f"增强后总样本数: {total_augmented_rows}")
 print(f"文件已保存至: {OUTPUT_FILE}")
