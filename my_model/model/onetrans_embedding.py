@@ -53,7 +53,7 @@ class OneTransEmb(nn.Module):
         out = F.pad(out, (0, 0, pad_size, 0), value=0)
         return out, cat_len
 
-    def forward(self, row):
+    def forward(self, row, final_len=512):
         high_items_pad = row[0].to(self.device)
         high_times_pad = row[1].to(self.device)
         high_len = row[2].to(self.device)
@@ -107,7 +107,7 @@ class OneTransEmb(nn.Module):
 
         s_emb, s_len = self._concat_left_padded_tensors(
             torch.cat([click_emb, sep_emb], dim=1), high_len+1,
-            exposure_emb, seq_len-1
+            exposure_emb, seq_len-1, final_len=final_len
         )
 
         # logging.info(f'2')
