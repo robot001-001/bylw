@@ -1,0 +1,1134 @@
+2026-03-02 16:48:48,042 - main.py[line:36] - INFO: Log directory setup success: log/exp_log/baseline/baseline_hstu_kuai_v1.log
+2026-03-02 16:48:48,042 - main.py[line:42] - INFO: trainer_type: HSTUBaseTrainer
+2026-03-02 16:48:48,043 - hstu_base_trainer.py[line:80] - INFO: self.FLAGS.model: HSTU_pretrain
+2026-03-02 16:48:49,008 - hstu_base_trainer.py[line:116] - INFO: mode: dev
+2026-03-02 16:48:54,190 - hstu_base_trainer.py[line:264] - INFO: dataset.max_item_id: 4371899
+2026-03-02 16:48:54,190 - hstu_base_trainer.py[line:281] - INFO: train_dataloader_num: 8
+2026-03-02 16:48:54,190 - hstu_base_trainer.py[line:282] - INFO: eval_dataloader_num: 8
+2026-03-02 16:48:54,191 - hstu_base_trainer.py[line:128] - INFO: self.model_cls: <class 'model.HSTU_pretrain.HSTU'>
+2026-03-02 16:48:54,457 - hstu_base_trainer.py[line:134] - INFO: Total Parameters: 238498
+2026-03-02 16:48:54,457 - hstu_base_trainer.py[line:135] - INFO: Trainable Parameters: 238498
+2026-03-02 16:49:07,597 - hstu_base_trainer.py[line:305] - INFO: model structure: HSTU(
+  (_input_features_preproc): CombinedItemAndRatingInputFeaturesPreprocessorV2(
+    (_pos_emb): Embedding(802, 64)
+    (_iasig_emb): Embedding(2, 64)
+    (_emb_dropout): Dropout(p=0.2, inplace=False)
+    (_rating_emb): Embedding(4, 64)
+  )
+  (_output_postproc): LayerNormEmbeddingPostprocessor()
+  (_hstu): HSTUJagged(
+    (_attention_layers): ModuleList(
+      (0-7): 8 x SequentialTransductionUnitJagged(
+        (_rel_attn_bias): RelativeBucketedTimeAndPositionBasedBias()
+        (_o): Linear(in_features=64, out_features=64, bias=True)
+      )
+    )
+  )
+  (main_tower): MainTowerMLP(
+    (mlp): Sequential(
+      (linear_0): Linear(in_features=64, out_features=128, bias=True)
+      (relu_0): ReLU()
+      (linear_1): Linear(in_features=128, out_features=2, bias=True)
+    )
+  )
+)
+2026-03-02 16:49:07,598 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 0
+2026-03-02 16:49:19,487 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:49:22,000 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:49:23,318 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:49:24,605 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:49:25,987 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:49:27,319 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:49:28,672 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:49:29,986 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:49:31,542 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:49:48,294 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 0: TrainLoss=0.711679, EvalLoss=0.6850, Acc=0.5619, BinaryAcc=0.5619, AUC=0.5610
+2026-03-02 16:49:48,295 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 1
+2026-03-02 16:50:02,426 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:50:03,765 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:50:05,085 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:50:06,407 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:50:07,743 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:50:09,104 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:50:10,430 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:50:11,774 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:50:13,186 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:50:30,002 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 1: TrainLoss=0.691178, EvalLoss=0.6884, Acc=0.5609, BinaryAcc=0.5609, AUC=0.6194
+2026-03-02 16:50:30,003 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 2
+2026-03-02 16:50:44,552 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:50:45,883 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:50:47,182 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:50:48,530 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:50:49,865 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:50:51,218 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:50:52,555 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:50:53,866 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:50:55,281 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:51:11,790 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 2: TrainLoss=0.682515, EvalLoss=0.6877, Acc=0.5609, BinaryAcc=0.5609, AUC=0.6635
+2026-03-02 16:51:11,790 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 3
+2026-03-02 16:51:25,782 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:51:27,112 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:51:28,432 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:51:29,726 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:51:31,073 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:51:32,421 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:51:33,734 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:51:35,063 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:51:36,663 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:51:53,381 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 3: TrainLoss=0.6911, EvalLoss=0.6711, Acc=0.5609, BinaryAcc=0.5609, AUC=0.6783
+2026-03-02 16:51:53,381 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 4
+2026-03-02 16:52:06,165 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:52:07,519 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:52:08,874 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:52:10,215 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:52:11,565 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:52:12,933 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:52:14,232 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:52:15,572 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:52:16,980 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:52:33,682 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 4: TrainLoss=0.673149, EvalLoss=0.6595, Acc=0.6426, BinaryAcc=0.6426, AUC=0.6817
+2026-03-02 16:52:33,683 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 5
+2026-03-02 16:52:47,013 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:52:48,359 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:52:49,673 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:52:50,996 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:52:52,317 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:52:53,666 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:52:54,994 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:52:56,324 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:52:57,780 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:53:14,278 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 5: TrainLoss=0.66352, EvalLoss=0.6531, Acc=0.6312, BinaryAcc=0.6312, AUC=0.6828
+2026-03-02 16:53:14,278 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 6
+2026-03-02 16:53:27,492 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:53:28,812 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:53:30,127 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:53:31,474 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:53:32,812 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:53:34,165 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:53:35,486 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:53:36,822 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:53:38,285 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:53:54,889 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 6: TrainLoss=0.639828, EvalLoss=0.6400, Acc=0.6477, BinaryAcc=0.6477, AUC=0.6823
+2026-03-02 16:53:54,889 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 7
+2026-03-02 16:54:08,068 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:54:09,403 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:54:10,719 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:54:12,034 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:54:13,385 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:54:14,739 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:54:16,062 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:54:17,393 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:54:18,861 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:54:35,959 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 7: TrainLoss=0.630866, EvalLoss=0.6363, Acc=0.6506, BinaryAcc=0.6506, AUC=0.6819
+2026-03-02 16:54:35,959 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 8
+2026-03-02 16:54:49,253 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:54:50,574 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:54:51,895 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:54:53,239 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:54:54,562 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:54:55,920 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:54:57,239 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:54:58,592 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:55:00,078 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:55:17,205 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 8: TrainLoss=0.623629, EvalLoss=0.6468, Acc=0.6341, BinaryAcc=0.6341, AUC=0.6817
+2026-03-02 16:55:17,206 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 9
+2026-03-02 16:55:31,073 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:55:32,408 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:55:33,728 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:55:35,054 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:55:36,385 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:55:37,731 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:55:39,074 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:55:40,415 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:55:41,878 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:55:58,803 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 9: TrainLoss=0.602263, EvalLoss=0.6788, Acc=0.6190, BinaryAcc=0.6190, AUC=0.6817
+2026-03-02 16:55:58,804 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 10
+2026-03-02 16:56:12,164 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:56:13,509 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:56:14,824 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:56:16,139 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:56:17,463 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:56:18,808 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:56:20,149 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:56:21,463 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:56:22,983 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:56:39,993 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 10: TrainLoss=0.610427, EvalLoss=0.6899, Acc=0.6278, BinaryAcc=0.6278, AUC=0.6817
+2026-03-02 16:56:39,993 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 11
+2026-03-02 16:56:53,342 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:56:54,679 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:56:55,998 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:56:57,308 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:56:58,659 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:57:00,021 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:57:01,333 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:57:02,681 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:57:04,090 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:57:20,763 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 11: TrainLoss=0.586999, EvalLoss=0.6954, Acc=0.6268, BinaryAcc=0.6268, AUC=0.6821
+2026-03-02 16:57:20,764 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 12
+2026-03-02 16:57:33,548 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:57:34,882 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:57:36,229 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:57:37,557 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:57:38,862 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:57:40,208 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:57:41,542 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:57:42,876 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:57:44,467 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:58:00,983 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 12: TrainLoss=0.572457, EvalLoss=0.6879, Acc=0.6241, BinaryAcc=0.6241, AUC=0.6826
+2026-03-02 16:58:00,983 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 13
+2026-03-02 16:58:13,939 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:58:15,282 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:58:16,595 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:58:17,930 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:58:19,251 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:58:20,600 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:58:21,923 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:58:23,237 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:58:24,997 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:58:41,492 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 13: TrainLoss=0.569393, EvalLoss=0.6633, Acc=0.6331, BinaryAcc=0.6331, AUC=0.6827
+2026-03-02 16:58:41,493 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 14
+2026-03-02 16:58:53,645 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:58:55,208 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:58:56,553 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:58:57,886 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:58:59,204 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:59:00,556 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:59:01,892 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:59:03,213 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:59:04,669 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 16:59:21,357 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 14: TrainLoss=0.537909, EvalLoss=0.6591, Acc=0.6314, BinaryAcc=0.6314, AUC=0.6823
+2026-03-02 16:59:21,357 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 15
+2026-03-02 16:59:33,995 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 16:59:35,587 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 16:59:36,923 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 16:59:38,270 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 16:59:39,623 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 16:59:40,959 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 16:59:42,261 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 16:59:43,590 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 16:59:45,070 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:00:02,350 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 15: TrainLoss=0.538225, EvalLoss=0.6680, Acc=0.6331, BinaryAcc=0.6331, AUC=0.6794
+2026-03-02 17:00:02,350 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 16
+2026-03-02 17:00:15,112 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:00:16,457 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:00:17,751 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:00:19,080 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:00:20,414 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:00:21,765 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:00:23,114 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:00:24,420 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:00:25,923 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:00:42,558 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 16: TrainLoss=0.507831, EvalLoss=0.7158, Acc=0.6204, BinaryAcc=0.6204, AUC=0.6745
+2026-03-02 17:00:42,558 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 17
+2026-03-02 17:00:55,035 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:00:56,441 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:00:57,775 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:00:59,107 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:01:00,432 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:01:01,754 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:01:03,088 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:01:04,411 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:01:05,830 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:01:22,531 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 17: TrainLoss=0.48491, EvalLoss=0.7922, Acc=0.6197, BinaryAcc=0.6197, AUC=0.6665
+2026-03-02 17:01:22,532 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 18
+2026-03-02 17:01:35,645 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:01:36,989 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:01:38,312 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:01:39,678 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:01:41,009 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:01:42,356 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:01:43,656 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:01:45,011 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:01:46,438 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:02:03,219 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 18: TrainLoss=0.453527, EvalLoss=0.8981, Acc=0.6153, BinaryAcc=0.6153, AUC=0.6535
+2026-03-02 17:02:03,220 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 19
+2026-03-02 17:02:16,299 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:02:17,631 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:02:18,936 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:02:20,228 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:02:21,551 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:02:22,925 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:02:24,250 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:02:25,576 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:02:27,096 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:02:43,523 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 19: TrainLoss=0.43003, EvalLoss=1.0334, Acc=0.5892, BinaryAcc=0.5892, AUC=0.6384
+2026-03-02 17:02:43,523 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 20
+2026-03-02 17:02:55,976 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:02:57,315 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:02:58,638 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:02:59,985 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:03:01,294 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:03:02,673 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:03:03,987 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:03:05,299 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:03:06,910 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:03:23,222 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 20: TrainLoss=0.411441, EvalLoss=1.0319, Acc=0.6031, BinaryAcc=0.6031, AUC=0.6335
+2026-03-02 17:03:23,223 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 21
+2026-03-02 17:03:37,124 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:03:38,650 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:03:39,966 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:03:41,311 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:03:42,645 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:03:43,991 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:03:45,346 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:03:46,677 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:03:48,117 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:04:04,724 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 21: TrainLoss=0.399772, EvalLoss=1.0581, Acc=0.5965, BinaryAcc=0.5965, AUC=0.6290
+2026-03-02 17:04:04,725 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 22
+2026-03-02 17:04:17,783 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:04:19,115 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:04:20,464 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:04:21,800 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:04:23,125 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:04:24,448 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:04:25,761 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:04:27,115 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:04:28,530 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:04:45,097 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 22: TrainLoss=0.393405, EvalLoss=1.0392, Acc=0.6063, BinaryAcc=0.6063, AUC=0.6286
+2026-03-02 17:04:45,098 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 23
+2026-03-02 17:04:58,089 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:04:59,410 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:05:00,744 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:05:02,066 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:05:03,425 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:05:04,787 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:05:06,124 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:05:07,422 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:05:08,822 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:05:25,623 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 23: TrainLoss=0.370133, EvalLoss=1.0453, Acc=0.6010, BinaryAcc=0.6010, AUC=0.6300
+2026-03-02 17:05:25,623 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 24
+2026-03-02 17:05:38,849 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:05:40,205 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:05:41,519 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:05:42,849 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:05:44,193 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:05:45,535 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:05:46,878 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:05:48,201 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:05:49,641 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:06:06,209 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 24: TrainLoss=0.336386, EvalLoss=1.0114, Acc=0.6165, BinaryAcc=0.6165, AUC=0.6348
+2026-03-02 17:06:06,209 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 25
+2026-03-02 17:06:19,739 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:06:21,048 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:06:22,384 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:06:23,739 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:06:25,076 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:06:26,434 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:06:27,764 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:06:29,101 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:06:30,523 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:06:47,228 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 25: TrainLoss=0.337078, EvalLoss=1.0304, Acc=0.6100, BinaryAcc=0.6100, AUC=0.6381
+2026-03-02 17:06:47,229 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 26
+2026-03-02 17:06:59,454 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:07:00,798 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:07:02,138 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:07:03,445 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:07:04,774 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:07:06,125 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:07:07,425 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:07:08,761 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:07:10,288 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:07:26,918 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 26: TrainLoss=0.33224, EvalLoss=1.0290, Acc=0.6143, BinaryAcc=0.6143, AUC=0.6414
+2026-03-02 17:07:26,918 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 27
+2026-03-02 17:07:39,760 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:07:41,107 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:07:42,428 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:07:43,761 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:07:45,089 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:07:46,447 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:07:47,765 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:07:49,091 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:07:50,613 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:08:07,323 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 27: TrainLoss=0.319854, EvalLoss=1.0471, Acc=0.6131, BinaryAcc=0.6131, AUC=0.6434
+2026-03-02 17:08:07,324 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 28
+2026-03-02 17:08:20,818 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:08:22,165 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:08:23,487 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:08:24,823 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:08:26,169 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:08:27,530 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:08:28,856 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:08:30,182 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:08:31,647 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:08:48,627 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 28: TrainLoss=0.301867, EvalLoss=1.0769, Acc=0.6100, BinaryAcc=0.6100, AUC=0.6443
+2026-03-02 17:08:48,627 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 29
+2026-03-02 17:09:01,354 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:09:02,916 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:09:04,229 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:09:05,565 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:09:06,891 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:09:08,249 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:09:09,566 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:09:10,899 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:09:12,415 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:09:29,209 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 29: TrainLoss=0.295258, EvalLoss=1.0703, Acc=0.6175, BinaryAcc=0.6175, AUC=0.6433
+2026-03-02 17:09:29,209 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 30
+2026-03-02 17:09:42,739 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:09:44,078 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:09:45,394 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:09:46,734 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:09:48,057 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:09:49,409 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:09:50,740 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:09:52,074 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:09:53,605 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:10:10,010 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 30: TrainLoss=0.303762, EvalLoss=1.0844, Acc=0.6090, BinaryAcc=0.6090, AUC=0.6427
+2026-03-02 17:10:10,010 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 31
+2026-03-02 17:10:23,328 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:10:24,671 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:10:26,008 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:10:27,375 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:10:28,693 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:10:30,056 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:10:31,400 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:10:32,704 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:10:34,129 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:10:50,818 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 31: TrainLoss=0.287242, EvalLoss=1.0697, Acc=0.6129, BinaryAcc=0.6129, AUC=0.6414
+2026-03-02 17:10:50,818 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 32
+2026-03-02 17:11:04,322 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:11:05,646 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:11:06,982 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:11:08,312 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:11:09,634 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:11:10,981 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:11:12,312 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:11:13,647 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:11:15,130 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:11:32,012 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 32: TrainLoss=0.281512, EvalLoss=1.0600, Acc=0.6185, BinaryAcc=0.6185, AUC=0.6405
+2026-03-02 17:11:32,013 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 33
+2026-03-02 17:11:45,557 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:11:46,884 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:11:48,190 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:11:49,515 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:11:50,857 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:11:52,219 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:11:53,535 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:11:54,879 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:11:56,396 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:12:12,927 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 33: TrainLoss=0.282067, EvalLoss=1.0684, Acc=0.6080, BinaryAcc=0.6080, AUC=0.6410
+2026-03-02 17:12:12,928 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 34
+2026-03-02 17:12:26,653 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:12:27,984 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:12:29,324 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:12:30,654 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:12:31,966 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:12:33,325 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:12:34,644 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:12:35,976 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:12:37,421 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:12:54,209 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 34: TrainLoss=0.270911, EvalLoss=1.0614, Acc=0.6199, BinaryAcc=0.6199, AUC=0.6405
+2026-03-02 17:12:54,209 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 35
+2026-03-02 17:13:08,188 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:13:09,518 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:13:10,833 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:13:12,182 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:13:13,517 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:13:14,876 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:13:16,197 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:13:17,522 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:13:18,941 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:13:35,527 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 35: TrainLoss=0.290982, EvalLoss=1.0733, Acc=0.6061, BinaryAcc=0.6061, AUC=0.6415
+2026-03-02 17:13:35,527 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 36
+2026-03-02 17:13:48,540 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:13:49,880 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:13:51,185 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:13:52,501 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:13:53,844 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:13:55,193 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:13:56,523 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:13:57,851 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:13:59,391 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:14:16,029 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 36: TrainLoss=0.2731, EvalLoss=1.0772, Acc=0.6104, BinaryAcc=0.6104, AUC=0.6418
+2026-03-02 17:14:16,030 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 37
+2026-03-02 17:14:28,964 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:14:30,471 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:14:31,809 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:14:33,141 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:14:34,499 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:14:35,847 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:14:37,176 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:14:38,487 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:14:40,004 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:14:56,404 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 37: TrainLoss=0.267967, EvalLoss=1.0750, Acc=0.6189, BinaryAcc=0.6189, AUC=0.6420
+2026-03-02 17:14:56,404 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 38
+2026-03-02 17:15:08,745 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:15:10,054 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:15:11,384 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:15:12,718 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:15:14,062 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:15:15,436 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:15:16,764 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:15:18,104 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:15:19,526 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:15:36,029 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 38: TrainLoss=0.263418, EvalLoss=1.0858, Acc=0.6076, BinaryAcc=0.6076, AUC=0.6425
+2026-03-02 17:15:36,029 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 39
+2026-03-02 17:15:49,666 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:15:51,009 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:15:52,338 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:15:53,670 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:15:54,989 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:15:56,349 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:15:57,677 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:15:58,981 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:16:00,424 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:16:16,937 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 39: TrainLoss=0.26681, EvalLoss=1.0754, Acc=0.6136, BinaryAcc=0.6136, AUC=0.6419
+2026-03-02 17:16:16,938 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 40
+2026-03-02 17:16:30,109 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:16:31,429 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:16:32,747 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:16:34,064 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:16:35,406 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:16:36,760 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:16:38,092 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:16:39,433 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:16:41,003 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:16:57,832 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 40: TrainLoss=0.265797, EvalLoss=1.0793, Acc=0.6090, BinaryAcc=0.6090, AUC=0.6416
+2026-03-02 17:16:57,833 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 41
+2026-03-02 17:17:10,838 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:17:12,189 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:17:13,499 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:17:14,804 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:17:16,157 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:17:17,507 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:17:18,822 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:17:20,139 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:17:21,612 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:17:38,135 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 41: TrainLoss=0.254842, EvalLoss=1.0823, Acc=0.6098, BinaryAcc=0.6098, AUC=0.6410
+2026-03-02 17:17:38,136 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 42
+2026-03-02 17:17:51,460 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:17:52,792 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:17:54,138 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:17:55,482 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:17:56,807 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:17:58,163 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:17:59,468 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:18:00,795 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:18:02,329 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:18:18,914 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 42: TrainLoss=0.265898, EvalLoss=1.0818, Acc=0.6148, BinaryAcc=0.6148, AUC=0.6400
+2026-03-02 17:18:18,915 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 43
+2026-03-02 17:18:32,098 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:18:33,441 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:18:34,775 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:18:36,114 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:18:37,441 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:18:38,763 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:18:40,080 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:18:41,412 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:18:42,916 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:18:59,221 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 43: TrainLoss=0.27108, EvalLoss=1.0909, Acc=0.6058, BinaryAcc=0.6058, AUC=0.6398
+2026-03-02 17:18:59,222 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 44
+2026-03-02 17:19:11,898 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:19:13,208 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:19:14,526 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:19:15,857 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:19:17,175 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:19:18,526 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:19:19,862 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:19:21,208 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:19:22,617 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:19:39,135 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 44: TrainLoss=0.248357, EvalLoss=1.0897, Acc=0.6128, BinaryAcc=0.6128, AUC=0.6393
+2026-03-02 17:19:39,135 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 45
+2026-03-02 17:19:52,991 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:19:54,530 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:19:55,860 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:19:57,181 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:19:58,516 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:19:59,868 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:20:01,203 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:20:02,541 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:20:03,990 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:20:20,797 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 45: TrainLoss=0.242, EvalLoss=1.0957, Acc=0.6051, BinaryAcc=0.6051, AUC=0.6392
+2026-03-02 17:20:20,798 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 46
+2026-03-02 17:20:34,319 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:20:35,656 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:20:36,974 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:20:38,291 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:20:39,600 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:20:40,948 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:20:42,276 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:20:43,603 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:20:45,078 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:21:01,654 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 46: TrainLoss=0.233567, EvalLoss=1.0954, Acc=0.6126, BinaryAcc=0.6126, AUC=0.6391
+2026-03-02 17:21:01,654 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 47
+2026-03-02 17:21:14,082 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:21:15,396 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:21:16,709 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:21:18,048 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:21:19,380 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:21:20,724 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:21:22,059 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:21:23,402 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:21:24,823 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:21:41,506 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 47: TrainLoss=0.250021, EvalLoss=1.0990, Acc=0.6095, BinaryAcc=0.6095, AUC=0.6391
+2026-03-02 17:21:41,507 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 48
+2026-03-02 17:21:55,142 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:21:56,479 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:21:57,804 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:21:59,132 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:22:00,448 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:22:01,811 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:22:03,123 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:22:04,468 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:22:05,932 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:22:22,926 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 48: TrainLoss=0.230282, EvalLoss=1.1023, Acc=0.6114, BinaryAcc=0.6114, AUC=0.6392
+2026-03-02 17:22:22,926 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 49
+2026-03-02 17:22:36,627 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:22:37,978 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:22:39,312 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:22:40,640 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:22:41,993 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:22:43,333 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:22:44,652 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:22:45,977 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:22:47,443 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:23:04,109 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 49: TrainLoss=0.228575, EvalLoss=1.1043, Acc=0.6104, BinaryAcc=0.6104, AUC=0.6393
+2026-03-02 17:23:04,110 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 50
+2026-03-02 17:23:17,828 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:23:19,148 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:23:20,474 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:23:21,796 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:23:23,114 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:23:24,465 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:23:25,787 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:23:27,123 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:23:28,605 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:23:45,126 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 50: TrainLoss=0.257383, EvalLoss=1.1156, Acc=0.6102, BinaryAcc=0.6102, AUC=0.6393
+2026-03-02 17:23:45,127 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 51
+2026-03-02 17:23:57,813 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:23:59,143 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:24:00,445 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:24:01,752 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:24:03,084 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:24:04,434 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:24:05,775 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:24:07,111 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:24:08,519 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:24:25,304 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 51: TrainLoss=0.229177, EvalLoss=1.1153, Acc=0.6104, BinaryAcc=0.6104, AUC=0.6393
+2026-03-02 17:24:25,304 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 52
+2026-03-02 17:24:37,991 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:24:39,364 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:24:40,678 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:24:42,004 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:24:43,347 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:24:44,702 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:24:46,052 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:24:47,339 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:24:48,823 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:25:05,430 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 52: TrainLoss=0.216265, EvalLoss=1.1260, Acc=0.6136, BinaryAcc=0.6136, AUC=0.6391
+2026-03-02 17:25:05,430 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 53
+2026-03-02 17:25:18,320 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:25:19,866 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:25:21,184 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:25:22,502 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:25:23,835 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:25:25,218 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:25:26,523 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:25:27,860 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:25:29,399 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:25:45,729 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 53: TrainLoss=0.21983, EvalLoss=1.1287, Acc=0.6146, BinaryAcc=0.6146, AUC=0.6388
+2026-03-02 17:25:45,730 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 54
+2026-03-02 17:25:57,966 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:25:59,300 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:26:00,631 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:26:01,936 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:26:03,279 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:26:04,629 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:26:05,945 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:26:07,290 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:26:08,815 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:26:25,505 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 54: TrainLoss=0.226283, EvalLoss=1.1349, Acc=0.6167, BinaryAcc=0.6167, AUC=0.6382
+2026-03-02 17:26:25,505 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 55
+2026-03-02 17:26:38,414 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:26:39,813 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:26:41,144 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:26:42,472 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:26:43,810 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:26:45,166 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:26:46,490 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:26:47,836 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:26:49,302 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:27:05,895 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 55: TrainLoss=0.217261, EvalLoss=1.1462, Acc=0.6167, BinaryAcc=0.6167, AUC=0.6378
+2026-03-02 17:27:05,895 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 56
+2026-03-02 17:27:19,765 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:27:21,109 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:27:22,418 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:27:23,769 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:27:25,100 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:27:26,473 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:27:27,762 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:27:29,099 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:27:30,713 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:27:47,343 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 56: TrainLoss=0.234019, EvalLoss=1.1541, Acc=0.6167, BinaryAcc=0.6167, AUC=0.6377
+2026-03-02 17:27:47,343 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 57
+2026-03-02 17:28:01,770 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:28:03,122 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:28:04,438 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:28:05,772 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:28:07,131 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:28:08,473 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:28:09,787 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:28:11,100 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:28:12,523 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:28:29,323 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 57: TrainLoss=0.215149, EvalLoss=1.1565, Acc=0.6158, BinaryAcc=0.6158, AUC=0.6377
+2026-03-02 17:28:29,324 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 58
+2026-03-02 17:28:43,078 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:28:44,412 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:28:45,743 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:28:47,062 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:28:48,376 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:28:49,711 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:28:51,042 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:28:52,382 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:28:53,828 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:29:10,634 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 58: TrainLoss=0.2178, EvalLoss=1.1587, Acc=0.6128, BinaryAcc=0.6128, AUC=0.6374
+2026-03-02 17:29:10,635 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 59
+2026-03-02 17:29:24,061 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:29:25,412 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:29:26,722 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:29:28,040 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:29:29,363 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:29:30,737 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:29:32,084 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:29:33,406 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:29:34,909 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:29:51,733 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 59: TrainLoss=0.220508, EvalLoss=1.1711, Acc=0.6138, BinaryAcc=0.6138, AUC=0.6378
+2026-03-02 17:29:51,734 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 60
+2026-03-02 17:30:06,568 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:30:07,894 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:30:09,219 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:30:10,519 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:30:11,857 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:30:13,205 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:30:14,535 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:30:15,865 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:30:17,409 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:30:34,038 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 60: TrainLoss=0.222319, EvalLoss=1.1837, Acc=0.6126, BinaryAcc=0.6126, AUC=0.6378
+2026-03-02 17:30:34,039 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 61
+2026-03-02 17:30:46,786 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:30:48,324 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:30:49,682 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:30:50,988 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:30:52,308 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:30:53,651 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:30:54,992 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:30:56,314 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:30:57,803 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:31:14,317 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 61: TrainLoss=0.218455, EvalLoss=1.1863, Acc=0.6175, BinaryAcc=0.6175, AUC=0.6376
+2026-03-02 17:31:14,318 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 62
+2026-03-02 17:31:27,777 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:31:29,139 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:31:30,465 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:31:31,776 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:31:33,112 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:31:34,493 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:31:35,817 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:31:37,148 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:31:38,607 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:31:55,407 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 62: TrainLoss=0.201344, EvalLoss=1.2005, Acc=0.6134, BinaryAcc=0.6134, AUC=0.6371
+2026-03-02 17:31:55,408 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 63
+2026-03-02 17:32:09,157 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:32:10,496 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:32:11,826 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:32:13,155 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:32:14,479 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:32:15,845 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:32:17,168 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:32:18,484 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:32:20,104 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:32:36,815 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 63: TrainLoss=0.21157, EvalLoss=1.2072, Acc=0.6173, BinaryAcc=0.6173, AUC=0.6374
+2026-03-02 17:32:36,816 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 64
+2026-03-02 17:32:51,428 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:32:52,772 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:32:54,099 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:32:55,425 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:32:56,757 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:32:58,122 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:32:59,437 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:33:00,761 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:33:02,337 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:33:19,211 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 64: TrainLoss=0.214489, EvalLoss=1.2168, Acc=0.6122, BinaryAcc=0.6122, AUC=0.6371
+2026-03-02 17:33:19,211 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 65
+2026-03-02 17:33:32,139 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:33:33,482 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:33:34,795 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:33:36,121 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:33:37,455 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:33:38,804 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:33:40,149 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:33:41,442 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:33:42,922 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:33:59,602 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 65: TrainLoss=0.210272, EvalLoss=1.2283, Acc=0.6182, BinaryAcc=0.6182, AUC=0.6374
+2026-03-02 17:33:59,602 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 66
+2026-03-02 17:34:12,857 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:34:14,207 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:34:15,535 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:34:16,895 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:34:18,240 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:34:19,598 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:34:20,893 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:34:22,217 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:34:23,702 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:34:40,411 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 66: TrainLoss=0.209522, EvalLoss=1.2393, Acc=0.6151, BinaryAcc=0.6151, AUC=0.6372
+2026-03-02 17:34:40,411 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 67
+2026-03-02 17:34:53,117 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:34:54,450 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:34:55,776 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:34:57,090 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:34:58,428 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:34:59,783 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:35:01,108 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:35:02,434 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:35:04,000 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:35:20,813 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 67: TrainLoss=0.213893, EvalLoss=1.2401, Acc=0.6224, BinaryAcc=0.6224, AUC=0.6376
+2026-03-02 17:35:20,814 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 68
+2026-03-02 17:35:33,996 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:35:35,349 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:35:36,666 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:35:37,981 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:35:39,305 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:35:40,665 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:35:42,007 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:35:43,340 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:35:44,921 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:36:01,730 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 68: TrainLoss=0.216137, EvalLoss=1.2493, Acc=0.6161, BinaryAcc=0.6161, AUC=0.6377
+2026-03-02 17:36:01,731 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 69
+2026-03-02 17:36:15,434 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:36:16,985 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:36:18,339 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:36:19,674 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:36:20,990 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:36:22,338 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:36:23,695 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:36:25,012 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:36:26,509 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:36:43,218 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 69: TrainLoss=0.211672, EvalLoss=1.2719, Acc=0.6173, BinaryAcc=0.6173, AUC=0.6383
+2026-03-02 17:36:43,218 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 70
+2026-03-02 17:36:57,288 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:36:58,620 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:36:59,947 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:37:01,278 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:37:02,630 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:37:03,971 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:37:05,302 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:37:06,622 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:37:08,124 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:37:25,019 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 70: TrainLoss=0.208402, EvalLoss=1.2687, Acc=0.6212, BinaryAcc=0.6212, AUC=0.6389
+2026-03-02 17:37:25,019 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 71
+2026-03-02 17:37:38,852 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:37:40,190 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:37:41,513 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:37:42,828 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:37:44,154 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:37:45,509 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:37:46,828 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:37:48,170 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:37:49,721 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:38:06,352 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 71: TrainLoss=0.193511, EvalLoss=1.2856, Acc=0.6188, BinaryAcc=0.6188, AUC=0.6391
+2026-03-02 17:38:06,352 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 72
+2026-03-02 17:38:19,489 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:38:20,830 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:38:22,160 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:38:23,464 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:38:24,799 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:38:26,159 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:38:27,477 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:38:28,811 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:38:30,309 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:38:47,222 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 72: TrainLoss=0.194276, EvalLoss=1.3017, Acc=0.6212, BinaryAcc=0.6212, AUC=0.6397
+2026-03-02 17:38:47,223 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 73
+2026-03-02 17:38:59,997 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:39:01,303 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:39:02,626 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:39:03,963 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:39:05,300 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:39:06,639 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:39:07,990 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:39:09,321 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:39:10,803 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:39:27,708 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 73: TrainLoss=0.206902, EvalLoss=1.3005, Acc=0.6163, BinaryAcc=0.6163, AUC=0.6399
+2026-03-02 17:39:27,709 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 74
+2026-03-02 17:39:40,956 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:39:42,282 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:39:43,616 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:39:44,930 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:39:46,267 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:39:47,611 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:39:48,954 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:39:50,295 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:39:51,791 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:40:08,570 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 74: TrainLoss=0.203021, EvalLoss=1.3128, Acc=0.6197, BinaryAcc=0.6197, AUC=0.6395
+2026-03-02 17:40:08,570 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 75
+2026-03-02 17:40:21,664 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:40:23,008 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:40:24,317 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:40:25,652 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:40:26,985 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:40:28,350 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:40:29,670 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:40:31,003 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:40:32,517 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:40:49,335 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 75: TrainLoss=0.20679, EvalLoss=1.3154, Acc=0.6175, BinaryAcc=0.6175, AUC=0.6403
+2026-03-02 17:40:49,335 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 76
+2026-03-02 17:41:03,426 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:41:04,772 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:41:06,118 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:41:07,429 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:41:08,779 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:41:10,137 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:41:11,461 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:41:12,784 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:41:14,300 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:41:31,106 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 76: TrainLoss=0.215624, EvalLoss=1.3322, Acc=0.6236, BinaryAcc=0.6236, AUC=0.6408
+2026-03-02 17:41:31,107 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 77
+2026-03-02 17:41:44,376 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:41:45,931 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:41:47,265 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:41:48,596 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:41:49,922 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:41:51,282 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:41:52,610 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:41:53,933 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:41:55,422 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:42:12,322 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 77: TrainLoss=0.196087, EvalLoss=1.3447, Acc=0.6217, BinaryAcc=0.6217, AUC=0.6407
+2026-03-02 17:42:12,323 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 78
+2026-03-02 17:42:25,316 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:42:26,652 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:42:27,970 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:42:29,311 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:42:30,621 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:42:31,998 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:42:33,328 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:42:34,661 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:42:36,221 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:42:52,830 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 78: TrainLoss=0.198775, EvalLoss=1.3452, Acc=0.6170, BinaryAcc=0.6170, AUC=0.6409
+2026-03-02 17:42:52,830 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 79
+2026-03-02 17:43:07,224 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:43:08,552 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:43:09,871 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:43:11,215 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:43:12,538 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:43:13,898 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:43:15,225 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:43:16,562 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:43:18,102 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:43:35,117 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 79: TrainLoss=0.204665, EvalLoss=1.3534, Acc=0.6200, BinaryAcc=0.6200, AUC=0.6412
+2026-03-02 17:43:35,118 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 80
+2026-03-02 17:43:48,228 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:43:49,565 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:43:50,914 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:43:52,261 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:43:53,590 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:43:54,957 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:43:56,283 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:43:57,622 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:43:59,114 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:44:15,920 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 80: TrainLoss=0.194156, EvalLoss=1.3776, Acc=0.6188, BinaryAcc=0.6188, AUC=0.6411
+2026-03-02 17:44:15,920 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 81
+2026-03-02 17:44:29,550 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:44:30,882 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:44:32,207 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:44:33,526 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:44:34,863 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:44:36,209 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:44:37,509 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:44:38,855 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:44:40,506 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:44:57,322 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 81: TrainLoss=0.202972, EvalLoss=1.3794, Acc=0.6239, BinaryAcc=0.6239, AUC=0.6413
+2026-03-02 17:44:57,322 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 82
+2026-03-02 17:45:10,470 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:45:11,806 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:45:13,122 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:45:14,451 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:45:15,762 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:45:17,125 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:45:18,475 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:45:19,813 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:45:21,325 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:45:38,113 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 82: TrainLoss=0.198377, EvalLoss=1.3835, Acc=0.6178, BinaryAcc=0.6178, AUC=0.6414
+2026-03-02 17:45:38,113 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 83
+2026-03-02 17:45:51,902 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:45:53,214 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:45:54,540 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:45:55,863 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:45:57,198 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:45:58,555 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:45:59,901 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:46:01,234 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:46:02,815 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:46:19,509 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 83: TrainLoss=0.186715, EvalLoss=1.4142, Acc=0.6229, BinaryAcc=0.6229, AUC=0.6421
+2026-03-02 17:46:19,509 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 84
+2026-03-02 17:46:33,640 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:46:34,978 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:46:36,300 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:46:37,629 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:46:38,962 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:46:40,320 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:46:41,669 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:46:42,989 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:46:44,534 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:47:00,913 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 84: TrainLoss=0.1958, EvalLoss=1.4186, Acc=0.6205, BinaryAcc=0.6205, AUC=0.6428
+2026-03-02 17:47:00,914 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 85
+2026-03-02 17:47:13,624 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:47:15,170 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:47:16,489 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:47:17,817 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:47:19,143 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:47:20,519 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:47:21,832 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:47:23,161 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:47:24,837 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:47:41,429 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 85: TrainLoss=0.194026, EvalLoss=1.4194, Acc=0.6254, BinaryAcc=0.6254, AUC=0.6433
+2026-03-02 17:47:41,430 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 86
+2026-03-02 17:47:54,234 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:47:55,549 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:47:56,868 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:47:58,199 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:47:59,543 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:48:00,898 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:48:02,220 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:48:03,564 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:48:05,097 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:48:22,012 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 86: TrainLoss=0.181753, EvalLoss=1.4397, Acc=0.6207, BinaryAcc=0.6207, AUC=0.6429
+2026-03-02 17:48:22,012 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 87
+2026-03-02 17:48:34,343 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:48:35,822 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:48:37,157 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:48:38,477 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:48:39,819 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:48:41,173 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:48:42,498 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:48:43,812 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:48:45,322 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:49:02,026 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 87: TrainLoss=0.190319, EvalLoss=1.4539, Acc=0.6215, BinaryAcc=0.6215, AUC=0.6437
+2026-03-02 17:49:02,026 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 88
+2026-03-02 17:49:15,479 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:49:16,841 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:49:18,163 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:49:19,493 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:49:20,825 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:49:22,173 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:49:23,502 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:49:24,823 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:49:26,328 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:49:42,913 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 88: TrainLoss=0.186274, EvalLoss=1.4560, Acc=0.6205, BinaryAcc=0.6205, AUC=0.6434
+2026-03-02 17:49:42,913 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 89
+2026-03-02 17:49:56,938 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:49:58,270 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:49:59,599 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:50:00,938 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:50:02,267 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:50:03,625 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:50:04,959 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:50:06,284 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:50:07,822 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:50:24,623 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 89: TrainLoss=0.18861, EvalLoss=1.4665, Acc=0.6224, BinaryAcc=0.6224, AUC=0.6441
+2026-03-02 17:50:24,624 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 90
+2026-03-02 17:50:38,499 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:50:39,854 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:50:41,194 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:50:42,515 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:50:43,846 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:50:45,183 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:50:46,518 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:50:47,849 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:50:49,319 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:51:06,312 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 90: TrainLoss=0.174515, EvalLoss=1.4972, Acc=0.6227, BinaryAcc=0.6227, AUC=0.6448
+2026-03-02 17:51:06,313 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 91
+2026-03-02 17:51:20,439 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:51:21,759 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:51:23,077 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:51:24,380 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:51:25,719 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:51:27,069 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:51:28,396 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:51:29,742 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:51:31,392 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:51:48,206 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 91: TrainLoss=0.180139, EvalLoss=1.4989, Acc=0.6232, BinaryAcc=0.6232, AUC=0.6443
+2026-03-02 17:51:48,207 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 92
+2026-03-02 17:52:02,848 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:52:04,165 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:52:05,503 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:52:06,822 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:52:08,159 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:52:09,510 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:52:10,824 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:52:12,159 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:52:13,638 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:52:30,402 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 92: TrainLoss=0.187396, EvalLoss=1.5150, Acc=0.6246, BinaryAcc=0.6246, AUC=0.6446
+2026-03-02 17:52:30,403 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 93
+2026-03-02 17:52:44,411 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:52:45,967 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:52:47,285 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:52:48,634 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:52:49,959 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:52:51,329 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:52:52,661 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:52:53,974 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:52:55,505 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:53:12,140 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 93: TrainLoss=0.179765, EvalLoss=1.5195, Acc=0.6227, BinaryAcc=0.6227, AUC=0.6444
+2026-03-02 17:53:12,141 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 94
+2026-03-02 17:53:25,052 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:53:26,413 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:53:27,746 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:53:29,066 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:53:30,386 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:53:31,737 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:53:33,056 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:53:34,376 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:53:35,905 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:53:52,710 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 94: TrainLoss=0.176872, EvalLoss=1.5427, Acc=0.6222, BinaryAcc=0.6222, AUC=0.6452
+2026-03-02 17:53:52,710 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 95
+2026-03-02 17:54:06,112 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:54:07,468 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:54:08,794 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:54:10,121 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:54:11,433 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:54:12,785 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:54:14,133 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:54:15,460 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:54:17,039 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:54:33,927 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 95: TrainLoss=0.176733, EvalLoss=1.5652, Acc=0.6232, BinaryAcc=0.6232, AUC=0.6454
+2026-03-02 17:54:33,927 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 96
+2026-03-02 17:54:46,851 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:54:48,172 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:54:49,502 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:54:50,830 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:54:52,158 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:54:53,514 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:54:54,848 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:54:56,192 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:54:57,703 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:55:14,505 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 96: TrainLoss=0.174977, EvalLoss=1.5657, Acc=0.6252, BinaryAcc=0.6252, AUC=0.6453
+2026-03-02 17:55:14,506 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 97
+2026-03-02 17:55:28,015 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:55:29,360 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:55:30,688 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:55:32,015 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:55:33,335 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:55:34,690 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:55:36,020 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:55:37,348 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:55:38,890 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:55:55,531 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 97: TrainLoss=0.173301, EvalLoss=1.6047, Acc=0.6246, BinaryAcc=0.6246, AUC=0.6458
+2026-03-02 17:55:55,531 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 98
+2026-03-02 17:56:08,839 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:56:10,171 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:56:11,462 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:56:12,797 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:56:14,125 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:56:15,483 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:56:16,831 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:56:18,156 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:56:19,692 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:56:36,413 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 98: TrainLoss=0.173306, EvalLoss=1.5950, Acc=0.6203, BinaryAcc=0.6203, AUC=0.6451
+2026-03-02 17:56:36,414 - hstu_base_trainer.py[line:320] - INFO: num_epochs: 100, current: 99
+2026-03-02 17:56:49,610 - hstu_base_trainer.py[line:326] - INFO: batch: 0
+2026-03-02 17:56:50,952 - hstu_base_trainer.py[line:326] - INFO: batch: 1
+2026-03-02 17:56:52,294 - hstu_base_trainer.py[line:326] - INFO: batch: 2
+2026-03-02 17:56:53,610 - hstu_base_trainer.py[line:326] - INFO: batch: 3
+2026-03-02 17:56:54,955 - hstu_base_trainer.py[line:326] - INFO: batch: 4
+2026-03-02 17:56:56,299 - hstu_base_trainer.py[line:326] - INFO: batch: 5
+2026-03-02 17:56:57,639 - hstu_base_trainer.py[line:326] - INFO: batch: 6
+2026-03-02 17:56:58,972 - hstu_base_trainer.py[line:326] - INFO: batch: 7
+2026-03-02 17:57:00,438 - hstu_base_trainer.py[line:364] - INFO: start testing!
+2026-03-02 17:57:17,212 - hstu_base_trainer.py[line:366] - INFO: [Eval] End of Epoch 99: TrainLoss=0.168835, EvalLoss=1.6183, Acc=0.6222, BinaryAcc=0.6222, AUC=0.6450
