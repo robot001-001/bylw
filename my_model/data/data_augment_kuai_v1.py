@@ -76,7 +76,7 @@ for chunk in tqdm(reader, desc="Processing Chunks"):
                 
             # 3. 滑动窗口扩增（边扩增边加入批次）
             base_dict = row.to_dict()
-            for length in range(MIN_SEQ_LEN, seq_len + 1):
+            for length in range(MIN_SEQ_LEN, seq_len):
                 new_row = base_dict.copy()
                 new_row['sequence_item_ids'] = ",".join(full_items[:length])
                 new_row['sequence_ratings'] = ",".join(full_ratings[:length])
