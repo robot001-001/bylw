@@ -13,9 +13,9 @@ python main.py \
     --max_seq_len 400 \
     --embedding_dim 64 \
     --positional_sampling_ratio 1.0 \
-    --train_batch_size 256 \
-    --accum_steps 2 \
-    --eval_batch_size 256 \
+    --train_batch_size 128 \
+    --accum_steps 4 \
+    --eval_batch_size 128 \
     --device 'cuda:0' \
     --learning_rate 3e-4 \
     --num_epochs 100 \
