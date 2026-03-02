@@ -75,7 +75,7 @@ def draw_exp(x, epoch, y_label):
         axs.set_ylabel(f'{y_label}')
         axs.set_title(f'{dataset_name}')
         plt.legend(title = 'label')
-        plt.savefig(f'{output_home}/exp_{dataset_name}_{y_label}.png')
+        plt.savefig(f'{output_home}/exp_{dataset_name}_{y_label}_discussion.png')
 
 
 draw_exp(loss, epoch, 'loss')
