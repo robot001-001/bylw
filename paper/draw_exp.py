@@ -21,7 +21,7 @@ def extract_data(dir, prefix):
     for fname in os.listdir(dir):
         if '_v1' not in fname:
             continue
-        exp = fname.replace('.log', '').replace(prefix, '')
+        exp = fname.replace('.log', '').replace(prefix, '').replace('_v1', '')
         exp_name = '_'.join(exp.split('_')[:-1])
         dataset_name = exp.split('_')[-1]
         _epoch = []
