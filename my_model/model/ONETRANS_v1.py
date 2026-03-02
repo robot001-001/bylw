@@ -100,8 +100,8 @@ class OneTransBlock(nn.Module):
         k = k.view(batch_size, -1, num_heads, head_dim).transpose(1, 2)
         v = v.view(batch_size, -1, num_heads, head_dim).transpose(1, 2)
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(head_dim)
-        logging.info(f'scores.shape: {scores.shape}')
-        logging.info(f'mask.shape: {mask.shape}')
+        # logging.info(f'scores.shape: {scores.shape}')
+        # logging.info(f'mask.shape: {mask.shape}')
         scores = scores + mask
         # logging.info(f'scores: {scores[3, :, :2]}')
         scores = torch.clamp(scores, min=-65504, max=65504)
@@ -198,7 +198,7 @@ class ONETRANS(nn.Module):
 
     def forward(self, x, in_seq_len):
         for i in range(self.num_layers):
-            print(f'running layer {i}')
+            # print(f'running layer {i}')
             x, in_seq_len = self.onetrans[i](x, in_seq_len)
             # logging.info(f'layer: {i}, x.shape: {x.shape}, in_seq_len: {in_seq_len.shape}, {in_seq_len}')
         output_embedding = x.reshape(x.size(0), -1)
