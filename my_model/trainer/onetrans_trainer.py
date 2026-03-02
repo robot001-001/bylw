@@ -232,6 +232,8 @@ class ONETRANSTrainer:
                 f'tmp/kuai/data/sasrec_format_binary_augment_onetrans.csv',
                 max_len=self.FLAGS.max_seq_len
             )
+            self.dataset.max_item_id = 4371899+1
+            self.dataset.max_user_id = 1000+1
             logging.info(f'dataset.max_item_id: {self.dataset.max_item_id}')
             self.train_data_sampler, self.train_data_loader = create_data_loader(
                 self.dataset,
@@ -247,6 +249,8 @@ class ONETRANSTrainer:
                 f'tmp/kuai/data/sasrec_format_binary_onetrans_testset.csv',
                 max_len=self.FLAGS.max_seq_len
             )
+            self.test_dataset.max_item_id = 4371899+1
+            self.test_dataset.max_user_id = 1000+1
             self.max_item_id = self.test_dataset.max_item_id
             self.max_user_id = self.test_dataset.max_user_id
             self.eval_data_sampler, self.eval_data_loader = create_data_loader(
