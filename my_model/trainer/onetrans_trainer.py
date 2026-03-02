@@ -283,7 +283,7 @@ class ONETRANSTrainer:
 
         with torch.no_grad():
             for row in iter(self.eval_data_loader):
-                input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row)
+                input_embedding, tgt_ratings, s_len, ns_len = self.embedding_module(row, self.model_args['max_seq_len'][0])
                 outputs = self.model(input_embedding, s_len)
                 targets = (tgt_ratings - 1).view(-1)
                 loss = self.criterion(outputs, targets)
