@@ -19,6 +19,8 @@ auc = {}
 
 def extract_data(dir, prefix):
     for fname in os.listdir(dir):
+        if '_v1' not in fname:
+            continue
         exp = fname.replace('.log', '').replace(prefix, '')
         exp_name = '_'.join(exp.split('_')[:-1])
         dataset_name = exp.split('_')[-1]
