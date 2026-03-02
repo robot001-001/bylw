@@ -49,6 +49,12 @@ def extract_data(dir, prefix):
         acc[dataset_name][exp_name] = _acc
         auc[dataset_name][exp_name] = _auc
         epoch[dataset_name][exp_name] = _epoch
+        print('*'*100)
+        print(f'exp_name: {exp_name}')
+        print(f'dataset_name: {dataset_name}')
+        print(f'loss: {min(_loss)}')
+        print(f'acc: {max(_acc)}')
+        print(f'auc: {max(_auc)}')
     return
 
 
