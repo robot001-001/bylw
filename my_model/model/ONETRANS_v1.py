@@ -100,6 +100,8 @@ class OneTransBlock(nn.Module):
         k = k.view(batch_size, -1, num_heads, head_dim).transpose(1, 2)
         v = v.view(batch_size, -1, num_heads, head_dim).transpose(1, 2)
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(head_dim)
+        logging.info(f'scores.shape: {scores.shape}')
+        logging.info(f'mask.shape: {mask.shape}')
         scores = scores + mask
         # logging.info(f'scores: {scores[3, :, :2]}')
         scores = torch.clamp(scores, min=-65504, max=65504)
