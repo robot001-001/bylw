@@ -68,6 +68,7 @@ class HSTUBaseTrainer:
         flags.DEFINE_float('l2_norm_eps', 1e-6, 'for SSoftmaxLoss')
         flags.DEFINE_float('weight_decay', 1e-3, 'weight decay')
         flags.DEFINE_integer('accum_steps', 1, 'accum_steps')
+        flags.DEFINE_integer('presort_warmup_steps', None, 'run kmeans every x step')
         flags.DEFINE_integer('presort_steps', None, 'run kmeans every x step')
         # test params
         flags.DEFINE_string('test_data_dir', None, 'test_data_dir')
@@ -576,6 +577,7 @@ class HSTUBaseTrainer:
         logging.info(f'model structure: {self.model}')
         self.accum_steps = self.FLAGS.accum_steps
         self.presort_steps = self.FLAGS.presort_steps
+        self.presort_warmup_steps = self.FLAGS.presort_warmup_steps
 
         try:
             num_batches = len(self.train_data_loader)
@@ -590,7 +592,7 @@ class HSTUBaseTrainer:
             logging.info(f'num_epochs: {self.FLAGS.num_epochs}, current: {epoch}')
             if self.train_data_sampler is not None:
                 self.train_data_sampler.set_epoch(epoch)
-            if (epoch > 0) and (epoch % self.presort_steps==0):
+            if (epoch >= self.presort_warmup_steps) and (epoch % self.presort_steps==0):
                 self.get_dataset_presort(block_size=16, emb_matrix=self.embedding_module)
             
             for batch_id, row in enumerate(iter(self.train_data_loader)):
