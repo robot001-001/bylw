@@ -141,25 +141,25 @@ clear
 
 
 # CUDA_LAUNCH_BLOCKING=1 \
-python main.py \
-    --logging_dir log/exp_log/baseline/ \
-    --logging_file baseline_rankmixer_ml_v1.log \
-    --trainer_type RANKMIXERTrainer \
-    --model RANKMIXER \
-    --mode train \
-    --dataset_name 'ml-1m' \
-    --use_binary_ratings True \
-    --num_ratings 2 \
-    --max_seq_len 200 \
-    --embedding_dim 64 \
-    --train_batch_size 512 \
-    --accum_steps 1 \
-    --eval_batch_size 512 \
-    --device 'cuda:0' \
-    --learning_rate 3e-4 \
-    --num_epochs 20 \
-    --eval_interval 20 \
-    --model_args '{"topk": 20, "max_seq_len": 200, "d_model": 64, "sim_main_tower_units": [512, 384], "num_blocks": 2, "num_heads": 8, "main_tower_units": [128, 2]}'
+# python main.py \
+#     --logging_dir log/exp_log/baseline/ \
+#     --logging_file baseline_rankmixer_ml_v1.log \
+#     --trainer_type RANKMIXERTrainer \
+#     --model RANKMIXER \
+#     --mode train \
+#     --dataset_name 'ml-1m' \
+#     --use_binary_ratings True \
+#     --num_ratings 2 \
+#     --max_seq_len 200 \
+#     --embedding_dim 64 \
+#     --train_batch_size 512 \
+#     --accum_steps 1 \
+#     --eval_batch_size 512 \
+#     --device 'cuda:0' \
+#     --learning_rate 3e-4 \
+#     --num_epochs 20 \
+#     --eval_interval 20 \
+#     --model_args '{"topk": 20, "max_seq_len": 200, "d_model": 64, "sim_main_tower_units": [512, 384], "num_blocks": 2, "num_heads": 8, "main_tower_units": [128, 2]}'
 
 
 
