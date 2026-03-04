@@ -118,7 +118,7 @@ def get_reco_dataset(
             ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else None,
             # ratings_file=dp.output_format_csv().replace('.csv', '_binary.csv') if use_binary_ratings else dp.output_format_csv(),
             padding_length=max_sequence_length + 1,  # target
-            ignore_last_n=1,
+            ignore_last_n=5,
             shift_id_by=1,  # [0..n-1] -> [1..n]
             chronological=chronological,
         )
