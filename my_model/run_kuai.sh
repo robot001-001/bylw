@@ -118,33 +118,11 @@ clear
 
 
 # CUDA_LAUNCH_BLOCKING=1 \
-python main.py \
-    --logging_dir log/exp_log/baseline/ \
-    --logging_file baseline_onetrans_kuai_v1.log \
-    --trainer_type ONETRANSTrainer \
-    --model ONETRANS \
-    --mode train \
-    --dataset_name 'kuai' \
-    --use_binary_ratings True \
-    --num_ratings 2 \
-    --max_seq_len 400 \
-    --embedding_dim 64 \
-    --train_batch_size 512 \
-    --accum_steps 1 \
-    --eval_batch_size 512 \
-    --device 'cuda:0' \
-    --learning_rate 3e-4 \
-    --num_epochs 20 \
-    --eval_interval 20 \
-    --model_args '{"num_layers": 8, "max_seq_len": [1024, 512, 256, 128, 64, 32, 16, 8], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
-
-
-# CUDA_LAUNCH_BLOCKING=1 \
 # python main.py \
 #     --logging_dir log/exp_log/baseline/ \
-#     --logging_file baseline_rankmixer_kuai_v1.log \
-#     --trainer_type RANKMIXERTrainer \
-#     --model RANKMIXER \
+#     --logging_file baseline_onetrans_kuai_v1.log \
+#     --trainer_type ONETRANSTrainer \
+#     --model ONETRANS \
 #     --mode train \
 #     --dataset_name 'kuai' \
 #     --use_binary_ratings True \
@@ -158,7 +136,29 @@ python main.py \
 #     --learning_rate 3e-4 \
 #     --num_epochs 20 \
 #     --eval_interval 20 \
-#     --model_args '{"topk": 20, "max_seq_len": 400, "d_model": 64, "sim_main_tower_units": [512, 384], "num_blocks": 2, "num_heads": 8, "main_tower_units": [128, 2]}'
+#     --model_args '{"num_layers": 8, "max_seq_len": [1024, 512, 256, 128, 64, 32, 16, 8], "ns_seq_len": 2, "d_model": 64, "num_heads": 2, "ffn_layer_hidden_dim": 128, "main_tower_units": [128, 2]}'
+
+
+# CUDA_LAUNCH_BLOCKING=1 \
+python main.py \
+    --logging_dir log/exp_log/baseline/ \
+    --logging_file baseline_rankmixer_kuai_v1.log \
+    --trainer_type RANKMIXERTrainer \
+    --model RANKMIXER \
+    --mode train \
+    --dataset_name 'kuai' \
+    --use_binary_ratings True \
+    --num_ratings 2 \
+    --max_seq_len 400 \
+    --embedding_dim 64 \
+    --train_batch_size 512 \
+    --accum_steps 1 \
+    --eval_batch_size 512 \
+    --device 'cuda:0' \
+    --learning_rate 3e-4 \
+    --num_epochs 20 \
+    --eval_interval 20 \
+    --model_args '{"topk": 20, "max_seq_len": 400, "d_model": 64, "sim_main_tower_units": [512, 384], "num_blocks": 2, "num_heads": 8, "main_tower_units": [128, 2]}'
 
 
 
