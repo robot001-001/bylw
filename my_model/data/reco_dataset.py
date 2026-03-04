@@ -123,7 +123,7 @@ def get_reco_dataset(
             chronological=chronological,
         )
         eval_dataset = DatasetV3(
-            ratings_file='tmp/kuai/data/sasrec_format_binary.csv' if use_binary_ratings else None,
+            ratings_file='tmp/kuai/data/sasrec_format_binary_testset.csv' if use_binary_ratings else None,
             padding_length=max_sequence_length + 1,  # target
             ignore_last_n=0,
             shift_id_by=1,  # [0..n-1] -> [1..n]
