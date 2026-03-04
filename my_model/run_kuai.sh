@@ -88,7 +88,7 @@ python main.py \
     --learning_rate 3e-4 \
     --num_epochs 100 \
     --eval_interval 20 \
-    --model_args '{"max_seq_len": 400, "embedding_dim": 64, "dropout_rate": 0.2, "num_ratings": 2, "linear_dim": 64, "attention_dim": 64, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 8, "num_heads": 2, "linear_dropout_rate": 0.2, "attn_dropout_rate": 0.0, "main_tower_units": [128, 2], "concat_ua": false, "enable_relative_attention_bias": true}'
+    --model_args '{"max_seq_len": 400, "embedding_dim": 64, "dropout_rate": 0.2, "num_ratings": 2, "linear_dim": 32, "attention_dim": 32, "normalization": "rel_bias", "linear_config": "uvqk", "linear_activation": "silu", "num_blocks": 8, "num_heads": 2, "linear_dropout_rate": 0.2, "attn_dropout_rate": 0.0, "main_tower_units": [128, 2], "concat_ua": false, "enable_relative_attention_bias": true}'
 
 
 
