@@ -22,13 +22,10 @@
     * 一个序列扩展成多个: python data/data_augment.py
     * 增加onetrans格式数据: python data/data_cleaning_for_onetrans.py
 
-# amazon_reviews
-1. ⭐数据处理
-    * binarify: python data/data_cleaning_amazon.py
-    * (Optional)仅筛选长序列数据: python data/data_selection_amazon.py
-        * 如果筛选，后面全部启用(_v1)脚本
-        * 同步修改`data/reco_dataset.py` 100/107行文件名
-        * 同步修改`trainer/onetrans_trainer.py` 196/212行文件名
-        * 同步修改`trainer/rankmixer_trainer.py` 200/216行文件名
-    * 一个序列扩展成多个: python data/data_augment_amazon(_v1).py
-    * 增加onetrans格式数据: python data/data_cleaning_for_onetrans(_v1).py
+# kuairand
+1. 数据下载略
+2. ⭐数据处理
+    * 数据处理成sasrec格式：python data/data_cleaning_kuai.py
+    * 将数据序列末端最后五个元素做成测试集：python data/data_augment_kuai_testset.py
+    * 数据增强：python data/data_augment_kuai_v1.py
+    * 天机onetrans格式数据：python data/data_cleaning_for_onetrans.py
