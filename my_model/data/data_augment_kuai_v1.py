@@ -10,6 +10,7 @@ MIN_SEQ_LEN = 5     # 只有长度 >= 5 的序列才会被保存
 CHUNK_SIZE = 1000   # 每次读取 1000 个用户进行处理，可根据内存大小调整
 MAX_SEQ_LEN = 400   # 新增：序列最大长度，只保留最后400个元素
 WRITE_BATCH_SIZE = 5000  # 每次写入的批次大小
+LEAVE_OUT_NUM = 5
 # =======================================
 
 # 如果输出文件已存在，先删除
@@ -76,7 +77,7 @@ for chunk in tqdm(reader, desc="Processing Chunks"):
                 
             # 3. 滑动窗口扩增（边扩增边加入批次）
             base_dict = row.to_dict()
-            for length in range(MIN_SEQ_LEN, seq_len):
+            for length in range(MIN_SEQ_LEN, seq_len-LEAVE_OUT_NUM+1):
                 new_row = base_dict.copy()
                 new_row['sequence_item_ids'] = ",".join(full_items[:length])
                 new_row['sequence_ratings'] = ",".join(full_ratings[:length])
