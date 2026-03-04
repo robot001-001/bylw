@@ -10,7 +10,7 @@ TASKS = [
         'output': 'tmp/kuai/data/sasrec_format_binary_augment_onetrans.csv'
     },
     {
-        'input': 'tmp/kuai/data/sasrec_format_binary.csv',
+        'input': 'tmp/kuai/data/sasrec_format_binary_testset.csv',
         'output': 'tmp/kuai/data/sasrec_format_binary_onetrans_testset.csv'
     }
 ]
