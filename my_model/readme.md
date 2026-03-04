@@ -28,4 +28,4 @@
     * 数据处理成sasrec格式：python data/data_cleaning_kuai.py
     * 将数据序列末端最后五个元素做成测试集：python data/data_augment_kuai_testset.py
     * 数据增强：python data/data_augment_kuai_v1.py
-    * 天机onetrans格式数据：python data/data_cleaning_for_onetrans.py
+    * 添加onetrans格式数据：python data/data_cleaning_for_onetrans.py
