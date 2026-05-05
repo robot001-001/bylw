@@ -160,9 +160,10 @@ def _hstu_attention_with_bsa(
         g_cmp=g_cmp,
         g_slc=g_slc,
         g_swa=g_swa,
-        block_counts=4,
-        # block_size=32,
-        block_size=64,
+        # block_counts=4,
+        block_counts=1,
+        block_size=32,
+        # block_size=64,
         window_size=0
     )
     attn_output = attn_output.reshape(B, n, num_heads * linear_dim)
