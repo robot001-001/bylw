@@ -161,7 +161,7 @@ def _hstu_attention_with_bsa(
         g_slc=g_slc,
         g_swa=g_swa,
         # block_counts=4,
-        block_counts=2,
+        block_counts=8,
         block_size=32,
         # block_size=64,
         window_size=0
